@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Latteria</string>
+
+    <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
+    <string name="facebook_application_id" translatable="false">fb2311510358923141</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fbYOUR_APP_ID</string>
+    <string name="app_label">Latteria</string>
+
+    <string name="title_activity_main2">MaterialSearchBar C.S.A</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_approvazione_spesa">ApprovazioneSpesaActivity</string>
+
+</resources>

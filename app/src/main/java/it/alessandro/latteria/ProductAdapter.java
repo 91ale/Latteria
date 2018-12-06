@@ -1,0 +1,165 @@
+package it.alessandro.latteria;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
+
+    private Context mCtx;
+    private List<Prodotto> productList;
+
+    public ProductAdapter(Context mCtx, List<Prodotto> productList) {
+        this.mCtx = mCtx;
+        this.productList = productList;
+    }
+
+    public class ProductViewHolder extends RecyclerView.ViewHolder {
+        public ImageView immagine;
+        public TextView nome, prezzo, marca;
+        public Spinner quantità;
+        public ConstraintLayout viewBackground;
+        public ConstraintLayout viewForeground;
+
+        public ProductViewHolder(View view) {
+            super(view);
+
+            immagine = view.findViewById(R.id.imgProdotto);
+            nome = view.findViewById(R.id.txtNome);
+            prezzo = view.findViewById(R.id.txtPrezzo);
+            marca = view.findViewById(R.id.txtMarca);
+            quantità = view.findViewById(R.id.spnQuantità);
+
+            viewBackground = itemView.findViewById(R.id.view_background);
+            viewForeground = itemView.findViewById(R.id.view_foreground);
+
+        }
+    }
+
+    //impostazione layout della recycleview
+    @Override
+    public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mCtx);
+        View view = inflater.inflate(R.layout.product_list_row, null);
+        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        view.setLayoutParams(lp);
+        return new ProductViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ProductViewHolder holder, final int position) {
+
+        Prodotto prodotto = productList.get(position);
+
+        DecimalFormat prezzovdec = new DecimalFormat("€ 0.00");
+        holder.prezzo.setText(prezzovdec.format(prodotto.getPrezzovenditaAttuale()));
+
+        new DownloadImageTask(holder.immagine).execute(prodotto.getImmagine());
+        holder.nome.setText(prodotto.getNome());
+        //holder.prezzo.setText(Double.toString(prodotto.getPrezzovenditaAttuale()));
+        holder.prezzo.setText(prezzovdec.format(prodotto.getPrezzovenditaAttuale()));
+        holder.marca.setText(prodotto.getMarca());
+        String [] arrayquantità = arrayQuantità(prodotto.getQuantitanegozio());
+
+        // crea un ArrayAdapter usando l'array delle quantità e il layout passato
+        ArrayAdapter<String> spinnerAdapter =
+                new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
+        // specifica il layout della lista scelte
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // applica l'adapter allo spinner
+        holder.quantità.setAdapter(spinnerAdapter);
+        holder.quantità.setSelection(productList.get(position).getQuantitàOrdinata()-1);
+
+        holder.quantità.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int positionInSpinner, long id) {
+                String quantita = parent.getItemAtPosition(positionInSpinner).toString();
+                productList.get(position).setQuantitàOrdinata(Integer.parseInt(quantita));
+                Intent intent = new Intent("quantita_modificata");
+                LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intent);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+    }
+
+    //restituisce la lunghezza della lista prodotti
+    @Override
+    public int getItemCount() {
+        return productList.size();
+    }
+
+    //rimuove l'oggetto nella posizione passate
+    public void removeItem(int position) {
+        productList.remove(position);
+        // notify the item removed by position
+        // to perform recycler view delete animations
+        // NOTE: don't call notifyDataSetChanged()
+        notifyItemRemoved(position);
+    }
+
+    //ripristina l'oggetto nella posizione passata
+    public void restoreItem(Prodotto item, int position) {
+        productList.add(position, item);
+        // notify item added by position
+        notifyItemInserted(position);
+    }
+
+    //rimuove tutti gli oggetti dalla lista
+    public void removeAllItem() {
+        productList.clear();
+    }
+
+    //restituisce la somma dei prezzi dei prodotti in lista
+    public double sumAllItem() {
+        int i;
+        double sum = 0;
+        for(i = 0; i < productList.size(); i++)
+            sum += productList.get(i).getPrezzovenditaAttuale()*productList.get(i).getQuantitàOrdinata();
+        return sum;
+    }
+
+    private String[] arrayQuantità (int quantità) {
+        String[] arrayquantità = new String[quantità];
+        for ( int i = 0; i < quantità; i++) {
+            arrayquantità[i] = String.valueOf(i+1);
+        }
+        return arrayquantità;
+    }
+
+    public List<Prodotto> getListItems() {
+        return productList;
+    }
+
+    public void setListItems(List<Prodotto> productList) { this.productList = productList; }
+
+}

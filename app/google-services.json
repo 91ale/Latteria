@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "291081297264",
+    "firebase_url": "https://latteria-f6c82.firebaseio.com",
+    "project_id": "latteria-f6c82",
+    "storage_bucket": "latteria-f6c82.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291081297264:android:772d7e79be1dc095",
+        "android_client_info": {
+          "package_name": "it.alessandro.latteria"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291081297264-vpapofjfff6h3ej370bgf18hmvufps0g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.alessandro.latteria",
+            "certificate_hash": "2fd37ee06e1243103133af33a1b1adea39aa0ecf"
+          }
+        },
+        {
+          "client_id": "291081297264-fdfrucp2to7cv505j67ccvqukttggnsk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa0TE0o5JsSCv5Gq0SL0RQlKTr9tmIf68"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291081297264-fdfrucp2to7cv505j67ccvqukttggnsk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
