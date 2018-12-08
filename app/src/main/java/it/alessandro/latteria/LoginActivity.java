@@ -1,6 +1,7 @@
 package it.alessandro.latteria;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -76,6 +77,12 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("NOME", loggeduser.getDisplayName());
                 Log.d("EMAIL", loggeduser.getEmail());
                 Log.d("UID", loggeduser.getUid());
+
+                SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor prefsEditor = myPrefs.edit();
+                prefsEditor.putString("logged_user", loggeduser.getUid());
+                prefsEditor.commit();
+
                 //verifico se l'utente che si è loggato è gia presente nel dblatteria, nel caso non lo dovesse essere lo faccio registrare
                 getUtente(SELECT_FROM_UID + loggeduser.getUid());
             } else {

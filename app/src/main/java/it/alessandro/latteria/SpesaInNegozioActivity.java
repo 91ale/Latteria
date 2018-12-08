@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -59,7 +60,9 @@ import java.util.List;
 public class SpesaInNegozioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialSearchBar.OnSearchActionListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
-    private static final String SELECT_PRODUCT_FROM_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String INSERT_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_order.php?";
+    private static final String INSERT_PRODOTTI_VENDUTI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_ordered_products.php?";
 
     String loggeduser = "";
 
@@ -80,7 +83,8 @@ public class SpesaInNegozioActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spesa_in_negozio);
 
-        loggeduser = getIntent().getStringExtra("LOGGED_UID");
+        SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+        loggeduser = myPrefs.getString("logged_user", "0");
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -134,7 +138,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
         procediCassa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addOrder();
+                aggiungiOrdine();
                 Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
                 startActivity(intentapproviazionespesa);
             }
@@ -144,7 +148,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -152,25 +156,22 @@ public class SpesaInNegozioActivity extends AppCompatActivity
         }
     }
 
-
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        //Rileva quale voce del menu è stata selezionata ed avvia l'activity corrispondente
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        /*} else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_profilo) {
+            Intent intentprofilo = new Intent(getApplicationContext(), MioProfiloActivity.class);
+            startActivity(intentprofilo);
+        } else if (id == R.id.nav_ordini) {
+            Intent intentordini = new Intent(getApplicationContext(), OrdiniActivity.class);
+            startActivity(intentordini);
+        } else if (id == R.id.nav_aiuto) {
+            Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
+            startActivity(intentaiuto);
+        } else if (id == R.id.nav_logout) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-*/
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -234,7 +235,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
                 String scannedbc = data.getStringExtra("SCANNED_BC");
                 Log.d("SCANNED_BC",scannedbc);
                 int exist = checkExistInList(scannedbc);
-                if (exist == 0) getProduct(SELECT_PRODUCT_FROM_BARCODE, scannedbc);
+                if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
             }
         }
     }
@@ -327,57 +328,25 @@ public class SpesaInNegozioActivity extends AppCompatActivity
         return f;
     }
 
-    private void addOrder () {
+    private void aggiungiOrdine () {
 
-        mAdapter.getListItems();
-        //aggiungo l'ordine al DB con stato in corso (attendo che il cliente paghi l'ordine con PayPal o
-        //che il commesso confermi lo stato di pagato)
+        String queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
+                "Stato=" + "In attesa di pagamento" + "&" +
+                "Tipo=" + "In Negozio" + "&" +
+                "Importo=" + mAdapter.sumAllItem() + "&" +
+                "IDUtente=" + loggeduser;
 
-    }
-
-        /*private void getProduct(final String urlWebService, final String scannedbc) {
-
-        //VolleyLog.DEBUG = true;
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService+scannedbc,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {
-
                     @Override
                     public void onResponse(String response) {
 
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
+                        SharedPreferences myPrefs = getApplication().getSharedPreferences("myPrefs", MODE_PRIVATE);
+                        SharedPreferences.Editor prefsEditor = myPrefs.edit();
+                        prefsEditor.putString("id_ordine", response);
+                        prefsEditor.commit();
 
-                            for (int i = 0; i < jsonArray.length(); i++) {
-
-                                //getting user object from json array
-                                try {
-                                    JSONObject prodottoJ = jsonArray.getJSONObject(i);
-
-                                    productList.add(new Prodotto(
-                                            prodottoJ.getInt("IDProdotto"),
-                                            scannedbc,
-                                            prodottoJ.getString("Nome"),
-                                            prodottoJ.getString("Marca"),
-                                            prodottoJ.getString("Categoria"),
-                                            prodottoJ.getInt("QuantitaMagazzino"),
-                                            prodottoJ.getInt("QuantitaNegozio"),
-                                            prodottoJ.getString("Descrizione"),
-                                            prodottoJ.getInt("PrezzoVenditaAttuale"),
-                                            prodottoJ.getString("ImmagineProdotto")
-                                    ));
-                                    mAdapter = new ProductAdapter(SpesaInNegozioActivity.this, productList);
-                                    recyclerView.setAdapter(mAdapter);
-
-                                    Log.d("Nome prodotto", productList.get(productList.size() - 1).getNome());
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        aggiungiProdottiOrdinati(response);
 
                     }
                 },
@@ -388,8 +357,37 @@ public class SpesaInNegozioActivity extends AppCompatActivity
                     }
                 });
 
-        requestQueue.add(stringRequest);
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
 
-    }*/
+    }
+
+    private void aggiungiProdottiOrdinati (String IDOrdine) {
+
+        for (int i=0; i<productList.size(); i++) {
+            String queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + "&" +
+                    "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                    "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
+                    "Ordini_IDOrdine=" + IDOrdine + "&" +
+                    "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
+
+            StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    });
+
+            //adding our stringrequest to queue
+            Volley.newRequestQueue(this).add(stringRequestAdd);
+        }
+    }
 
 }

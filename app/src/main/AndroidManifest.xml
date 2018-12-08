@@ -33,7 +33,10 @@
         <activity android:name=".SignUpActivity" />
         <activity android:name=".SpesaOnlineActivity" />
         <activity android:name=".ScanBarcodeActivity" />
-        <activity android:name=".ApprovazioneSpesaActivity"></activity>
+        <activity android:name=".ApprovazioneSpesaActivity" />
+        <activity android:name=".OrdiniActivity" />
+        <activity android:name=".MioProfiloActivity" />
+        <activity android:name=".AiutoActivity"></activity>
     </application>
 
 </manifest>

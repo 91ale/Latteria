@@ -2,9 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_camera"
-        android:icon="@drawable/ic_launcher_background"
-        android:title="Test" />
+        android:id="@+id/nav_profilo"
+        android:title="Il mio profilo" />
+    <item
+        android:id="@+id/nav_ordini"
+        android:title="I miei ordini" />
+    <item
+        android:id="@+id/nav_aiuto"
+        android:title="Aiuto" />
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Logout" />
 
 
 </menu>
