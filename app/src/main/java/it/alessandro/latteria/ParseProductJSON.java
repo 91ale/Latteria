@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ParseJSON {
+public class ParseProductJSON {
 
     List<Prodotto> productList;
 
     private String json;
 
-    public ParseJSON(String json) {
+    public ParseProductJSON(String json) {
 
         this.json = json;
     }
@@ -45,8 +45,10 @@ public class ParseJSON {
                         prodottoJ.getInt("QuantitaMagazzino"),
                         prodottoJ.getInt("QuantitaNegozio"),
                         prodottoJ.getString("Descrizione"),
-                        prodottoJ.getInt("PrezzoVenditaAttuale"),
-                        prodottoJ.getString("ImmagineProdotto")
+                        prodottoJ.getDouble("PrezzoVenditaAttuale"),
+                        prodottoJ.getInt("IDProdottoVenduto"),
+                        prodottoJ.getInt("Quantita"),
+                        prodottoJ.getString("Percorso")
                 ));
             }
 

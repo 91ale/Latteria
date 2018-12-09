@@ -2,6 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/nav_spesa"
+        android:title="Inizia spesa" />
+    <item
         android:id="@+id/nav_profilo"
         android:title="Il mio profilo" />
     <item

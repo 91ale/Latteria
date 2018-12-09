@@ -1,12 +1,12 @@
 package it.alessandro.latteria;
 
 public class Prodotto {
-    private int idprodotto, quantitamagazzino, quantitanegozio, quantitaordinata = 1;
+    private int idprodotto, quantitamagazzino, quantitanegozio, quantitaordinata = 0, idprodottovenduto = 0;
     private String barcode, nome, marca, categoria, descrizione;
     private double prezzovenditaattuale;
     private String immagine;
 
-    public Prodotto(int idprodotto, String barcode, String nome, String marca, String categoria, int quantitamagazzino, int quantitanegozio, String descrizione, double prezzovenditaattuale, String immagine) {
+    public Prodotto(int idprodotto, String barcode, String nome, String marca, String categoria, int quantitamagazzino, int quantitanegozio, String descrizione, double prezzovenditaattuale, int idprodottovenduto, int quantitaordinata, String immagine) {
         this.idprodotto = idprodotto;
         this.nome = nome;
         this.barcode = barcode;
@@ -16,6 +16,8 @@ public class Prodotto {
         this.quantitanegozio = quantitanegozio;
         this.descrizione = descrizione;
         this.prezzovenditaattuale = prezzovenditaattuale;
+        this.idprodottovenduto = idprodottovenduto;
+        this.quantitaordinata = quantitaordinata;
         this.immagine = immagine;
     }
 
@@ -90,5 +92,9 @@ public class Prodotto {
     public int getQuantitàOrdinata() {return quantitaordinata; }
 
     public void setQuantitàOrdinata(int quantitaordinata) { this.quantitaordinata = quantitaordinata; }
+
+    public int getIdprodottovenduto() {return idprodottovenduto; }
+
+    public void setIdprodottovenduto(int idprodottovenduto) { this.idprodottovenduto = idprodottovenduto; }
 
 }
