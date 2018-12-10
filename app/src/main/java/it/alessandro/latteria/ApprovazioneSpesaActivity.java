@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
@@ -18,27 +19,43 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class ApprovazioneSpesaActivity extends AppCompatActivity {
 
+    private static final int IN_NEGOZIO = 1;
+    private static final int ONLINE = 2;
+
+    int tipospesa = 0;
+    String idordine;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_approvazione_spesa);
 
-        SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
-        String IDOrdine = myPrefs.getString("id_ordine", "0");
+        //valorizza la variabile in base alla selezione effettuata dall'utente nell'activity TipoSpesaActivity (IN_NEGOZIO | ONLINE)
+        tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 
-        Log.d("IDOrdine", IDOrdine);
+        idordine = getIntent().getStringExtra("ID_ORDINE");
 
-        ImageView imgQR = findViewById(R.id.imgQR);
+        Log.d("IDOrdine", idordine);
+
+        TextView txtVaiCassa = findViewById(R.id.txtVaiCassa);
         Button btnPagaPayPal = findViewById(R.id.btnPagaPayPal);
 
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(IDOrdine, BarcodeFormat.QR_CODE,200,200);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            imgQR.setImageBitmap(bitmap);
-        } catch (WriterException e) {
-            e.printStackTrace();
+        if (tipospesa == IN_NEGOZIO) {
+            ImageView imgQR = findViewById(R.id.imgQR);
+
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            try {
+                BitMatrix bitMatrix = multiFormatWriter.encode(idordine, BarcodeFormat.QR_CODE,200,200);
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                imgQR.setImageBitmap(bitmap);
+            } catch (WriterException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            txtVaiCassa.setText("Complimenti! Hai completato l'ordine");
         }
 
         btnPagaPayPal.setOnClickListener(new View.OnClickListener() {

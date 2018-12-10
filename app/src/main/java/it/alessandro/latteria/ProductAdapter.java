@@ -1,5 +1,6 @@
 package it.alessandro.latteria;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,10 +33,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     private Context mCtx;
     private List<Prodotto> productList;
+    private int tipospesa;
 
-    public ProductAdapter(Context mCtx, List<Prodotto> productList) {
+    private static final int IN_NEGOZIO = 1;
+    private static final int ONLINE = 2;
+    private static final int QUANTITA_SELEZIONATA = 102;
+
+    //dichiaro l'interfaccia
+    private OrderAdapter.OnItemClicked onClick;
+
+    public interface OnItemClicked {
+        void onItemClick(int position);
+    }
+
+    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa) {
         this.mCtx = mCtx;
         this.productList = productList;
+        this.tipospesa = tipospesa;
     }
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -73,6 +87,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(ProductViewHolder holder, final int position) {
 
+        String[] arrayquantità;
+
         Prodotto prodotto = productList.get(position);
 
         DecimalFormat prezzovdec = new DecimalFormat("€ 0.00");
@@ -80,11 +96,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         new DownloadImageTask(holder.immagine).execute(prodotto.getImmagine());
         holder.nome.setText(prodotto.getNome());
-        //holder.prezzo.setText(Double.toString(prodotto.getPrezzovenditaAttuale()));
         holder.prezzo.setText(prezzovdec.format(prodotto.getPrezzovenditaAttuale()));
         holder.marca.setText(prodotto.getMarca());
-        String [] arrayquantità = arrayQuantità(prodotto.getQuantitanegozio());
-
+        if (tipospesa == IN_NEGOZIO) {
+            arrayquantità = arrayQuantità(prodotto.getQuantitanegozio());
+        } else {
+            arrayquantità = arrayQuantità(prodotto.getQuantitamagazzino());
+        }
         // crea un ArrayAdapter usando l'array delle quantità e il layout passato
         ArrayAdapter<String> spinnerAdapter =
                 new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
@@ -107,6 +125,32 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             @Override
             public void onNothingSelected(AdapterView<?> parent)
             {
+
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int quantitadisponibile = 0;
+
+                if (tipospesa == IN_NEGOZIO) {
+                    quantitadisponibile = productList.get(position).getQuantitanegozio();
+                } else {
+                    quantitadisponibile = productList.get(position).getQuantitamagazzino();
+                }
+
+                Intent intentinformazioniprodotto = new Intent(mCtx, InformazioniProdottoActivity.class);
+                intentinformazioniprodotto.putExtra("NOME", productList.get(position).getNome());
+                intentinformazioniprodotto.putExtra("MARCA", productList.get(position).getMarca());
+                intentinformazioniprodotto.putExtra("PREZZO", productList.get(position).getPrezzovenditaAttuale());
+                intentinformazioniprodotto.putExtra("IMMAGINE", productList.get(position).getImmagine());
+                intentinformazioniprodotto.putExtra("QUANTITA_SELEZIONATA", productList.get(position).getQuantitàOrdinata());
+                intentinformazioniprodotto.putExtra("QUANTITA_DISPONIBILE", quantitadisponibile);
+                intentinformazioniprodotto.putExtra("DESCRIZIONE", productList.get(position).getDescrizione());
+
+                ((Activity) mCtx).startActivityForResult(intentinformazioniprodotto,QUANTITA_SELEZIONATA);
 
             }
         });

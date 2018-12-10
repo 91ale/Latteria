@@ -44,7 +44,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpesaInNegozioActivity extends AppCompatActivity
+public class SpesaActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialSearchBar.OnSearchActionListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
     private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
@@ -59,6 +59,11 @@ public class SpesaInNegozioActivity extends AppCompatActivity
 
     private static final int RC_SCANNED_BC = 100;
 
+    private static final int IN_NEGOZIO = 1;
+    private static final int ONLINE = 2;
+
+    private static final int COMPLETATO = 1;
+
     private List<Prodotto> productList = new ArrayList<>();
     ProductAdapter mAdapter;
     private RecyclerView recyclerView;
@@ -66,17 +71,24 @@ public class SpesaInNegozioActivity extends AppCompatActivity
 
     DecimalFormat pdec = new DecimalFormat("€ 0.00");
 
+    int tipospesa = 0;
+    int statoordine = 0;
+    int idordine = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spesa_in_negozio);
+        setContentView(R.layout.activity_spesa);
 
+        //valorizza la variabile in base alla selezione effettuata dall'utente nell'activity TipoSpesaActivity (IN_NEGOZIO | ONLINE)
+        tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
+        //valorizza la variabile in base allo stato dell'ordine (COMPLETATO | IN_CORSO)
+        statoordine = getIntent().getIntExtra("STATO_ORDINE", -1);
+        //valorizza la variabile con l'ID Ordine passato
+        idordine = getIntent().getIntExtra("ID_ORDINE", -1);
+        //ricava l'ID dell'utente loggato (loggeduser) ed un eventuale ordine da caricare (idordine) dalle SharedPreferences
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         loggeduser = myPrefs.getString("logged_user", "0");
-        final int idordine = myPrefs.getInt("current_orderid", -1);
-        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-        prefsEditor.remove("current_orderid");
-        prefsEditor.commit();
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -85,6 +97,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
 
         //Barra di ricerca importata da https://github.com/mancj/MaterialSearchBar
         searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
+        if (statoordine == COMPLETATO) searchBar.setVisibility(View.INVISIBLE);
         searchBar.setOnSearchActionListener(this);
         //abilita l'icona per la scansione del codice a barre
         searchBar.setSpeechMode(true);
@@ -114,7 +127,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
         txtPrezzoTotale = findViewById(R.id.txtPrezzoTotale);
         txtPrezzoTotale.setText(pdec.format(0.00));
 
-        mAdapter = new ProductAdapter(SpesaInNegozioActivity.this, productList);
+        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -129,16 +142,23 @@ public class SpesaInNegozioActivity extends AppCompatActivity
                 new IntentFilter("quantita_modificata"));
 
         Button procediCassa = findViewById(R.id.btnProcediCassa);
+        if (statoordine == COMPLETATO){
+            procediCassa.setVisibility(View.INVISIBLE);
+        } else if (tipospesa == ONLINE) procediCassa.setText("COMPLETA L'ORDINE");
         procediCassa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 aggiungiOrdine("In attesa di pagamento", idordine);
                 Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
+                intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(idordine));
+                if (tipospesa == IN_NEGOZIO) intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                if (tipospesa == ONLINE) intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
                 startActivity(intentapproviazionespesa);
             }
         });
 
         Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
+        if (statoordine == COMPLETATO) salvaOrdine.setVisibility(View.INVISIBLE);
         salvaOrdine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +210,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
     public void onSearchStateChanged(boolean enabled) {
         FrameLayout searchBackground = findViewById(R.id.search_transparent_background);
         String s = enabled ? "enabled" : "disabled";
-        Toast.makeText(SpesaInNegozioActivity.this, "Search " + s, Toast.LENGTH_SHORT).show();
+        Toast.makeText(SpesaActivity.this, "Search " + s, Toast.LENGTH_SHORT).show();
         if (enabled == true) {
             searchBackground.setVisibility(View.VISIBLE);
         }
@@ -259,7 +279,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(SpesaInNegozioActivity.this, productList);
+                        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa);
                         double totalespesa = mAdapter.sumAllItem();
                         txtPrezzoTotale.setText(pdec.format(totalespesa));
                         recyclerView.setAdapter(mAdapter);
@@ -341,32 +361,43 @@ public class SpesaInNegozioActivity extends AppCompatActivity
 
         String queryurl = "";
 
+        //se l'ordine è già esistente modifico il record dell'ordine, altrimenti ne creo uno nuovo
         if (idordine == -1) {
-            queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
-                                        "Stato=" + stato + "&" +
-                                        "Tipo=" + "In negozio" + "&" +
-                                        "Importo=" + mAdapter.sumAllItem() + "&" +
-                                        "IDUtente=" + loggeduser;
+            //modifico la insert in base al tipo di ordine effettuato ( IN_NEGOZIO | ONLINE )
+            if (tipospesa == IN_NEGOZIO) {
+                queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
+                                            "Stato=" + stato + "&" +
+                                            "Tipo=" + "In negozio" + "&" +
+                                            "Importo=" + mAdapter.sumAllItem() + "&" +
+                                            "IDUtente=" + loggeduser;
+            } else {
+                queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
+                                            "Stato=" + stato + "&" +
+                                            "Tipo=" + "Online" + "&" +
+                                            "Importo=" + mAdapter.sumAllItem() + "&" +
+                                            "IDUtente=" + loggeduser;
+            }
         } else {
-            queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
-                                        "Stato=" + stato + "&" +
-                                        "Tipo=" + "In negozio" + "&" +
-                                        "Importo=" + mAdapter.sumAllItem() + "&" +
-                                        "IDUtente=" + loggeduser;
+            if (tipospesa == IN_NEGOZIO) {
+                queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
+                                            "Stato=" + stato + "&" +
+                                            "Tipo=" + "In negozio" + "&" +
+                                            "Importo=" + mAdapter.sumAllItem() + "&" +
+                                            "IDUtente=" + loggeduser;
+            } else {
+                queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
+                                            "Stato=" + stato + "&" +
+                                            "Tipo=" + "Online" + "&" +
+                                            "Importo=" + mAdapter.sumAllItem() + "&" +
+                                            "IDUtente=" + loggeduser;
+            }
         }
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
-                        SharedPreferences myPrefs = getApplication().getSharedPreferences("myPrefs", MODE_PRIVATE);
-                        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-                        prefsEditor.putString("id_ordine", response);
-                        prefsEditor.commit();
-
                         aggiungiProdottiOrdinati(response);
-
                     }
                 },
                 new Response.ErrorListener() {
@@ -430,7 +461,7 @@ public class SpesaInNegozioActivity extends AppCompatActivity
                 pj.getProductFromDB();
                 productList.addAll(pj.getProduct());
                 //crea l'adapter e lo assegna alla recycleview
-                mAdapter = new ProductAdapter(SpesaInNegozioActivity.this, productList);
+                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa);
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);

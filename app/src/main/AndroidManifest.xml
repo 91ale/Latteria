@@ -16,7 +16,7 @@
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="barcode" />
 
-        <activity android:name=".SpesaInNegozioActivity">
+        <activity android:name=".SpesaActivity">
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".SearchableActivity" />
@@ -31,12 +31,12 @@
         </activity>
         <activity android:name=".CommessoActivity" />
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".SpesaOnlineActivity" />
         <activity android:name=".ScanBarcodeActivity" />
         <activity android:name=".ApprovazioneSpesaActivity" />
         <activity android:name=".OrdiniActivity" />
         <activity android:name=".MioProfiloActivity" />
-        <activity android:name=".AiutoActivity"></activity>
+        <activity android:name=".AiutoActivity" />
+        <activity android:name=".InformazioniProdottoActivity"></activity>
     </application>
 
 </manifest>

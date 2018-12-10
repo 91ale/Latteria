@@ -8,6 +8,9 @@ import android.widget.Button;
 
 public class TipoSpesaActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final int IN_NEGOZIO = 1;
+    private static final int ONLINE = 2;
+
     Button btnInNegozio;
     Button btnADomicilio;
 
@@ -30,13 +33,15 @@ public class TipoSpesaActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
 
             case R.id.btnInNegozio:
-                Intent intentspesainnegozio = new Intent(this, SpesaInNegozioActivity.class);
+                Intent intentspesainnegozio = new Intent(this, SpesaActivity.class);
+                intentspesainnegozio.putExtra("TIPO_SPESA", IN_NEGOZIO);
                 startActivity(intentspesainnegozio);
                 break;
 
             case R.id.btnADomicilio:
-                Intent intentspesaonline = new Intent(this, SpesaOnlineActivity.class);
-                startActivity(intentspesaonline);
+                intentspesainnegozio = new Intent(this, SpesaActivity.class);
+                intentspesainnegozio.putExtra("TIPO_SPESA", ONLINE);
+                startActivity(intentspesainnegozio);
                 break;
         }
     }

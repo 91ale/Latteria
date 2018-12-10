@@ -4,15 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -22,8 +17,14 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
+    private static final int COMPLETATO = 1;
+
+    private static final int IN_NEGOZIO = 1;
+    private static final int ONLINE = 2;
+
     private Context mCtx;
     private List<Ordine> orderList;
+
 
     //dichiaro l'interfaccia
     private OnItemClicked onClick;
@@ -80,46 +81,27 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             public void onClick(View v) {
                 switch ( orderList.get(position).getStato()) {
                     case "Completato":
-                        //avvia activity visualizza ordine
+                        Intent intentcompletato = new Intent(mCtx, SpesaActivity.class);
+                        intentcompletato.putExtra("STATO_ORDINE", COMPLETATO);
+                        intentcompletato.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
+                        mCtx.startActivity(intentcompletato);
                         break;
                     case "In attesa di pagamento":
-                        SharedPreferences myPrefs = mCtx.getSharedPreferences("myPrefs", MODE_PRIVATE);
-                        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-                        prefsEditor.putInt("current_orderid", orderList.get(position).getIDordine());
-                        prefsEditor.commit();
                         Intent intentapproviazionespesa = new Intent(mCtx, ApprovazioneSpesaActivity.class);
+                        intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(orderList.get(position).getIDordine()));
+                        if (orderList.get(position).getTipo().equals("In negozio")) intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                        if (orderList.get(position).getTipo().equals("Online")) intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
                         mCtx.startActivity(intentapproviazionespesa);
                         break;
                     case "In corso":
-                        switch (orderList.get(position).getTipo()) {
-                            case "In negozio":
-                                myPrefs = mCtx.getSharedPreferences("myPrefs", MODE_PRIVATE);
-                                prefsEditor = myPrefs.edit();
-                                prefsEditor.putInt("current_orderid", orderList.get(position).getIDordine());
-                                prefsEditor.commit();
-                                Intent intentspesainnegozio = new Intent(mCtx, SpesaInNegozioActivity.class);
-                                mCtx.startActivity(intentspesainnegozio);
-                                break;
-                            case "Online":
-                                myPrefs = mCtx.getSharedPreferences("myPrefs", MODE_PRIVATE);
-                                prefsEditor = myPrefs.edit();
-                                prefsEditor.putInt("current_orderid", orderList.get(position).getIDordine());
-                                prefsEditor.commit();
-                                Intent intentspesaonline = new Intent(mCtx, SpesaOnlineActivity.class);
-                                mCtx.startActivity(intentspesaonline);
-                                break;
-                        }
+                        Intent intentspesa = new Intent(mCtx, SpesaActivity.class);
+                        intentspesa.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
+                        if (orderList.get(position).getTipo().equals("In negozio")) intentspesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                        if (orderList.get(position).getTipo().equals("Online")) intentspesa.putExtra("TIPO_SPESA", ONLINE);
+                        mCtx.startActivity(intentspesa);
                 }
             }
         });
-
-        holder.txtordine.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onClick.onItemClick(position);
-            }
-        });
-
     }
 
     //restituisce la lunghezza della lista ordini

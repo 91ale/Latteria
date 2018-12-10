@@ -55,7 +55,7 @@ public class OrdiniActivity extends AppCompatActivity
         loggeduser = myPrefs.getString("logged_user", "0");
 
         //imposta il navigation drawer
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -128,14 +128,14 @@ public class OrdiniActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     @Override
     public void onSearchStateChanged(boolean enabled) {
-        FrameLayout searchBackground = (FrameLayout)findViewById(R.id.search_transparent_background);
+        FrameLayout searchBackground = findViewById(R.id.search_transparent_background);
         String s = enabled ? "enabled" : "disabled";
         Toast.makeText(OrdiniActivity.this, "Search " + s, Toast.LENGTH_SHORT).show();
         if (enabled == true) {
