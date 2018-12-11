@@ -58,6 +58,7 @@ public class SpesaActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
 
     private static final int RC_SCANNED_BC = 100;
+    private static final int QUANTITA_SELEZIONATA = 102;
 
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
@@ -97,6 +98,7 @@ public class SpesaActivity extends AppCompatActivity
 
         //Barra di ricerca importata da https://github.com/mancj/MaterialSearchBar
         searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
+        //se l'ordine è in stato COMPLETATO nasconde la barra di ricerca
         if (statoordine == COMPLETATO) searchBar.setVisibility(View.INVISIBLE);
         searchBar.setOnSearchActionListener(this);
         //abilita l'icona per la scansione del codice a barre
@@ -127,17 +129,20 @@ public class SpesaActivity extends AppCompatActivity
         txtPrezzoTotale = findViewById(R.id.txtPrezzoTotale);
         txtPrezzoTotale.setText(pdec.format(0.00));
 
-        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa);
+        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+
+        //collega l'ItemTouchHelper alla recyclerview (necessario per rilevare lo swipe di eliminazione prodotto)
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.RIGHT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
 
         caricaOrdine(idordine);
 
+        //riceve gli intent inviati in dalla classe ProductAdapter quando viene modificata la quantità dallo spinner
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("quantita_modificata"));
 
@@ -209,8 +214,8 @@ public class SpesaActivity extends AppCompatActivity
     @Override
     public void onSearchStateChanged(boolean enabled) {
         FrameLayout searchBackground = findViewById(R.id.search_transparent_background);
-        String s = enabled ? "enabled" : "disabled";
-        Toast.makeText(SpesaActivity.this, "Search " + s, Toast.LENGTH_SHORT).show();
+        //String s = enabled ? "enabled" : "disabled";
+        //Toast.makeText(SpesaActivity.this, "Search " + s, Toast.LENGTH_SHORT).show();
         if (enabled == true) {
             searchBackground.setVisibility(View.VISIBLE);
         }
@@ -223,7 +228,8 @@ public class SpesaActivity extends AppCompatActivity
 
     @Override
     public void onSearchConfirmed(CharSequence text) {
-        startSearch(text.toString(), true, null, true);
+        //startSearch(text.toString(), true, null, true);
+
     }
 
     @Override
@@ -266,6 +272,17 @@ public class SpesaActivity extends AppCompatActivity
                 //altrimenti acquisico le info dal DB e lo aggiungo alla lista
                 if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
             }
+        }else if (requestCode==QUANTITA_SELEZIONATA) {
+            if (resultCode == Activity.RESULT_OK) {
+                int quantita = data.getIntExtra("QUANTITA_SELEZIONATA",-1);
+                int position = data.getIntExtra("POSITION",-1);
+                productList.get(position).setQuantitàOrdinata(quantita);
+                //crea l'adapter e lo assegna alla recycleview
+                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+                double totalespesa = mAdapter.sumAllItem();
+                txtPrezzoTotale.setText(pdec.format(totalespesa));
+                recyclerView.setAdapter(mAdapter);
+            }
         }
     }
 
@@ -279,7 +296,7 @@ public class SpesaActivity extends AppCompatActivity
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa);
+                        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
                         double totalespesa = mAdapter.sumAllItem();
                         txtPrezzoTotale.setText(pdec.format(totalespesa));
                         recyclerView.setAdapter(mAdapter);
@@ -334,12 +351,14 @@ public class SpesaActivity extends AppCompatActivity
         }
     }
 
+    //aggiorna il prezzo totale quando viene modificata la quantità di un prodotto
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             txtPrezzoTotale.setText(String.valueOf(pdec.format(mAdapter.sumAllItem())));
         }
     };
+
     private int checkExistInList (String scannedbc) {
 
         int f = 0;
@@ -363,7 +382,7 @@ public class SpesaActivity extends AppCompatActivity
 
         //se l'ordine è già esistente modifico il record dell'ordine, altrimenti ne creo uno nuovo
         if (idordine == -1) {
-            //modifico la insert in base al tipo di ordine effettuato ( IN_NEGOZIO | ONLINE )
+            //modifico la INSERT in base al tipo di ordine effettuato ( IN_NEGOZIO | ONLINE )
             if (tipospesa == IN_NEGOZIO) {
                 queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
                                             "Stato=" + stato + "&" +
@@ -417,6 +436,7 @@ public class SpesaActivity extends AppCompatActivity
         String queryurl = "";
 
         for (int i=0; i<productList.size(); i++) {
+            //verifico se il prodotto è già stato aggiunto al DB (fa parte di un ordine già esistente)
             if (productList.get(i).getIdprodottovenduto() == 0) {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + "&" +
                                                     "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
@@ -461,7 +481,7 @@ public class SpesaActivity extends AppCompatActivity
                 pj.getProductFromDB();
                 productList.addAll(pj.getProduct());
                 //crea l'adapter e lo assegna alla recycleview
-                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa);
+                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);

@@ -2,9 +2,11 @@ package it.alessandro.latteria;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,7 +17,8 @@ import com.android.volley.toolbox.StringRequest;
 
 public class InformazioniProdottoActivity extends AppCompatActivity {
 
-    private static final int QUANTITA_SELEZIONATA = 102;
+
+    private static final int COMPLETATO = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,8 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         Button btnAggiungiProdotto = findViewById(R.id.btnAggiungiProdotto);
 
         Intent intentinformazioniprodotto = getIntent();
+        final int statoordine = intentinformazioniprodotto.getIntExtra("STATO",-1);
+        final int position = intentinformazioniprodotto.getIntExtra("POSITION",-1);
         String nome = intentinformazioniprodotto.getStringExtra("NOME");
         String marca = intentinformazioniprodotto.getStringExtra("MARCA");
         double prezzo = intentinformazioniprodotto.getDoubleExtra("PREZZO", 0);
@@ -43,6 +48,12 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         new DownloadImageTask(imgProdotto).execute(immagine);
         txtDescrizione.setText(descrizione);
 
+        //se l'ordine è già stato completato nascondo il bottone e lo spinner
+        if (statoordine == COMPLETATO) {
+            spnQuantita.setVisibility(View.INVISIBLE);
+            btnAggiungiProdotto.setVisibility(View.INVISIBLE);
+        }
+
         String [] arrayquantità = arrayQuantità(quantitadisponibile);
         // crea un ArrayAdapter usando l'array delle quantità e il layout passato
         ArrayAdapter<String> spinnerAdapter =
@@ -51,15 +62,20 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // applica l'adapter allo spinner
         spnQuantita.setAdapter(spinnerAdapter);
-        spnQuantita.setSelection(quantitaselezionata);
+        spnQuantita.setSelection(quantitaselezionata-1);
 
         btnAggiungiProdotto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentspesa = new Intent();
-                intentspesa.putExtra("QUANTITA_SELEZIONATA", spnQuantita.getSelectedItem().toString());
+                intentspesa.putExtra("QUANTITA_SELEZIONATA", Integer.valueOf(spnQuantita.getSelectedItem().toString()));
+                intentspesa.putExtra("POSITION", position);
                 setResult(Activity.RESULT_OK, intentspesa);
                 finish();
+                /*String quantita = parent.getItemAtPosition(positionInSpinner).toString();
+                Intent intentquantita = new Intent("quantita_modificata_informazioni");
+                intentquantita.putExtra("quantita_selezionata", quantita);
+                LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intentquantita);*/
             }
         });
 

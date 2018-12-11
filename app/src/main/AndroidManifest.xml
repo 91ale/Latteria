@@ -36,7 +36,8 @@
         <activity android:name=".OrdiniActivity" />
         <activity android:name=".MioProfiloActivity" />
         <activity android:name=".AiutoActivity" />
-        <activity android:name=".InformazioniProdottoActivity"></activity>
+        <activity android:name=".InformazioniProdottoActivity" />
+        <activity android:name=".CercaProdottoActivity"></activity>
     </application>
 
 </manifest>

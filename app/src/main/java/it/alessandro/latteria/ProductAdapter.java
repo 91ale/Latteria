@@ -34,10 +34,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private Context mCtx;
     private List<Prodotto> productList;
     private int tipospesa;
+    private int statoordine;
 
     private static final int IN_NEGOZIO = 1;
-    private static final int ONLINE = 2;
     private static final int QUANTITA_SELEZIONATA = 102;
+    private static final int COMPLETATO = 1;
 
     //dichiaro l'interfaccia
     private OrderAdapter.OnItemClicked onClick;
@@ -46,10 +47,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         void onItemClick(int position);
     }
 
-    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa) {
+    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine) {
         this.mCtx = mCtx;
         this.productList = productList;
         this.tipospesa = tipospesa;
+        this.statoordine = statoordine;
     }
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -142,6 +144,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 }
 
                 Intent intentinformazioniprodotto = new Intent(mCtx, InformazioniProdottoActivity.class);
+                intentinformazioniprodotto.putExtra("STATO", statoordine);
+                intentinformazioniprodotto.putExtra("POSITION", position);
                 intentinformazioniprodotto.putExtra("NOME", productList.get(position).getNome());
                 intentinformazioniprodotto.putExtra("MARCA", productList.get(position).getMarca());
                 intentinformazioniprodotto.putExtra("PREZZO", productList.get(position).getPrezzovenditaAttuale());
