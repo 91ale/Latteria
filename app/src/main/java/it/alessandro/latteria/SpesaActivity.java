@@ -59,6 +59,7 @@ public class SpesaActivity extends AppCompatActivity
 
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
+    private static final int RICERCA_PRODOTTO = 103;
 
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
@@ -229,7 +230,9 @@ public class SpesaActivity extends AppCompatActivity
     @Override
     public void onSearchConfirmed(CharSequence text) {
         //startSearch(text.toString(), true, null, true);
-
+        Intent intentcercaprodotto = new Intent(this, CercaProdottoActivity.class);
+        intentcercaprodotto.putExtra("NOME_MARCA_PRODOTTO", text.toString());
+        startActivity(intentcercaprodotto);
     }
 
     @Override
@@ -282,6 +285,10 @@ public class SpesaActivity extends AppCompatActivity
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);
+            }else if (requestCode==RICERCA_PRODOTTO) {
+                if (resultCode == Activity.RESULT_OK) {
+
+                }
             }
         }
     }

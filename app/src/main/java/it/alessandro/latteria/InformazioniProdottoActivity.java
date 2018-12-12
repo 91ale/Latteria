@@ -72,10 +72,6 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
                 intentspesa.putExtra("POSITION", position);
                 setResult(Activity.RESULT_OK, intentspesa);
                 finish();
-                /*String quantita = parent.getItemAtPosition(positionInSpinner).toString();
-                Intent intentquantita = new Intent("quantita_modificata_informazioni");
-                intentquantita.putExtra("quantita_selezionata", quantita);
-                LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intentquantita);*/
             }
         });
 
