@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;

@@ -1,5 +1,6 @@
 package it.alessandro.latteria;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.android.volley.Request;
@@ -24,6 +26,10 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
 
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
     //private static final String SELECT_PRODOTTO_DA_MARCA = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_brand.php?Marca=";
+
+    private static final int QUANTITA_SELEZIONATA = 102;
+    private static final int PRODOTTO_SELEZIONATO = 103;
+
     private DrawerLayout drawerLayout;
 
     private List<Prodotto> productList = new ArrayList<>();
@@ -53,6 +59,22 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
         getProduct(SELECT_PRODOTTO_DA_NOME, nomemarca);
         //getProduct(SELECT_PRODOTTO_DA_MARCA, nomemarca);
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == QUANTITA_SELEZIONATA) {
+            if (resultCode == Activity.RESULT_OK) {
+                int quantita = data.getIntExtra("QUANTITA_SELEZIONATA", -1);
+                int position = data.getIntExtra("POSITION", -1);
+                productList.get(position).setQuantitàOrdinata(quantita);
+                Intent intent = new Intent();
+                intent.putExtra("PRODOTTO_SELEZIONATO", productList.get(position));
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+            }
+        }
     }
 
     @Override

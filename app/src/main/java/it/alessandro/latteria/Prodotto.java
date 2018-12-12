@@ -1,6 +1,8 @@
 package it.alessandro.latteria;
 
-public class Prodotto {
+import java.io.Serializable;
+
+public class Prodotto implements Serializable {
     private int idprodotto, quantitamagazzino, quantitanegozio, quantitaordinata = 0, idprodottovenduto = 0;
     private String barcode, nome, marca, categoria, descrizione;
     private double prezzovenditaattuale;

@@ -285,10 +285,15 @@ public class SpesaActivity extends AppCompatActivity
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);
-            }else if (requestCode==PRODOTTO_SELEZIONATO) {
-                if (resultCode == Activity.RESULT_OK) {
-                    //ottengo le info del prodotto selezionato dall'utente dopo la ricerca testuale
-                }
+            }
+        }else if (requestCode==PRODOTTO_SELEZIONATO) {
+            if (resultCode == Activity.RESULT_OK) {
+                Prodotto Prodotto = (Prodotto)data.getSerializableExtra("PRODOTTO_SELEZIONATO");
+                productList.add(Prodotto);
+                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+                double totalespesa = mAdapter.sumAllItem();
+                txtPrezzoTotale.setText(pdec.format(totalespesa));
+                recyclerView.setAdapter(mAdapter);
             }
         }
     }
