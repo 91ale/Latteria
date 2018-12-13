@@ -55,9 +55,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.statoordine = statoordine;
     }
 
-    public ProductAdapter(Context mCtx, List<Prodotto> productList) {
+    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa) {
         this.mCtx = mCtx;
         this.productList = productList;
+        this.tipospesa = tipospesa;
     }
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {

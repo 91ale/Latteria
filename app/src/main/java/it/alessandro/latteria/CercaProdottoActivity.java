@@ -25,12 +25,8 @@ import java.util.List;
 public class CercaProdottoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
-    //private static final String SELECT_PRODOTTO_DA_MARCA = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_brand.php?Marca=";
 
     private static final int QUANTITA_SELEZIONATA = 102;
-    private static final int PRODOTTO_SELEZIONATO = 103;
-
-    private DrawerLayout drawerLayout;
 
     private List<Prodotto> productList = new ArrayList<>();
     ProductAdapter mAdapter;
@@ -42,21 +38,22 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
         setContentView(R.layout.activity_cerca_prodotto);
 
         String nomemarca = getIntent().getStringExtra("NOME_MARCA_PRODOTTO");
+        int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 
         //imposta il navigation drawer
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         recyclerView = findViewById(R.id.recycler_view);
 
-        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList);
+        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        getProduct(SELECT_PRODOTTO_DA_NOME, nomemarca);
+        getProduct(SELECT_PRODOTTO_DA_NOME, nomemarca, tipospesa);
         //getProduct(SELECT_PRODOTTO_DA_MARCA, nomemarca);
 
     }
@@ -113,7 +110,7 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
         return true;
     }
 
-    private void getProduct(final String urlWebService, String nome) {
+    private void getProduct(final String urlWebService, String nome, final int tipospesa) {
         //VolleyLog.DEBUG = true;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
                 new Response.Listener<String>() {
@@ -123,7 +120,7 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList);
+                        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa);
                         recyclerView.setAdapter(mAdapter);
                     }
                 },

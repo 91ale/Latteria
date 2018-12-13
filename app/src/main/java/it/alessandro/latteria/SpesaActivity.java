@@ -28,7 +28,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -60,6 +59,9 @@ public class SpesaActivity extends AppCompatActivity
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
     private static final int PRODOTTO_SELEZIONATO = 103;
+
+    private static final int AGGIUNGI = 1;
+    private static final int SOSTITUISCI = 2;
 
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
@@ -128,14 +130,15 @@ public class SpesaActivity extends AppCompatActivity
         recyclerView = findViewById(R.id.recycler_view);
 
         txtPrezzoTotale = findViewById(R.id.txtPrezzoTotale);
+        //imposta il formato del prezzo totale nel modo seguente € 0,00
         txtPrezzoTotale.setText(pdec.format(0.00));
 
+        //assegna l'adapter alla recyclerview
         mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-
 
         //collega l'ItemTouchHelper alla recyclerview (necessario per rilevare lo swipe di eliminazione prodotto)
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.RIGHT, this);
@@ -215,8 +218,6 @@ public class SpesaActivity extends AppCompatActivity
     @Override
     public void onSearchStateChanged(boolean enabled) {
         FrameLayout searchBackground = findViewById(R.id.search_transparent_background);
-        //String s = enabled ? "enabled" : "disabled";
-        //Toast.makeText(SpesaActivity.this, "Search " + s, Toast.LENGTH_SHORT).show();
         if (enabled == true) {
             searchBackground.setVisibility(View.VISIBLE);
         }
@@ -229,9 +230,10 @@ public class SpesaActivity extends AppCompatActivity
 
     @Override
     public void onSearchConfirmed(CharSequence text) {
-        //startSearch(text.toString(), true, null, true);
         Intent intentcercaprodotto = new Intent(this, CercaProdottoActivity.class);
         intentcercaprodotto.putExtra("NOME_MARCA_PRODOTTO", text.toString());
+        intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
+        searchBar.disableSearch();
         startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
     }
 
@@ -271,7 +273,7 @@ public class SpesaActivity extends AppCompatActivity
                 String scannedbc = data.getStringExtra("SCANNED_BC");
                 Log.d("SCANNED_BC",scannedbc);
                 //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
-                int exist = checkExistInList(scannedbc);
+                int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
                 //altrimenti acquisico le info dal DB e lo aggiungo alla lista
                 if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
             }
@@ -289,11 +291,13 @@ public class SpesaActivity extends AppCompatActivity
         }else if (requestCode==PRODOTTO_SELEZIONATO) {
             if (resultCode == Activity.RESULT_OK) {
                 Prodotto Prodotto = (Prodotto)data.getSerializableExtra("PRODOTTO_SELEZIONATO");
-                productList.add(Prodotto);
-                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
-                double totalespesa = mAdapter.sumAllItem();
-                txtPrezzoTotale.setText(pdec.format(totalespesa));
-                recyclerView.setAdapter(mAdapter);
+                if (checkExistInList(Prodotto.getBarCode(),  Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1 ) {
+                    productList.add(Prodotto);
+                    mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+                    double totalespesa = mAdapter.sumAllItem();
+                    txtPrezzoTotale.setText(pdec.format(totalespesa));
+                    recyclerView.setAdapter(mAdapter);
+                }
             }
         }
     }
@@ -371,13 +375,17 @@ public class SpesaActivity extends AppCompatActivity
         }
     };
 
-    private int checkExistInList (String scannedbc) {
+    private int checkExistInList (String scannedbc, int quantita, int operazione) {
 
         int f = 0;
 
         for (int i=0; i<=productList.size()-1; i++) {
             if (productList.get(i).getBarCode().equals(scannedbc)) {
-                productList.get(i).setQuantitàOrdinata(productList.get(i).getQuantitàOrdinata()+1);
+                if (operazione == AGGIUNGI) {
+                    productList.get(i).setQuantitàOrdinata(productList.get(i).getQuantitàOrdinata()+quantita);
+                } else if (operazione == SOSTITUISCI) {
+                    productList.get(i).setQuantitàOrdinata(quantita);
+                }
                 mAdapter.setListItems(productList);
                 mAdapter.notifyDataSetChanged();
                 txtPrezzoTotale.setText(String.valueOf(pdec.format(mAdapter.sumAllItem())));
