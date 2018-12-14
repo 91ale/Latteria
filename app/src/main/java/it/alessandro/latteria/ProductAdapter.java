@@ -21,14 +21,8 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Map;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
@@ -64,7 +58,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public class ProductViewHolder extends RecyclerView.ViewHolder {
         public ImageView immagine;
         public TextView nome, prezzo, marca;
-        public Spinner quantità;
+        public Spinner quantita;
         public ConstraintLayout viewBackground;
         public ConstraintLayout viewForeground;
 
@@ -75,7 +69,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             nome = view.findViewById(R.id.txtNome);
             prezzo = view.findViewById(R.id.txtPrezzo);
             marca = view.findViewById(R.id.txtMarca);
-            quantità = view.findViewById(R.id.spnQuantità);
+            quantita = view.findViewById(R.id.spnQuantità);
 
             viewBackground = itemView.findViewById(R.id.view_background);
             viewForeground = itemView.findViewById(R.id.view_foreground);
@@ -118,10 +112,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         // specifica il layout della lista scelte
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // applica l'adapter allo spinner
-        holder.quantità.setAdapter(spinnerAdapter);
-        holder.quantità.setSelection(productList.get(position).getQuantitàOrdinata()-1);
+        holder.quantita.setAdapter(spinnerAdapter);
+        holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata()-1);
 
-        holder.quantità.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,

@@ -50,6 +50,7 @@ public class SpesaActivity extends AppCompatActivity
     private static final String INSERT_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_order.php?";
     private static final String INSERT_PRODOTTI_VENDUTI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_ordered_products.php?";
     private static final String SELECT_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_products_from_orderid.php?IDOrdine=";
+    private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
 
     String loggeduser = "";
 
@@ -69,6 +70,7 @@ public class SpesaActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
 
     private List<Prodotto> productList = new ArrayList<>();
+    private List<Prodotto> rproductList = new ArrayList<>();
     ProductAdapter mAdapter;
     private RecyclerView recyclerView;
     TextView txtPrezzoTotale;
@@ -340,14 +342,16 @@ public class SpesaActivity extends AppCompatActivity
             // acquisisce il nome dell'oggetto eliminato per visualizzarlo sulla snackbar
             String prodotto = productList.get(viewHolder.getAdapterPosition()).getMarca().toUpperCase() + " " + productList.get(viewHolder.getAdapterPosition()).getNome().toUpperCase();
 
-            // backup dell'oggetto rimosso per un eventuale ripristino
+            // backup dell'oggetto rimosso per un eventuale ripristino ed aggiunta alla lista dei prodotti rimossi
             final Prodotto deletedItem = productList.get(viewHolder.getAdapterPosition());
+            rproductList.add(deletedItem);
             final int deletedIndex = viewHolder.getAdapterPosition();
 
             // rimuove l'oggetto dalla recycler e dalla lista prodotti
             mAdapter.removeItem(viewHolder.getAdapterPosition());
             double totalespesa = mAdapter.sumAllItem();
             txtPrezzoTotale.setText(pdec.format(totalespesa));
+
 
             // showing snack bar with Undo option
             Snackbar snackbar = Snackbar
@@ -356,8 +360,9 @@ public class SpesaActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
 
-                    // undo is selected, restore the deleted item
+                    // ANNULA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
                     mAdapter.restoreItem(deletedItem, deletedIndex);
+                    rproductList.remove(deletedIndex);
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                 }
@@ -399,6 +404,30 @@ public class SpesaActivity extends AppCompatActivity
     private void aggiungiOrdine (String stato, int idordine) {
 
         String queryurl = "";
+
+        //se sono stati rimossi prodotti dalla recycleview li elimino anche dal DB
+        if (rproductList.size()>0) {
+            for (int i=0; i<rproductList.size(); i++) {
+                queryurl = DELETE_PRODOTTI_DA_ORDINE + rproductList.get(i).getIdprodottovenduto();
+
+                StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                            }
+                        });
+
+                //adding our stringrequest to queue
+                Volley.newRequestQueue(this).add(stringRequestAdd);
+            }
+        }
 
         //se l'ordine è già esistente modifico il record dell'ordine, altrimenti ne creo uno nuovo
         if (idordine == -1) {
