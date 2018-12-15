@@ -57,7 +57,7 @@ public class OrdiniActivity extends AppCompatActivity
         actionbar.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
 
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
-        loggeduser = myPrefs.getString("logged_user", "0");
+        loggeduser = myPrefs.getString("FirebaseUser", "0");
 
         //imposta il navigation drawer
         drawerLayout = findViewById(R.id.drawer_layout);

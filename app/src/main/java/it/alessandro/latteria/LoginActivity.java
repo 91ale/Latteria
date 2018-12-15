@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
                 SharedPreferences.Editor prefsEditor = myPrefs.edit();
-                prefsEditor.putString("logged_user", loggeduser.getUid());
+                prefsEditor.putString("FirebaseUser", loggeduser.getUid());
                 prefsEditor.apply();
 
                 //verifico se l'utente che si è loggato è gia presente nel dblatteria, nel caso non lo dovesse essere lo faccio registrare
@@ -145,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                                     final SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                                     SharedPreferences.Editor editor = prefs.edit();
                                     String jsonValue = new Gson().toJson(utente);
-                                    editor.putString("Utente", jsonValue);
+                                    editor.putString("CurrentUser", jsonValue);
                                     editor.apply();
 
                                     Log.d("Utente", utente.getnome());
@@ -171,99 +171,5 @@ public class LoginActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(stringRequest);
 
     }
-
-   /* private void getUtente(final String urlWebService) {
-
-        class GetJSON extends AsyncTask<Void, Void, String> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-
-            @Override
-            protected void onPostExecute(String utente) {
-                super.onPostExecute(utente);
-                Toast.makeText(getApplicationContext(), utente, Toast.LENGTH_SHORT).show();
-                try {
-                    JSONArray jsonArray = new JSONArray(utente);
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-
-                        //getting user object from json array
-                        try {
-                            utenteJ = jsonArray.getJSONObject(i);
-
-                            Utente utente = new Utente();
-
-                            utente.setUID(utenteJ.getString("IDUtente"));
-                            utente.setnome(utenteJ.getString("Nome"));
-                            utente.setcognome(utenteJ.getString("Cognome"));
-                            utente.setindirizzo(utenteJ.getString("Indirizzo"));
-                            utente.settipo(utenteJ.getString("Tipo"));
-                            Log.d("Utente", utente.getnome());
-
-                            SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
-
-                            SharedPreferences.Editor prefsEditor = mPrefs.edit();
-                            Gson gson = new Gson();
-                            String json = gson.toJson(utente);
-                            prefsEditor.putString("Utente", json);
-                            prefsEditor.apply();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                if (utente.getUID() == null) {
-                    Intent intentsignup = new Intent(getApplicationContext(), SignUpActivity.class);
-                    intentsignup.putExtra("UID",loggeduser.getUid());
-                    startActivity(intentsignup);
-                } else {
-                    switch (utente.gettipo()) {
-
-                        case "cliente":
-                            Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-                            intenttipospesa.putExtra("LOGGED_UID", loggeduser.getUid());
-                            startActivity(intenttipospesa);
-                            break;
-
-                        case "commesso":
-                            Intent intentcommesso = new Intent(getApplicationContext(), CommessoActivity.class);
-                            startActivity(intentcommesso);
-                            break;
-                    }
-
-                }
-            }
-
-            @Override
-            protected String doInBackground(Void... voids) {
-                try {
-                    URL url = new URL(urlWebService);
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    StringBuilder sb = new StringBuilder();
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String json;
-                    while ((json = bufferedReader.readLine()) != null) {
-                        sb.append(json + "\n");
-                    }
-                    return sb.toString().trim();
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-        }
-
-        GetJSON getJSON = new GetJSON();
-        getJSON.execute();
-
-    }*/
 
 }

@@ -94,7 +94,7 @@ public class SpesaActivity extends AppCompatActivity
         idordine = getIntent().getIntExtra("ID_ORDINE", -1);
         //ricava l'ID dell'utente loggato (loggeduser) ed un eventuale ordine da caricare (idordine) dalle SharedPreferences
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
-        loggeduser = myPrefs.getString("logged_user", "0");
+        loggeduser = myPrefs.getString("FirebaseUser", "0");
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
