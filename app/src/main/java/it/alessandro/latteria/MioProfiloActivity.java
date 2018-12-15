@@ -1,16 +1,12 @@
 package it.alessandro.latteria;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -20,15 +16,6 @@ import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class MioProfiloActivity extends AppCompatActivity {
 
@@ -62,6 +49,7 @@ public class MioProfiloActivity extends AppCompatActivity {
         btnCambiaPassword = findViewById(R.id.btnCambiaPassword);
         btnSalvaPassword = findViewById(R.id.btnSalvaPassword);
         btnSalvaPassword.setVisibility(View.INVISIBLE);
+        edtPassword.setVisibility(View.INVISIBLE);
 
         edtNome.setText(utente.getnome());
         edtCognome.setText(utente.getcognome());
@@ -104,6 +92,7 @@ public class MioProfiloActivity extends AppCompatActivity {
         btnCambiaPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                edtPassword.setVisibility(View.VISIBLE);
                 btnSalvaPassword.setVisibility(View.VISIBLE);
                 btnCambiaPassword.setVisibility(View.INVISIBLE);
             }
@@ -115,6 +104,7 @@ public class MioProfiloActivity extends AppCompatActivity {
                 setFirebasePassword (edtPassword.getText().toString());
                 btnSalvaPassword.setVisibility(View.INVISIBLE);
                 btnCambiaPassword.setVisibility(View.VISIBLE);
+                edtPassword.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -164,48 +154,5 @@ public class MioProfiloActivity extends AppCompatActivity {
         FirebaseUser firebaseuser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseuser.updatePassword(password);
     }
-
-   /* private void insertUser(final Utente Utente) {
-
-        class insertUser extends AsyncTask<Void, Void, String> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-
-            @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
-
-                Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-                startActivity(intenttipospesa);
-
-            }
-
-            @Override
-            protected String doInBackground(Void... voids) {
-                try {
-                    URL url = new URL(INSERT_USER+"IDUtente="+Utente.getUID()+"&Nome="+Utente.getnome()+"&Cognome="+Utente.getcognome()+"&Indirizzo="+Utente.getindirizzo()+"&Tipo="+Utente.gettipo());
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    StringBuilder sb = new StringBuilder();
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                    String result;
-                    while ((result = bufferedReader.readLine()) != null) {
-                        sb.append(result + "\n");
-                    }
-                    return sb.toString().trim();
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-        }
-
-        insertUser insertUser = new insertUser();
-        insertUser.execute();
-
-    }*/
 
 }

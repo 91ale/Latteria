@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -14,7 +15,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -209,7 +209,9 @@ public class SpesaActivity extends AppCompatActivity
             Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
             startActivity(intentaiuto);
         } else if (id == R.id.nav_logout) {
-
+            SignOut();
+            Intent intentlogin = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intentlogin);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

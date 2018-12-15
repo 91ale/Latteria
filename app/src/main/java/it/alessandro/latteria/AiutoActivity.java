@@ -1,7 +1,7 @@
 package it.alessandro.latteria;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 public class AiutoActivity extends AppCompatActivity {
 
