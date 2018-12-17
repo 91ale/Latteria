@@ -69,6 +69,8 @@ public class SpesaActivity extends AppCompatActivity
 
     private static final int COMPLETATO = 1;
 
+    private static final int EAN_13 = 13;
+
     private List<Prodotto> productList = new ArrayList<>();
     private List<Prodotto> rproductList = new ArrayList<>();
     ProductAdapter mAdapter;
@@ -80,6 +82,10 @@ public class SpesaActivity extends AppCompatActivity
     int tipospesa = 0;
     int statoordine = 0;
     int idordine = 0;
+
+    public interface VolleyCallBack {
+        void onSuccess(String response);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,24 +162,37 @@ public class SpesaActivity extends AppCompatActivity
         if (statoordine == COMPLETATO){
             procediCassa.setVisibility(View.INVISIBLE);
         } else if (tipospesa == ONLINE) procediCassa.setText("COMPLETA L'ORDINE");
+
         procediCassa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                aggiungiOrdine("In attesa di pagamento", idordine);
-                Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
-                intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(idordine));
-                if (tipospesa == IN_NEGOZIO) intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
-                if (tipospesa == ONLINE) intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
-                startActivity(intentapproviazionespesa);
-            }
-        });
+                                            @Override
+                                            public void onClick(View v) {
+                                                aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
+
+                                                            @Override
+                                                            public void onSuccess(String response) {
+                                                                Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
+                                                                intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
+                                                                if (tipospesa == IN_NEGOZIO)
+                                                                    intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                                                                if (tipospesa == ONLINE)
+                                                                    intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
+                                                                startActivity(intentapproviazionespesa);
+                                                            }
+                                                        });
+                                            }
+                                        });
 
         Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
         if (statoordine == COMPLETATO) salvaOrdine.setVisibility(View.INVISIBLE);
         salvaOrdine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                aggiungiOrdine("In corso", idordine);
+                aggiungiOrdine("In corso", idordine, new VolleyCallBack() {
+                    @Override
+                    public void onSuccess(String response) {
+
+                    }
+                });
                 Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
                 startActivity(intenttipospesa);
             }
@@ -249,6 +268,9 @@ public class SpesaActivity extends AppCompatActivity
                 break;
             case MaterialSearchBar.BUTTON_SPEECH:
                 Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
+                String messaggio = "Inquadra il codice a barre del prodotto che vuoi acquistare";
+                intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
+                intentscanbarcode.putExtra("MESSAGGIO", messaggio);
                 startActivityForResult(intentscanbarcode,RC_SCANNED_BC);
                 break;
             case MaterialSearchBar.BUTTON_BACK:
@@ -274,8 +296,8 @@ public class SpesaActivity extends AppCompatActivity
 
         if(requestCode==RC_SCANNED_BC) {
             if (resultCode == Activity.RESULT_OK) {
-                String scannedbc = data.getStringExtra("SCANNED_BC");
-                Log.d("SCANNED_BC",scannedbc);
+                String scannedbc = data.getStringExtra("SCANNED_CODE");
+                Log.d("SCANNED_CODE",scannedbc);
                 //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
                 int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
                 //altrimenti acquisico le info dal DB e lo aggiungo alla lista
@@ -403,7 +425,7 @@ public class SpesaActivity extends AppCompatActivity
         return f;
     }
 
-    private void aggiungiOrdine (String stato, int idordine) {
+    private void aggiungiOrdine (String stato, final int idordine, final VolleyCallBack callback) {
 
         String queryurl = "";
 
@@ -468,6 +490,7 @@ public class SpesaActivity extends AppCompatActivity
                     @Override
                     public void onResponse(String response) {
                         aggiungiProdottiOrdinati(response);
+                        callback.onSuccess(response);
                     }
                 },
                 new Response.ErrorListener() {

@@ -37,7 +37,7 @@
         <activity android:name=".MioProfiloActivity" />
         <activity android:name=".AiutoActivity" />
         <activity android:name=".InformazioniProdottoActivity" />
-        <activity android:name=".CercaProdottoActivity"></activity>
+        <activity android:name=".CercaProdottoActivity" />
     </application>
 
 </manifest>

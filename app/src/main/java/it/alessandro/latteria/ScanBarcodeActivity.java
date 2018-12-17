@@ -11,6 +11,7 @@ import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -22,9 +23,13 @@ import java.io.IOException;
 public class ScanBarcodeActivity extends AppCompatActivity {
 
 
+    private static final int EAN_13 = 13;
+    private static final int QR = 14;
+
     SurfaceView surfaceView;
     CameraSource cameraSource;
     BarcodeDetector barcodeDetector;
+    TextView txtTipoScansione;
 
 
     @Override
@@ -32,10 +37,21 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_barcode);
 
-        surfaceView = (SurfaceView) findViewById(R.id.camerapreview);
+        int tipocodice = getIntent().getIntExtra("TIPO_CODICE", -1);
+        String messaggio = getIntent().getStringExtra("MESAGGIO");
 
-        barcodeDetector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.EAN_13).build();
+        surfaceView = (SurfaceView) findViewById(R.id.camerapreview);
+        txtTipoScansione = findViewById(R.id.txtTipoScansione);
+
+        if (tipocodice == EAN_13 ) {
+            barcodeDetector = new BarcodeDetector.Builder(this)
+                    .setBarcodeFormats(Barcode.EAN_13).build();
+            txtTipoScansione.setText(messaggio);
+        } else {
+            barcodeDetector = new BarcodeDetector.Builder(this)
+                    .setBarcodeFormats(Barcode.QR_CODE).build();
+            txtTipoScansione.setText(messaggio);
+        }
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -86,12 +102,12 @@ public class ScanBarcodeActivity extends AppCompatActivity {
 
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> eanCodes = detections.getDetectedItems();
+                final SparseArray<Barcode> qreanCodes = detections.getDetectedItems();
 
-                if (eanCodes.size() !=0)
+                if (qreanCodes.size() !=0)
                 {
                     Intent returnIntent = new Intent();
-                    returnIntent.putExtra("SCANNED_BC",eanCodes.valueAt(0).displayValue);
+                    returnIntent.putExtra("SCANNED_CODE",qreanCodes.valueAt(0).displayValue);
                     setResult(Activity.RESULT_OK,returnIntent);
                     finish();
                 }

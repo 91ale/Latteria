@@ -6,17 +6,64 @@
     android:layout_height="match_parent"
     tools:context=".CommessoActivity">
 
-    <TextView
-        android:id="@+id/textView2"
+    <Button
+        android:id="@+id/btnSpesa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Commesso"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="EFFETTUA SPESA"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnProdotti"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:text="PRODOTTI"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSpesa" />
+
+    <Button
+        android:id="@+id/btnOrdiniOnline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:text="ORDINI ONLINE"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnProdotti" />
+
+    <Button
+        android:id="@+id/btnOrdiniConclusi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:text="ORDINI CONCLUSI"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOrdiniOnline" />
+
+    <Button
+        android:id="@+id/btnStatisticheVendita"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:text="STATISTICHE DI VENDITA"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOrdiniConclusi" />
+
 </android.support.constraint.ConstraintLayout>
