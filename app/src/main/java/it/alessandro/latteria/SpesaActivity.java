@@ -71,6 +71,8 @@ public class SpesaActivity extends AppCompatActivity
 
     private static final int EAN_13 = 13;
 
+    private static final int COMMESSO = 10;
+
     private List<Prodotto> productList = new ArrayList<>();
     private List<Prodotto> rproductList = new ArrayList<>();
     ProductAdapter mAdapter;
@@ -82,6 +84,7 @@ public class SpesaActivity extends AppCompatActivity
     int tipospesa = 0;
     int statoordine = 0;
     int idordine = 0;
+    int commessocliente = 0;
 
     public interface VolleyCallBack {
         void onSuccess(String response);
@@ -98,9 +101,14 @@ public class SpesaActivity extends AppCompatActivity
         statoordine = getIntent().getIntExtra("STATO_ORDINE", -1);
         //valorizza la variabile con l'ID Ordine passato
         idordine = getIntent().getIntExtra("ID_ORDINE", -1);
+        //valorizza la variabile in base all'activity che richiama SpesaActivity (COMMESSO | CLIENTE)
+        commessocliente = getIntent().getIntExtra("COMMESSO_CLIENTE", -1);
         //ricava l'ID dell'utente loggato (loggeduser) ed un eventuale ordine da caricare (idordine) dalle SharedPreferences
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         loggeduser = myPrefs.getString("FirebaseUser", "0");
+
+        //modifica l'interfaccia utente di default (cliente) se apre l'ordine il commesso
+        if (commessocliente == COMMESSO) { interfacciaCommesso(); }
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -164,23 +172,38 @@ public class SpesaActivity extends AppCompatActivity
         } else if (tipospesa == ONLINE) procediCassa.setText("COMPLETA L'ORDINE");
 
         procediCassa.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
 
-                                                            @Override
-                                                            public void onSuccess(String response) {
-                                                                Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
-                                                                intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
-                                                                if (tipospesa == IN_NEGOZIO)
-                                                                    intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
-                                                                if (tipospesa == ONLINE)
-                                                                    intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
-                                                                startActivity(intentapproviazionespesa);
-                                                            }
-                                                        });
-                                            }
-                                        });
+        @Override
+            public void onClick(View v) {
+                if (commessocliente == COMMESSO) {
+                    aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
+                        @Override
+                        public void onSuccess(String response) {
+
+                        }
+                    });
+                    Intent intentordinecompletato = new Intent(getApplicationContext(), OrdineCompletatoActivity.class);
+                    intentordinecompletato.putExtra("ID_ORDINE", idordine);
+                    intentordinecompletato.putExtra("TOTALE_ORDINE", String.valueOf(mAdapter.sumAllItem()));
+                    startActivity(intentordinecompletato);
+                } else {
+                    aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
+
+                        @Override
+                        public void onSuccess(String response) {
+                            Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
+                            intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
+                            if (tipospesa == IN_NEGOZIO)
+                                intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                            if (tipospesa == ONLINE)
+                                intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
+                            startActivity(intentapproviazionespesa);
+                        }
+                    });
+                }
+
+            }
+        });
 
         Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
         if (statoordine == COMPLETATO) salvaOrdine.setVisibility(View.INVISIBLE);
@@ -573,4 +596,10 @@ public class SpesaActivity extends AppCompatActivity
 
     }
 
+    private void interfacciaCommesso() {
+        Button btnProcediCassa = findViewById(R.id.btnProcediCassa);
+        btnProcediCassa.setText("COMPLETA L'ORDINE");
+        Button btnSalvaOrdine = findViewById(R.id.btnSalvaOrdine);
+        btnSalvaOrdine.setVisibility(View.GONE);
+    }
 }

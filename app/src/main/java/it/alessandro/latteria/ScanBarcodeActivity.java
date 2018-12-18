@@ -38,7 +38,7 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan_barcode);
 
         int tipocodice = getIntent().getIntExtra("TIPO_CODICE", -1);
-        String messaggio = getIntent().getStringExtra("MESAGGIO");
+        String messaggio = getIntent().getStringExtra("MESSAGGIO");
 
         surfaceView = (SurfaceView) findViewById(R.id.camerapreview);
         txtTipoScansione = findViewById(R.id.txtTipoScansione);

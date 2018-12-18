@@ -38,6 +38,7 @@
         <activity android:name=".AiutoActivity" />
         <activity android:name=".InformazioniProdottoActivity" />
         <activity android:name=".CercaProdottoActivity" />
+        <activity android:name=".OrdineCompletatoActivity"></activity>
     </application>
 
 </manifest>

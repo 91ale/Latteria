@@ -12,6 +12,8 @@ public class CommessoActivity extends AppCompatActivity {
 
     private static final int QR = 14;
     private static final int RC_SCANNED_QR = 105;
+    private static final int COMMESSO = 10;
+    private static final int IN_NEGOZIO = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +43,14 @@ public class CommessoActivity extends AppCompatActivity {
         if(requestCode==RC_SCANNED_QR) {
             if (resultCode == Activity.RESULT_OK) {
                 String scannedqr = data.getStringExtra("SCANNED_CODE");
+                int idordine = Integer.valueOf(scannedqr);
                 Log.d("SCANNED_CODE",scannedqr);
 
+                Intent intentspesa = new Intent(this, SpesaActivity.class);
+                intentspesa.putExtra("ID_ORDINE", idordine);
+                intentspesa.putExtra("COMMESSO_CLIENTE", COMMESSO);
+                intentspesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                startActivity(intentspesa);
             }
         }
     }
