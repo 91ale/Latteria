@@ -1,5 +1,6 @@
 package it.alessandro.latteria;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,7 +17,7 @@ import java.text.DecimalFormat;
 
 public class OrdineCompletatoActivity extends AppCompatActivity {
 
-    private static final String INSERT_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_order.php?";
+    private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_status_from_orderid.php?";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +30,7 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
         double totaleordine = getIntent().getDoubleExtra("TOTALE_ORDINE", -1);
 
         TextView txtTotale = findViewById(R.id.txtTotale);
-        txtTotale.setText(txtTotale.getText() + pdec.format(totaleordine));
+        txtTotale.setText("Il totale dovuto è di: " + pdec.format(totaleordine));
 
         Button btnOrdineCompletato = findViewById(R.id.btnOrdineCompletato);
 
@@ -37,6 +38,8 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setOrdineCompletato(idordine);
+                Intent intentcommesso = new Intent(getApplicationContext(), CommessoActivity.class);
+                startActivity(intentcommesso);
             }
         });
 
@@ -44,9 +47,8 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
 
     private void setOrdineCompletato (int idordine) {
 
-        String queryurl = "";
-
-        queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
+        //modifico lo stato dell'ordine a "Completato"
+        String queryurl = UPDATE_ORDINE_IMPORTO_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
                 "Stato=" + "Completato";
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,

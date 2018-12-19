@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -15,6 +14,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,14 +43,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpesaActivity extends AppCompatActivity
+public class SpesaCommessoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialSearchBar.OnSearchActionListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
     private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
-    private static final String INSERT_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_order.php?";
     private static final String INSERT_PRODOTTI_VENDUTI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_ordered_products.php?";
     private static final String SELECT_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_products_from_orderid.php?IDOrdine=";
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
+    private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_total_from_orderid.php?";
 
     String loggeduser = "";
 
@@ -61,17 +61,18 @@ public class SpesaActivity extends AppCompatActivity
     private static final int QUANTITA_SELEZIONATA = 102;
     private static final int PRODOTTO_SELEZIONATO = 103;
 
+    private static final int QR = 14;
+    private static final int RC_SCANNED_QR = 105;
+
     private static final int AGGIUNGI = 1;
     private static final int SOSTITUISCI = 2;
 
-    private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
 
     private static final int COMPLETATO = 1;
 
     private static final int EAN_13 = 13;
 
-    private static final int COMMESSO = 10;
 
     private List<Prodotto> productList = new ArrayList<>();
     private List<Prodotto> rproductList = new ArrayList<>();
@@ -84,7 +85,6 @@ public class SpesaActivity extends AppCompatActivity
     int tipospesa = 0;
     int statoordine = 0;
     int idordine = 0;
-    int commessocliente = 0;
 
     public interface VolleyCallBack {
         void onSuccess(String response);
@@ -93,7 +93,7 @@ public class SpesaActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spesa);
+        setContentView(R.layout.activity_spesa_commesso);
 
         //valorizza la variabile in base alla selezione effettuata dall'utente nell'activity TipoSpesaActivity (IN_NEGOZIO | ONLINE)
         tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
@@ -101,14 +101,9 @@ public class SpesaActivity extends AppCompatActivity
         statoordine = getIntent().getIntExtra("STATO_ORDINE", -1);
         //valorizza la variabile con l'ID Ordine passato
         idordine = getIntent().getIntExtra("ID_ORDINE", -1);
-        //valorizza la variabile in base all'activity che richiama SpesaActivity (COMMESSO | CLIENTE)
-        commessocliente = getIntent().getIntExtra("COMMESSO_CLIENTE", -1);
         //ricava l'ID dell'utente loggato (loggeduser) ed un eventuale ordine da caricare (idordine) dalle SharedPreferences
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         loggeduser = myPrefs.getString("FirebaseUser", "0");
-
-        //modifica l'interfaccia utente di default (cliente) se apre l'ordine il commesso
-        if (commessocliente == COMMESSO) { interfacciaCommesso(); }
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -150,7 +145,7 @@ public class SpesaActivity extends AppCompatActivity
         txtPrezzoTotale.setText(pdec.format(0.00));
 
         //assegna l'adapter alla recyclerview
-        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+        mAdapter = new ProductAdapter(this, productList, tipospesa, statoordine);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -166,58 +161,24 @@ public class SpesaActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("quantita_modificata"));
 
-        Button procediCassa = findViewById(R.id.btnProcediCassa);
+        Button btnCompletaOrdine = findViewById(R.id.btnCompletaOrdine);
         if (statoordine == COMPLETATO){
-            procediCassa.setVisibility(View.INVISIBLE);
-        } else if (tipospesa == ONLINE) procediCassa.setText("COMPLETA L'ORDINE");
+            btnCompletaOrdine.setVisibility(View.INVISIBLE);
+        } else if (tipospesa == ONLINE) btnCompletaOrdine.setText("COMPLETA L'ORDINE");
 
-        procediCassa.setOnClickListener(new View.OnClickListener() {
-
-        @Override
-            public void onClick(View v) {
-                if (commessocliente == COMMESSO) {
-                    aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
-                        @Override
-                        public void onSuccess(String response) {
-
-                        }
-                    });
-                    Intent intentordinecompletato = new Intent(getApplicationContext(), OrdineCompletatoActivity.class);
-                    intentordinecompletato.putExtra("ID_ORDINE", idordine);
-                    intentordinecompletato.putExtra("TOTALE_ORDINE", String.valueOf(mAdapter.sumAllItem()));
-                    startActivity(intentordinecompletato);
-                } else {
-                    aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
-
-                        @Override
-                        public void onSuccess(String response) {
-                            Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
-                            intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
-                            if (tipospesa == IN_NEGOZIO)
-                                intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
-                            if (tipospesa == ONLINE)
-                                intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
-                            startActivity(intentapproviazionespesa);
-                        }
-                    });
-                }
-
-            }
-        });
-
-        Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
-        if (statoordine == COMPLETATO) salvaOrdine.setVisibility(View.INVISIBLE);
-        salvaOrdine.setOnClickListener(new View.OnClickListener() {
+        btnCompletaOrdine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                aggiungiOrdine("In corso", idordine, new VolleyCallBack() {
+                aggiungiOrdine("In attesa di pagamento", idordine, new SpesaCommessoActivity.VolleyCallBack() {
                     @Override
                     public void onSuccess(String response) {
 
                     }
                 });
-                Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-                startActivity(intenttipospesa);
+                Intent intentordinecompletato = new Intent(getApplicationContext(), OrdineCompletatoActivity.class);
+                intentordinecompletato.putExtra("ID_ORDINE", idordine);
+                intentordinecompletato.putExtra("TOTALE_ORDINE", mAdapter.sumAllItem());
+                startActivity(intentordinecompletato);
             }
         });
 
@@ -239,15 +200,18 @@ public class SpesaActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_spesa) {
-            Intent intentspesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-            startActivity(intentspesa);
-        } else if (id == R.id.nav_profilo) {
+            Intent intentscanqrcode = new Intent(getApplicationContext(), ScanBarcodeActivity.class);
+            String messaggio = "Inquadra lo schermo del dispositivo del cliente";
+            intentscanqrcode.putExtra("TIPO_CODICE", QR);
+            intentscanqrcode.putExtra("MESSAGGIO", messaggio);
+            startActivityForResult(intentscanqrcode,RC_SCANNED_QR);
+        } else if (id == R.id.nav_prodotti) {
             Intent intentprofilo = new Intent(getApplicationContext(), MioProfiloActivity.class);
             startActivity(intentprofilo);
-        } else if (id == R.id.nav_ordini) {
+        } else if (id == R.id.nav_ordini_online) {
             Intent intentordini = new Intent(getApplicationContext(), OrdiniActivity.class);
             startActivity(intentordini);
-        } else if (id == R.id.nav_aiuto) {
+        } else if (id == R.id.nav_ordini_conclusi) {
             Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
             startActivity(intentaiuto);
         } else if (id == R.id.nav_logout) {
@@ -256,7 +220,7 @@ public class SpesaActivity extends AppCompatActivity
             startActivity(intentlogin);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -332,7 +296,7 @@ public class SpesaActivity extends AppCompatActivity
                 int position = data.getIntExtra("POSITION",-1);
                 productList.get(position).setQuantitàOrdinata(quantita);
                 //crea l'adapter e lo assegna alla recycleview
-                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+                mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);
@@ -342,7 +306,7 @@ public class SpesaActivity extends AppCompatActivity
                 Prodotto Prodotto = (Prodotto)data.getSerializableExtra("PRODOTTO_SELEZIONATO");
                 if (checkExistInList(Prodotto.getBarCode(),  Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1 ) {
                     productList.add(Prodotto);
-                    mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+                    mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                     recyclerView.setAdapter(mAdapter);
@@ -361,7 +325,7 @@ public class SpesaActivity extends AppCompatActivity
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
+                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
                         double totalespesa = mAdapter.sumAllItem();
                         txtPrezzoTotale.setText(pdec.format(totalespesa));
                         recyclerView.setAdapter(mAdapter);
@@ -448,7 +412,7 @@ public class SpesaActivity extends AppCompatActivity
         return f;
     }
 
-    private void aggiungiOrdine (String stato, final int idordine, final VolleyCallBack callback) {
+    private void aggiungiOrdine (String stato, final int idordine, final SpesaCommessoActivity.VolleyCallBack callback) {
 
         String queryurl = "";
 
@@ -476,43 +440,15 @@ public class SpesaActivity extends AppCompatActivity
             }
         }
 
-        //se l'ordine è già esistente modifico il record dell'ordine, altrimenti ne creo uno nuovo
-        if (idordine == -1) {
-            //modifico la INSERT in base al tipo di ordine effettuato ( IN_NEGOZIO | ONLINE )
-            if (tipospesa == IN_NEGOZIO) {
-                queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "In negozio" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
-            } else {
-                queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "Online" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
-            }
-        } else {
-            if (tipospesa == IN_NEGOZIO) {
-                queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "In negozio" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
-            } else {
-                queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "Online" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
-            }
-        }
+        //aggiorno l'importo dell'ordine ed inserisco gli eventuali prodotti aggiunti dal commesso
+        queryurl = UPDATE_ORDINE_IMPORTO_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
+                "Importo=" + mAdapter.sumAllItem();
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        aggiungiProdottiOrdinati(response);
+                        aggiungiProdottiOrdinati(String.valueOf(idordine));
                         callback.onSuccess(response);
                     }
                 },
@@ -536,16 +472,16 @@ public class SpesaActivity extends AppCompatActivity
             //verifico se il prodotto è già stato aggiunto al DB (fa parte di un ordine già esistente)
             if (productList.get(i).getIdprodottovenduto() == 0) {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + "&" +
-                                                    "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
-                                                    "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
-                                                    "Ordini_IDOrdine=" + IDOrdine + "&" +
-                                                    "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
+                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
+                        "Ordini_IDOrdine=" + IDOrdine + "&" +
+                        "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             } else {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + productList.get(i).getIdprodottovenduto() + "&" +
-                                                    "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
-                                                    "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
-                                                    "Ordini_IDOrdine=" + IDOrdine + "&" +
-                                                    "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
+                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
+                        "Ordini_IDOrdine=" + IDOrdine + "&" +
+                        "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             }
 
 
@@ -571,35 +507,29 @@ public class SpesaActivity extends AppCompatActivity
     private void caricaOrdine (int idordine) {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, SELECT_PRODOTTI_DA_ORDINE + idordine,
-        new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                ParseProductJSON pj = new ParseProductJSON(response);
-                pj.getProductFromDB();
-                productList.addAll(pj.getProduct());
-                //crea l'adapter e lo assegna alla recycleview
-                mAdapter = new ProductAdapter(SpesaActivity.this, productList, tipospesa, statoordine);
-                double totalespesa = mAdapter.sumAllItem();
-                txtPrezzoTotale.setText(pdec.format(totalespesa));
-                recyclerView.setAdapter(mAdapter);
-            }
-        },
-        new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseProductJSON pj = new ParseProductJSON(response);
+                        pj.getProductFromDB();
+                        productList.addAll(pj.getProduct());
+                        //crea l'adapter e lo assegna alla recycleview
+                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                        double totalespesa = mAdapter.sumAllItem();
+                        txtPrezzoTotale.setText(pdec.format(totalespesa));
+                        recyclerView.setAdapter(mAdapter);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-            }
-        });
+                    }
+                });
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);
 
     }
 
-    private void interfacciaCommesso() {
-        Button btnProcediCassa = findViewById(R.id.btnProcediCassa);
-        btnProcediCassa.setText("COMPLETA L'ORDINE");
-        Button btnSalvaOrdine = findViewById(R.id.btnSalvaOrdine);
-        btnSalvaOrdine.setVisibility(View.GONE);
-    }
 }

@@ -33,13 +33,13 @@ public class TipoSpesaActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()) {
 
             case R.id.btnInNegozio:
-                Intent intentspesainnegozio = new Intent(this, SpesaActivity.class);
+                Intent intentspesainnegozio = new Intent(this, SpesaClienteActivity.class);
                 intentspesainnegozio.putExtra("TIPO_SPESA", IN_NEGOZIO);
                 startActivity(intentspesainnegozio);
                 break;
 
             case R.id.btnADomicilio:
-                intentspesainnegozio = new Intent(this, SpesaActivity.class);
+                intentspesainnegozio = new Intent(this, SpesaClienteActivity.class);
                 intentspesainnegozio.putExtra("TIPO_SPESA", ONLINE);
                 startActivity(intentspesainnegozio);
                 break;

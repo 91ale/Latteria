@@ -78,7 +78,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             public void onClick(View v) {
                 switch ( orderList.get(position).getStato()) {
                     case "Completato":
-                        Intent intentcompletato = new Intent(mCtx, SpesaActivity.class);
+                        Intent intentcompletato = new Intent(mCtx, SpesaClienteActivity.class);
                         intentcompletato.putExtra("STATO_ORDINE", COMPLETATO);
                         intentcompletato.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
                         mCtx.startActivity(intentcompletato);
@@ -91,7 +91,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                         mCtx.startActivity(intentapproviazionespesa);
                         break;
                     case "In corso":
-                        Intent intentspesa = new Intent(mCtx, SpesaActivity.class);
+                        Intent intentspesa = new Intent(mCtx, SpesaClienteActivity.class);
                         intentspesa.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
                         if (orderList.get(position).getTipo().equals("In negozio")) intentspesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
                         if (orderList.get(position).getTipo().equals("Online")) intentspesa.putExtra("TIPO_SPESA", ONLINE);

@@ -40,8 +40,8 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
         int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 
         //imposta il navigation drawer
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         recyclerView = findViewById(R.id.recycler_view);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_spesa"
+        android:title="Inizia spesa" />
+    <item
+        android:id="@+id/nav_prodotti"
+        android:title="Prodotti" />
+    <item
+        android:id="@+id/nav_ordini_online"
+        android:title="Ordini online" />
+    <item
+        android:id="@+id/nav_ordini_conclusi"
+        android:title="Ordini completati" />
+    <item
+        android:id="@+id/nav_statistiche_vendita"
+        android:title="Statistiche di vendita" />
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Logout" />
+
+
+</menu>
