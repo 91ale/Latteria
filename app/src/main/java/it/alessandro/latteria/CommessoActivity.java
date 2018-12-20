@@ -26,6 +26,7 @@ public class CommessoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_commesso);
 
         Button btnSpesa = findViewById(R.id.btnSpesa);
+        Button btnProdotti = findViewById(R.id.btnProdotti);
 
         btnSpesa.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,6 +36,14 @@ public class CommessoActivity extends AppCompatActivity {
                 intentscanqrcode.putExtra("TIPO_CODICE", QR);
                 intentscanqrcode.putExtra("MESSAGGIO", messaggio);
                 startActivityForResult(intentscanqrcode,RC_SCANNED_QR);
+            }
+        });
+
+        btnProdotti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentprodotti = new Intent(getApplicationContext(), GestioneProdottiActivity.class);
+                startActivity(intentprodotti);
             }
         });
 

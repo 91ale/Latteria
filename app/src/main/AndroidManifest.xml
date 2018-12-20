@@ -39,7 +39,9 @@
         <activity android:name=".InformazioniProdottoActivity" />
         <activity android:name=".CercaProdottoActivity" />
         <activity android:name=".OrdineCompletatoActivity" />
-        <activity android:name=".SpesaCommessoActivity"></activity>
+        <activity android:name=".SpesaCommessoActivity" />
+        <activity android:name=".GestioneProdottiActivity" />
+        <activity android:name=".AggiungiProdottiAlCatalogoActivity"></activity>
     </application>
 
 </manifest>
