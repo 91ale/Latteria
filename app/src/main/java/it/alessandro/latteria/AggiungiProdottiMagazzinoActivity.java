@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -18,10 +19,10 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
+public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
-    private static final String INSERT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_catalogue.php?";
-    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_IN_MAGAZZINO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String INSERT_PRODOTTO_IN_MAGAZZINO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_warehouse.php?";
 
     private static final int EAN_13 = 13;
 
@@ -29,17 +30,20 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     String scannedbc;
 
-    EditText edtNome;
-    EditText edtMarca;
-    EditText edtCategoria;
-    EditText edtDescrizione;
+    TextView txtNomeProdotto;
+    TextView txtMarcaProdotto;
+    TextView txtCategoriaProdotto;
+
+    EditText edtPrezzoAcquisto;
+    EditText edtPrezzoVendita;
+    EditText edtQuantita;
 
     private List<Prodotto> productList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_aggiungi_prodotti_al_catalogo);
+        setContentView(R.layout.activity_aggiungi_prodotti_magazzino);
 
         scanBarCode();
 
@@ -54,7 +58,6 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
         });
 
     }
-
 
     private void scanBarCode () {
 
@@ -73,7 +76,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                 scannedbc = data.getStringExtra("SCANNED_CODE");
                 Log.d("SCANNED_CODE", scannedbc);
                 //se il prodotto scansionato esiste già in catalogo ne estraggo le info
-                getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
+                getProduct(SELECT_PRODOTTO_IN_MAGAZZINO, scannedbc);
             }
         }
     }
@@ -88,15 +91,13 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         if (productList.size() > 0) {
-                            edtNome = findViewById(R.id.edtNome);
-                            edtMarca = findViewById(R.id.edtMarca);
-                            edtCategoria = findViewById(R.id.edtCategoria);
-                            edtDescrizione = findViewById(R.id.edtDescrizione);
+                            txtNomeProdotto = findViewById(R.id.txtNomeProdotto);
+                            txtMarcaProdotto = findViewById(R.id.txtMarcaProdotto);
+                            txtCategoriaProdotto = findViewById(R.id.txtCategoriaProdotto);
 
-                            edtNome.setText(productList.get(0).getNome());
-                            edtMarca.setText(productList.get(0).getMarca());
-                            edtCategoria.setText(productList.get(0).getCategoria());
-                            edtDescrizione.setText(productList.get(0).getDescrizione());
+                            txtNomeProdotto.setText(productList.get(0).getNome());
+                            txtMarcaProdotto.setText(productList.get(0).getMarca());
+                            txtCategoriaProdotto.setText(productList.get(0).getCategoria());
                         }
                     }
                 },
@@ -116,26 +117,14 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
         String queryurl = "";
 
-        edtNome = findViewById(R.id.edtNome);
-        edtMarca = findViewById(R.id.edtMarca);
-        edtCategoria = findViewById(R.id.edtCategoria);
-        edtDescrizione = findViewById(R.id.edtDescrizione);
+        edtPrezzoAcquisto = findViewById(R.id.edtPrezzoAcquisto);
+        edtPrezzoVendita = findViewById(R.id.edtPrezzoVendita);
+        edtQuantita = findViewById(R.id.edtQuantita);
 
-        if (productList.size() > 0) {
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
-                    "BarCode=" + productList.get(0).getBarCode() + "&" +
-                    "Nome=" + edtNome.getText() + "&" +
-                    "Marca=" + edtMarca.getText() + "&" +
-                    "Categoria=" + edtCategoria.getText() + "&" +
-                    "Descrizione=" + edtDescrizione.getText();
-        } else {
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + "&" +
-                    "BarCode=" + scannedbc + "&" +
-                    "Nome=" + edtNome.getText() + "&" +
-                    "Marca=" + edtMarca.getText() + "&" +
-                    "Categoria=" + edtCategoria.getText() + "&" +
-                    "Descrizione=" + edtDescrizione.getText();
-        }
+        queryurl = INSERT_PRODOTTO_IN_MAGAZZINO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
+                "PrezzoAcquisto=" + edtPrezzoAcquisto.getText() + "&" +
+                "PrezzoVenditaAttuale=" + edtPrezzoVendita.getText() + "&" +
+                "Quantita=" + edtQuantita.getText() + "&";
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {
@@ -155,4 +144,6 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(stringRequestAdd);
 
     }
+
+
 }

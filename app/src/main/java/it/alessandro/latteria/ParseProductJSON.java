@@ -42,12 +42,12 @@ public class ParseProductJSON {
                         prodottoJ.getString("Nome"),
                         prodottoJ.getString("Marca"),
                         prodottoJ.getString("Categoria"),
-                        prodottoJ.getInt("QuantitaMagazzino"),
-                        prodottoJ.getInt("QuantitaNegozio"),
+                        prodottoJ.optInt("QuantitaMagazzino"),
+                        prodottoJ.optInt("QuantitaNegozio"),
                         prodottoJ.getString("Descrizione"),
-                        prodottoJ.getDouble("PrezzoVenditaAttuale"),
-                        prodottoJ.getInt("IDProdottoVenduto"),
-                        prodottoJ.getInt("Quantita"),
+                        prodottoJ.optDouble("PrezzoVenditaAttuale"),
+                        prodottoJ.optInt("IDProdottoVenduto"),
+                        prodottoJ.optInt("Quantita"),
                         prodottoJ.getString("Percorso")
                 ));
             }

@@ -28,5 +28,21 @@ public class GestioneProdottiActivity extends AppCompatActivity {
             }
         });
 
+        btnNegozio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentnegozio = new Intent(getApplicationContext(), AggiungiProdottiNegozioActivity.class);
+                startActivity(intentnegozio);
+            }
+        });
+
+        btnMagazzino.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentmagazzino = new Intent(getApplicationContext(), AggiungiProdottiMagazzinoActivity.class);
+                startActivity(intentmagazzino);
+            }
+        });
+
     }
 }

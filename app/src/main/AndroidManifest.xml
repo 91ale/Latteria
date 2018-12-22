@@ -41,7 +41,9 @@
         <activity android:name=".OrdineCompletatoActivity" />
         <activity android:name=".SpesaCommessoActivity" />
         <activity android:name=".GestioneProdottiActivity" />
-        <activity android:name=".AggiungiProdottiAlCatalogoActivity"></activity>
+        <activity android:name=".AggiungiProdottiAlCatalogoActivity" />
+        <activity android:name=".AggiungiProdottiNegozioActivity" />
+        <activity android:name=".AggiungiProdottiMagazzinoActivity"></activity>
     </application>
 
 </manifest>
