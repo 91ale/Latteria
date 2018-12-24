@@ -27,13 +27,17 @@ public class Prodotto implements Serializable {
         return idprodotto;
     }
 
-    public void setIDprodotto(int idprodotto) { this.idprodotto = idprodotto; }
+    public void setIDprodotto(int idprodotto) {
+        this.idprodotto = idprodotto;
+    }
 
     public String getBarCode() {
         return barcode;
     }
 
-    public void setBarCode(String barcode) { this.barcode = barcode; }
+    public void setBarCode(String barcode) {
+        this.barcode = barcode;
+    }
 
     public String getNome() {
         return nome;
@@ -63,13 +67,17 @@ public class Prodotto implements Serializable {
         return quantitamagazzino;
     }
 
-    public void setQuantitamagazzino(int quantitamagazzino) { this.quantitamagazzino = quantitamagazzino; }
+    public void setQuantitamagazzino(int quantitamagazzino) {
+        this.quantitamagazzino = quantitamagazzino;
+    }
 
     public int getQuantitanegozio() {
         return quantitanegozio;
     }
 
-    public void setQuantitanegozio(int quantitanegozio) { this.quantitanegozio = quantitanegozio; }
+    public void setQuantitanegozio(int quantitanegozio) {
+        this.quantitanegozio = quantitanegozio;
+    }
 
     public String getDescrizione() {
         return descrizione;
@@ -83,20 +91,32 @@ public class Prodotto implements Serializable {
         return prezzovenditaattuale;
     }
 
-    public void setPrezzovenditaAttuale(double prezzovenditaattuale) { this.prezzovenditaattuale = prezzovenditaattuale; }
+    public void setPrezzovenditaAttuale(double prezzovenditaattuale) {
+        this.prezzovenditaattuale = prezzovenditaattuale;
+    }
 
     public String getImmagine() {
         return immagine;
     }
 
-    public void setImmagine(String immagine) { this.immagine = immagine; }
+    public void setImmagine(String immagine) {
+        this.immagine = immagine;
+    }
 
-    public int getQuantitàOrdinata() {return quantitaordinata; }
+    public int getQuantitàOrdinata() {
+        return quantitaordinata;
+    }
 
-    public void setQuantitàOrdinata(int quantitaordinata) { this.quantitaordinata = quantitaordinata; }
+    public void setQuantitàOrdinata(int quantitaordinata) {
+        this.quantitaordinata = quantitaordinata;
+    }
 
-    public int getIdprodottovenduto() {return idprodottovenduto; }
+    public int getIdprodottovenduto() {
+        return idprodottovenduto;
+    }
 
-    public void setIdprodottovenduto(int idprodottovenduto) { this.idprodottovenduto = idprodottovenduto; }
+    public void setIdprodottovenduto(int idprodottovenduto) {
+        this.idprodottovenduto = idprodottovenduto;
+    }
 
 }

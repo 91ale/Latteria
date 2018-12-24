@@ -8,12 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 public class CommessoActivity extends AppCompatActivity {
 
     private static final int QR = 14;
@@ -27,6 +21,7 @@ public class CommessoActivity extends AppCompatActivity {
 
         Button btnSpesa = findViewById(R.id.btnSpesa);
         Button btnProdotti = findViewById(R.id.btnProdotti);
+        Button btnOrdiniOnline = findViewById(R.id.btnOrdiniOnline);
 
         btnSpesa.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,7 +30,7 @@ public class CommessoActivity extends AppCompatActivity {
                 String messaggio = "Inquadra lo schermo del dispositivo del cliente";
                 intentscanqrcode.putExtra("TIPO_CODICE", QR);
                 intentscanqrcode.putExtra("MESSAGGIO", messaggio);
-                startActivityForResult(intentscanqrcode,RC_SCANNED_QR);
+                startActivityForResult(intentscanqrcode, RC_SCANNED_QR);
             }
         });
 
@@ -47,16 +42,23 @@ public class CommessoActivity extends AppCompatActivity {
             }
         });
 
+        btnOrdiniOnline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                startActivity(intentordinionline);
+            }
+        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(requestCode==RC_SCANNED_QR) {
+        if (requestCode == RC_SCANNED_QR) {
             if (resultCode == Activity.RESULT_OK) {
                 String scannedqr = data.getStringExtra("SCANNED_CODE");
                 int idordine = Integer.valueOf(scannedqr);
-                Log.d("SCANNED_CODE",scannedqr);
+                Log.d("SCANNED_CODE", scannedqr);
 
                 Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
                 intentspesacommesso.putExtra("ID_ORDINE", idordine);
@@ -65,5 +67,7 @@ public class CommessoActivity extends AppCompatActivity {
             }
         }
     }
+
+
 
 }

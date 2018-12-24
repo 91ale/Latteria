@@ -73,7 +73,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             protected String doInBackground(Void... voids) {
                 try {
-                    URL url = new URL(INSERT_USER+"IDUtente="+Utente.getUID()+"&Nome="+Utente.getnome()+"&Cognome="+Utente.getcognome()+"&Indirizzo="+Utente.getindirizzo()+"&Tipo="+Utente.gettipo());
+                    URL url = new URL(INSERT_USER + "IDUtente=" + Utente.getUID() + "&Nome=" + Utente.getnome() + "&Cognome=" + Utente.getcognome() + "&Indirizzo=" + Utente.getindirizzo() + "&Tipo=" + Utente.gettipo());
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     StringBuilder sb = new StringBuilder();
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));

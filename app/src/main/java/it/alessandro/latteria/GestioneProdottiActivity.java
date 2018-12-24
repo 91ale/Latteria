@@ -1,13 +1,12 @@
 package it.alessandro.latteria;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
 public class GestioneProdottiActivity extends AppCompatActivity {
-
 
 
     @Override
@@ -41,6 +40,14 @@ public class GestioneProdottiActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intentmagazzino = new Intent(getApplicationContext(), AggiungiProdottiMagazzinoActivity.class);
                 startActivity(intentmagazzino);
+            }
+        });
+
+        btnVisualizzaProdotti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentvisualizzaprodotti = new Intent(getApplicationContext(), VisualizzaProdottiActivity.class);
+                startActivity(intentvisualizzaprodotti);
             }
         });
 

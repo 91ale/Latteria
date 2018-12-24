@@ -43,16 +43,14 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
 
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
             try {
-                BitMatrix bitMatrix = multiFormatWriter.encode(idordine, BarcodeFormat.QR_CODE,200,200);
+                BitMatrix bitMatrix = multiFormatWriter.encode(idordine, BarcodeFormat.QR_CODE, 200, 200);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                 Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
                 imgQR.setImageBitmap(bitmap);
             } catch (WriterException e) {
                 e.printStackTrace();
             }
-        }
-        else
-        {
+        } else {
             txtVaiCassa.setText("Complimenti! Hai completato l'ordine");
         }
 

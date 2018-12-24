@@ -2,8 +2,8 @@ package it.alessandro.latteria;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -52,20 +52,20 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
         btnAggiungiProdotto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                aggiungiProdottoCatalogo();
+                aggiungiProdottoMagazzino();
                 finish();
             }
         });
 
     }
 
-    private void scanBarCode () {
+    private void scanBarCode() {
 
         Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
         String messaggio = "Inquadra il codice a barre del prodotto che vuoi aggiungere al catalogo";
         intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
         intentscanbarcode.putExtra("MESSAGGIO", messaggio);
-        startActivityForResult(intentscanbarcode,RC_SCANNED_BC);
+        startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
 
     }
 
@@ -113,7 +113,7 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
     }
 
-    private void aggiungiProdottoCatalogo () {
+    private void aggiungiProdottoMagazzino() {
 
         String queryurl = "";
 
@@ -144,6 +144,5 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(stringRequestAdd);
 
     }
-
 
 }

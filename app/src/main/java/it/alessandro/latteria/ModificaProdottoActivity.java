@@ -1,10 +1,8 @@
 package it.alessandro.latteria;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,20 +16,17 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
+public class ModificaProdottoActivity extends AppCompatActivity {
 
-    private static final String INSERT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_catalogue.php?";
-    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
-
-    private static final int EAN_13 = 13;
-
-    private static final int RC_SCANNED_BC = 100;
-
-    String scannedbc;
+    private static final String UPDATE_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_product_from_PID.php?";
+    private static final String SELECT_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_PID.php?IDProdotto=";
 
     EditText edtNome;
     EditText edtMarca;
     EditText edtCategoria;
+    EditText edtPrezzoVendita;
+    EditText edtQuantitaNegozio;
+    EditText edtQuantitaMagazzino;
     EditText edtDescrizione;
 
     private List<Prodotto> productList = new ArrayList<>();
@@ -39,48 +34,27 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_aggiungi_prodotti_al_catalogo);
+        setContentView(R.layout.activity_modifica_prodotto);
 
-        scanBarCode();
+        Intent intent = getIntent();
+        int PID = intent.getIntExtra("PID", -1);
 
-        Button btnAggiungiProdotto = findViewById(R.id.btnAggiungiProdotto);
+        getProduct(SELECT_PRODOTTO, PID);
 
-        btnAggiungiProdotto.setOnClickListener(new View.OnClickListener() {
+        Button btnModificaProdotto = findViewById(R.id.btnModificaProdotto);
+
+        btnModificaProdotto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                aggiungiProdottoCatalogo();
+                modificaProdotto();
                 finish();
             }
         });
-
     }
 
-
-    private void scanBarCode() {
-
-        Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
-        String messaggio = "Inquadra il codice a barre del prodotto che vuoi aggiungere al catalogo";
-        intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
-        intentscanbarcode.putExtra("MESSAGGIO", messaggio);
-        startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
-
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == RC_SCANNED_BC) {
-            if (resultCode == Activity.RESULT_OK) {
-                scannedbc = data.getStringExtra("SCANNED_CODE");
-                Log.d("SCANNED_CODE", scannedbc);
-                //se il prodotto scansionato esiste già in catalogo ne estraggo le info
-                getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
-            }
-        }
-    }
-
-    private void getProduct(final String urlWebService, String scannedbc) {
+    private void getProduct(final String urlWebService, int PID) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + scannedbc,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + PID,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -92,11 +66,18 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                             edtMarca = findViewById(R.id.edtMarca);
                             edtCategoria = findViewById(R.id.edtCategoria);
                             edtDescrizione = findViewById(R.id.edtDescrizione);
+                            edtPrezzoVendita = findViewById(R.id.edtPrezzoVendita);
+                            edtQuantitaNegozio = findViewById(R.id.edtQuantitaNegozio);
+                            edtQuantitaMagazzino = findViewById(R.id.edtQuantitaMagazzino);
 
                             edtNome.setText(productList.get(0).getNome());
                             edtMarca.setText(productList.get(0).getMarca());
                             edtCategoria.setText(productList.get(0).getCategoria());
+                            edtPrezzoVendita.setText(String.valueOf(productList.get(0).getPrezzovenditaAttuale()));
+                            edtQuantitaNegozio.setText(String.valueOf(productList.get(0).getQuantitanegozio()));
+                            edtQuantitaMagazzino.setText(String.valueOf(productList.get(0).getQuantitamagazzino()));
                             edtDescrizione.setText(productList.get(0).getDescrizione());
+
                         }
                     }
                 },
@@ -112,7 +93,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     }
 
-    private void aggiungiProdottoCatalogo() {
+    private void modificaProdotto() {
 
         String queryurl = "";
 
@@ -120,22 +101,18 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
         edtMarca = findViewById(R.id.edtMarca);
         edtCategoria = findViewById(R.id.edtCategoria);
         edtDescrizione = findViewById(R.id.edtDescrizione);
+        edtPrezzoVendita = findViewById(R.id.edtPrezzoVendita);
+        edtQuantitaNegozio = findViewById(R.id.edtQuantitaNegozio);
+        edtQuantitaMagazzino = findViewById(R.id.edtQuantitaMagazzino);
 
-        if (productList.size() > 0) {
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
-                    "BarCode=" + productList.get(0).getBarCode() + "&" +
-                    "Nome=" + edtNome.getText() + "&" +
-                    "Marca=" + edtMarca.getText() + "&" +
-                    "Categoria=" + edtCategoria.getText() + "&" +
-                    "Descrizione=" + edtDescrizione.getText();
-        } else {
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + "&" +
-                    "BarCode=" + scannedbc + "&" +
-                    "Nome=" + edtNome.getText() + "&" +
-                    "Marca=" + edtMarca.getText() + "&" +
-                    "Categoria=" + edtCategoria.getText() + "&" +
-                    "Descrizione=" + edtDescrizione.getText();
-        }
+        queryurl = UPDATE_PRODOTTO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
+                "Nome=" + edtNome.getText() + "&" +
+                "Marca=" + edtMarca.getText() + "&" +
+                "Categoria=" + edtCategoria.getText() + "&" +
+                "Descrizione=" + edtDescrizione.getText() + "&" +
+                "PrezzoVenditaAttuale=" + edtPrezzoVendita.getText() + "&" +
+                "QuantitaNegozio=" + edtQuantitaNegozio.getText() + "&" +
+                "QuantitaMagazzino=" + edtQuantitaMagazzino.getText();
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {

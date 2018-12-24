@@ -43,7 +43,7 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         surfaceView = (SurfaceView) findViewById(R.id.camerapreview);
         txtTipoScansione = findViewById(R.id.txtTipoScansione);
 
-        if (tipocodice == EAN_13 ) {
+        if (tipocodice == EAN_13) {
             barcodeDetector = new BarcodeDetector.Builder(this)
                     .setBarcodeFormats(Barcode.EAN_13).build();
             txtTipoScansione.setText(messaggio);
@@ -64,18 +64,15 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
 
 
-
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
 
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                try
-                {
+                try {
                     cameraSource.start(holder);
-                }catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
@@ -104,11 +101,10 @@ public class ScanBarcodeActivity extends AppCompatActivity {
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> qreanCodes = detections.getDetectedItems();
 
-                if (qreanCodes.size() !=0)
-                {
+                if (qreanCodes.size() != 0) {
                     Intent returnIntent = new Intent();
-                    returnIntent.putExtra("SCANNED_CODE",qreanCodes.valueAt(0).displayValue);
-                    setResult(Activity.RESULT_OK,returnIntent);
+                    returnIntent.putExtra("SCANNED_CODE", qreanCodes.valueAt(0).displayValue);
+                    setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }
             }

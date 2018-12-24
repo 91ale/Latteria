@@ -20,21 +20,15 @@ import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
+    private static final int IN_NEGOZIO = 1;
+    private static final int QUANTITA_SELEZIONATA = 102;
+    private static final int COMPLETATO = 1;
     private Context mCtx;
     private List<Prodotto> productList;
     private int tipospesa;
     private int statoordine;
-
-    private static final int IN_NEGOZIO = 1;
-    private static final int QUANTITA_SELEZIONATA = 102;
-    private static final int COMPLETATO = 1;
-
     //dichiaro l'interfaccia
     private OrderAdapter.OnItemClicked onClick;
-
-    public interface OnItemClicked {
-        void onItemClick(int position);
-    }
 
     public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine) {
         this.mCtx = mCtx;
@@ -47,28 +41,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.mCtx = mCtx;
         this.productList = productList;
         this.tipospesa = tipospesa;
-    }
-
-    public class ProductViewHolder extends RecyclerView.ViewHolder {
-        public ImageView immagine;
-        public TextView nome, prezzo, marca;
-        public Spinner quantita;
-        public ConstraintLayout viewBackground;
-        public ConstraintLayout viewForeground;
-
-        public ProductViewHolder(View view) {
-            super(view);
-
-            immagine = view.findViewById(R.id.imgProdotto);
-            nome = view.findViewById(R.id.txtNome);
-            prezzo = view.findViewById(R.id.txtPrezzo);
-            marca = view.findViewById(R.id.txtMarca);
-            quantita = view.findViewById(R.id.spnQuantità);
-
-            viewBackground = itemView.findViewById(R.id.view_background);
-            viewForeground = itemView.findViewById(R.id.view_foreground);
-
-        }
     }
 
     //impostazione layout della recycleview
@@ -107,10 +79,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // applica l'adapter allo spinner
         holder.quantita.setAdapter(spinnerAdapter);
-        holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata()-1);
+        holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);
 
-        holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
+        holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int positionInSpinner, long id) {
@@ -119,9 +90,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 Intent intent = new Intent("quantita_modificata");
                 LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intent);
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent)
-            {
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
@@ -149,7 +120,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 intentinformazioniprodotto.putExtra("QUANTITA_DISPONIBILE", quantitadisponibile);
                 intentinformazioniprodotto.putExtra("DESCRIZIONE", productList.get(position).getDescrizione());
 
-                ((Activity) mCtx).startActivityForResult(intentinformazioniprodotto,QUANTITA_SELEZIONATA);
+                ((Activity) mCtx).startActivityForResult(intentinformazioniprodotto, QUANTITA_SELEZIONATA);
 
             }
         });
@@ -186,15 +157,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public double sumAllItem() {
         int i;
         double sum = 0;
-        for(i = 0; i < productList.size(); i++)
-            sum += productList.get(i).getPrezzovenditaAttuale()*productList.get(i).getQuantitàOrdinata();
+        for (i = 0; i < productList.size(); i++)
+            sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitàOrdinata();
         return sum;
     }
 
-    private String[] arrayQuantità (int quantità) {
+    private String[] arrayQuantità(int quantità) {
         String[] arrayquantità = new String[quantità];
-        for ( int i = 0; i < quantità; i++) {
-            arrayquantità[i] = String.valueOf(i+1);
+        for (int i = 0; i < quantità; i++) {
+            arrayquantità[i] = String.valueOf(i + 1);
         }
         return arrayquantità;
     }
@@ -203,6 +174,34 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         return productList;
     }
 
-    public void setListItems(List<Prodotto> productList) { this.productList = productList; }
+    public void setListItems(List<Prodotto> productList) {
+        this.productList = productList;
+    }
+
+    public interface OnItemClicked {
+        void onItemClick(int position);
+    }
+
+    public class ProductViewHolder extends RecyclerView.ViewHolder {
+        public ImageView immagine;
+        public TextView nome, prezzo, marca;
+        public Spinner quantita;
+        public ConstraintLayout viewBackground;
+        public ConstraintLayout viewForeground;
+
+        public ProductViewHolder(View view) {
+            super(view);
+
+            immagine = view.findViewById(R.id.imgProdotto);
+            nome = view.findViewById(R.id.txtNome);
+            prezzo = view.findViewById(R.id.txtPrezzo);
+            marca = view.findViewById(R.id.txtMarca);
+            quantita = view.findViewById(R.id.spnQuantità);
+
+            viewBackground = itemView.findViewById(R.id.view_background);
+            viewForeground = itemView.findViewById(R.id.view_foreground);
+
+        }
+    }
 
 }

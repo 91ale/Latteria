@@ -29,14 +29,14 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         Button btnAggiungiProdotto = findViewById(R.id.btnAggiungiProdotto);
 
         Intent intentinformazioniprodotto = getIntent();
-        final int statoordine = intentinformazioniprodotto.getIntExtra("STATO",-1);
-        final int position = intentinformazioniprodotto.getIntExtra("POSITION",-1);
+        final int statoordine = intentinformazioniprodotto.getIntExtra("STATO", -1);
+        final int position = intentinformazioniprodotto.getIntExtra("POSITION", -1);
         String nome = intentinformazioniprodotto.getStringExtra("NOME");
         String marca = intentinformazioniprodotto.getStringExtra("MARCA");
         double prezzo = intentinformazioniprodotto.getDoubleExtra("PREZZO", 0);
         String immagine = intentinformazioniprodotto.getStringExtra("IMMAGINE");
-        int quantitaselezionata = intentinformazioniprodotto.getIntExtra("QUANTITA_SELEZIONATA",-1);
-        int quantitadisponibile = intentinformazioniprodotto.getIntExtra("QUANTITA_DISPONIBILE",-1);
+        int quantitaselezionata = intentinformazioniprodotto.getIntExtra("QUANTITA_SELEZIONATA", -1);
+        int quantitadisponibile = intentinformazioniprodotto.getIntExtra("QUANTITA_DISPONIBILE", -1);
         String descrizione = intentinformazioniprodotto.getStringExtra("DESCRIZIONE");
 
         txtNomeMarca.setText(nome + " " + marca);
@@ -50,7 +50,7 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
             btnAggiungiProdotto.setVisibility(View.INVISIBLE);
         }
 
-        String [] arrayquantità = arrayQuantità(quantitadisponibile);
+        String[] arrayquantità = arrayQuantità(quantitadisponibile);
         // crea un ArrayAdapter usando l'array delle quantità e il layout passato
         ArrayAdapter<String> spinnerAdapter =
                 new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayquantità);
@@ -58,7 +58,7 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // applica l'adapter allo spinner
         spnQuantita.setAdapter(spinnerAdapter);
-        spnQuantita.setSelection(quantitaselezionata-1);
+        spnQuantita.setSelection(quantitaselezionata - 1);
 
         btnAggiungiProdotto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,10 +73,10 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
 
     }
 
-    private String[] arrayQuantità (int quantità) {
+    private String[] arrayQuantità(int quantità) {
         String[] arrayquantità = new String[quantità];
-        for ( int i = 0; i < quantità; i++) {
-            arrayquantità[i] = String.valueOf(i+1);
+        for (int i = 0; i < quantità; i++) {
+            arrayquantità[i] = String.valueOf(i + 1);
         }
         return arrayquantità;
     }

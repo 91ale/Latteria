@@ -7,7 +7,7 @@ public class Utente {
     private String indirizzo;
     private String tipo;
 
-    public Utente (/*String UID, String nome, String cognome, String indirizzo, String tipo*/) {
+    public Utente(/*String UID, String nome, String cognome, String indirizzo, String tipo*/) {
         /*this.UID = UID;
         this.nome = nome;
         this.cognome = cognome;
@@ -15,24 +15,44 @@ public class Utente {
         this.tipo = tipo;*/
     }
 
-    public String getUID () { return UID; }
+    public String getUID() {
+        return UID;
+    }
 
-    public String getnome () { return nome; }
+    public void setUID(String UID) {
+        this.UID = UID;
+    }
 
-    public String getcognome () { return cognome; }
+    public String getnome() {
+        return nome;
+    }
 
-    public String getindirizzo () { return indirizzo; }
+    public String getcognome() {
+        return cognome;
+    }
 
-    public String gettipo () { return tipo; }
+    public String getindirizzo() {
+        return indirizzo;
+    }
 
-    public void setUID (String UID) { this.UID = UID; }
+    public String gettipo() {
+        return tipo;
+    }
 
-    public void setnome (String nome) { this.nome = nome; }
+    public void setnome(String nome) {
+        this.nome = nome;
+    }
 
-    public void setcognome (String cognome) { this.cognome = cognome; }
+    public void setcognome(String cognome) {
+        this.cognome = cognome;
+    }
 
-    public void setindirizzo (String indirizzo) { this.indirizzo = indirizzo; }
+    public void setindirizzo(String indirizzo) {
+        this.indirizzo = indirizzo;
+    }
 
-    public void settipo (String tipo) { this.tipo = tipo; }
+    public void settipo(String tipo) {
+        this.tipo = tipo;
+    }
 
 }

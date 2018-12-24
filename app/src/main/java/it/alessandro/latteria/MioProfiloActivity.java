@@ -81,7 +81,7 @@ public class MioProfiloActivity extends AppCompatActivity {
                 utente.setnome(edtNome.getText().toString());
                 utente.setcognome(edtCognome.getText().toString());
                 utente.setindirizzo(edtIndirizzo.getText().toString());
-                insertUser(INSERT_USER+"IDUtente="+utente.getUID()+"&Nome="+utente.getnome()+"&Cognome="+utente.getcognome()+"&Indirizzo="+utente.getindirizzo()+"&Tipo="+utente.gettipo());
+                insertUser(INSERT_USER + "IDUtente=" + utente.getUID() + "&Nome=" + utente.getnome() + "&Cognome=" + utente.getcognome() + "&Indirizzo=" + utente.getindirizzo() + "&Tipo=" + utente.gettipo());
                 setUtenteLoggato(utente);
                 btnSalva.setVisibility(View.INVISIBLE);
                 btnModificaProfilo.setVisibility(View.VISIBLE);
@@ -101,7 +101,7 @@ public class MioProfiloActivity extends AppCompatActivity {
         btnSalvaPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setFirebasePassword (edtPassword.getText().toString());
+                setFirebasePassword(edtPassword.getText().toString());
                 btnSalvaPassword.setVisibility(View.INVISIBLE);
                 btnCambiaPassword.setVisibility(View.VISIBLE);
                 edtPassword.setVisibility(View.INVISIBLE);
@@ -150,7 +150,7 @@ public class MioProfiloActivity extends AppCompatActivity {
 
     }
 
-    private void setFirebasePassword (String password) {
+    private void setFirebasePassword(String password) {
         FirebaseUser firebaseuser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseuser.updatePassword(password);
     }

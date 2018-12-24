@@ -116,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     if (utente.getUID() == null) {
                                         Intent intentsignup = new Intent(getApplicationContext(), SignUpActivity.class);
-                                        intentsignup.putExtra("UID",loggeduser.getUid());
+                                        intentsignup.putExtra("UID", loggeduser.getUid());
                                         startActivity(intentsignup);
                                     } else {
                                         switch (utente.gettipo()) {

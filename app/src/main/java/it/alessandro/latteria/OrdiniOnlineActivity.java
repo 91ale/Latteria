@@ -2,13 +2,13 @@ package it.alessandro.latteria;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,10 +28,15 @@ import com.mancj.materialsearchbar.MaterialSearchBar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrdiniActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class OrdiniOnlineActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener{
 
-    private static final String SELECT_ORDINI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_orders_from_UID.php?IDUtente=";
+    private static final String SELECT_ORDINI_ONLINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_orders_online_completato.php";
+
+    private static final int QR = 14;
+    private static final int RC_SCANNED_QR = 105;
+
+    private static final int COMMESSO = 1;
 
     String loggeduser = "";
     OrderAdapter mAdapter;
@@ -43,7 +48,7 @@ public class OrdiniActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ordini);
+        setContentView(R.layout.activity_ordini_online);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
@@ -61,13 +66,13 @@ public class OrdiniActivity extends AppCompatActivity
 
         recyclerView = findViewById(R.id.recycler_view);
 
-        mAdapter = new OrderAdapter(OrdiniActivity.this, orderList);
+        mAdapter = new OrderAdapter(OrdiniOnlineActivity.this, orderList, COMMESSO);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        getOrdini(SELECT_ORDINI);
+        getOrdini(SELECT_ORDINI_ONLINE);
 
     }
 
@@ -87,15 +92,18 @@ public class OrdiniActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_spesa) {
-            Intent intentspesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-            startActivity(intentspesa);
-        } else if (id == R.id.nav_profilo) {
-            Intent intentprofilo = new Intent(getApplicationContext(), MioProfiloActivity.class);
-            startActivity(intentprofilo);
-        } else if (id == R.id.nav_ordini) {
-            Intent intentordini = new Intent(getApplicationContext(), OrdiniActivity.class);
-            startActivity(intentordini);
-        } else if (id == R.id.nav_aiuto) {
+            Intent intentscanqrcode = new Intent(getApplicationContext(), ScanBarcodeActivity.class);
+            String messaggio = "Inquadra lo schermo del dispositivo del cliente";
+            intentscanqrcode.putExtra("TIPO_CODICE", QR);
+            intentscanqrcode.putExtra("MESSAGGIO", messaggio);
+            startActivityForResult(intentscanqrcode, RC_SCANNED_QR);
+        } else if (id == R.id.nav_prodotti) {
+            Intent intentgestioneprodotti = new Intent(getApplicationContext(), GestioneProdottiActivity.class);
+            startActivity(intentgestioneprodotti);
+        } else if (id == R.id.nav_ordini_online) {
+            Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+            startActivity(intentordinionline);
+        } else if (id == R.id.nav_ordini_conclusi) {
             Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
             startActivity(intentaiuto);
         } else if (id == R.id.nav_logout) {
@@ -123,7 +131,7 @@ public class OrdiniActivity extends AppCompatActivity
 
     private void getOrdini(final String urlWebService) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + loggeduser,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -131,7 +139,7 @@ public class OrdiniActivity extends AppCompatActivity
                         pj.getOrderFromDB();
                         orderList.addAll(pj.getOrder());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new OrderAdapter(OrdiniActivity.this, orderList);
+                        mAdapter = new OrderAdapter(OrdiniOnlineActivity.this, orderList, COMMESSO);
                         recyclerView.setAdapter(mAdapter);
                     }
                 },

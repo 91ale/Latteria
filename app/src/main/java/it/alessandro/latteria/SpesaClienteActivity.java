@@ -51,42 +51,35 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final String INSERT_PRODOTTI_VENDUTI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_ordered_products.php?";
     private static final String SELECT_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_products_from_orderid.php?IDOrdine=";
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
-
-    String loggeduser = "";
-
-    private MaterialSearchBar searchBar;
-    private DrawerLayout drawerLayout;
-
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
     private static final int PRODOTTO_SELEZIONATO = 103;
-
     private static final int AGGIUNGI = 1;
     private static final int SOSTITUISCI = 2;
-
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
-
     private static final int COMPLETATO = 1;
-
     private static final int EAN_13 = 13;
-
-    private List<Prodotto> productList = new ArrayList<>();
-    private List<Prodotto> rproductList = new ArrayList<>();
+    String loggeduser = "";
     ProductAdapter mAdapter;
-    private RecyclerView recyclerView;
     TextView txtPrezzoTotale;
-
     DecimalFormat pdec = new DecimalFormat("€ 0.00");
-
+    //aggiorna il prezzo totale quando viene modificata la quantità di un prodotto
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            txtPrezzoTotale.setText(String.valueOf(pdec.format(mAdapter.sumAllItem())));
+        }
+    };
     int tipospesa = 0;
     int statoordine = 0;
     int idordine = 0;
     int commessocliente = 0;
-
-    public interface VolleyCallBack {
-        void onSuccess(String response);
-    }
+    private MaterialSearchBar searchBar;
+    private DrawerLayout drawerLayout;
+    private List<Prodotto> productList = new ArrayList<>();
+    private List<Prodotto> rproductList = new ArrayList<>();
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,25 +153,25 @@ public class SpesaClienteActivity extends AppCompatActivity
                 new IntentFilter("quantita_modificata"));
 
         Button btnProcediCassa = findViewById(R.id.btnProcediCassa);
-        if (statoordine == COMPLETATO){
+        if (statoordine == COMPLETATO) {
             btnProcediCassa.setVisibility(View.INVISIBLE);
         } else if (tipospesa == ONLINE) btnProcediCassa.setText("COMPLETA L'ORDINE");
 
         btnProcediCassa.setOnClickListener(new View.OnClickListener() {
-        @Override
+            @Override
             public void onClick(View v) {
-            aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
-                @Override
-                public void onSuccess(String response) {
-                    Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
-                    intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
-                    if (tipospesa == IN_NEGOZIO)
-                        intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
-                    if (tipospesa == ONLINE)
-                        intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
-                    startActivity(intentapproviazionespesa);
-                }
-            });
+                aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
+                    @Override
+                    public void onSuccess(String response) {
+                        Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
+                        intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
+                        if (tipospesa == IN_NEGOZIO)
+                            intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                        if (tipospesa == ONLINE)
+                            intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
+                        startActivity(intentapproviazionespesa);
+                    }
+                });
             }
         });
 
@@ -243,9 +236,7 @@ public class SpesaClienteActivity extends AppCompatActivity
         FrameLayout searchBackground = findViewById(R.id.search_transparent_background);
         if (enabled == true) {
             searchBackground.setVisibility(View.VISIBLE);
-        }
-        else
-        {
+        } else {
             searchBackground.setVisibility(View.GONE);
         }
 
@@ -271,7 +262,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                 String messaggio = "Inquadra il codice a barre del prodotto che vuoi acquistare";
                 intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
                 intentscanbarcode.putExtra("MESSAGGIO", messaggio);
-                startActivityForResult(intentscanbarcode,RC_SCANNED_BC);
+                startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
                 break;
             case MaterialSearchBar.BUTTON_BACK:
                 searchBar.disableSearch();
@@ -280,7 +271,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     }
 
     //Logout utente
-    private void SignOut () {
+    private void SignOut() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -294,19 +285,19 @@ public class SpesaClienteActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(requestCode==RC_SCANNED_BC) {
+        if (requestCode == RC_SCANNED_BC) {
             if (resultCode == Activity.RESULT_OK) {
                 String scannedbc = data.getStringExtra("SCANNED_CODE");
-                Log.d("SCANNED_CODE",scannedbc);
+                Log.d("SCANNED_CODE", scannedbc);
                 //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
                 int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
                 //altrimenti acquisico le info dal DB e lo aggiungo alla lista
                 if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
             }
-        }else if (requestCode==QUANTITA_SELEZIONATA) {
+        } else if (requestCode == QUANTITA_SELEZIONATA) {
             if (resultCode == Activity.RESULT_OK) {
-                int quantita = data.getIntExtra("QUANTITA_SELEZIONATA",-1);
-                int position = data.getIntExtra("POSITION",-1);
+                int quantita = data.getIntExtra("QUANTITA_SELEZIONATA", -1);
+                int position = data.getIntExtra("POSITION", -1);
                 productList.get(position).setQuantitàOrdinata(quantita);
                 //crea l'adapter e lo assegna alla recycleview
                 mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
@@ -314,10 +305,10 @@ public class SpesaClienteActivity extends AppCompatActivity
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);
             }
-        }else if (requestCode==PRODOTTO_SELEZIONATO) {
+        } else if (requestCode == PRODOTTO_SELEZIONATO) {
             if (resultCode == Activity.RESULT_OK) {
-                Prodotto Prodotto = (Prodotto)data.getSerializableExtra("PRODOTTO_SELEZIONATO");
-                if (checkExistInList(Prodotto.getBarCode(),  Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1 ) {
+                Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
+                if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1) {
                     productList.add(Prodotto);
                     mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                     double totalespesa = mAdapter.sumAllItem();
@@ -384,7 +375,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
 
-                    // ANNULA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
+                    // ANNULLA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
                     mAdapter.restoreItem(deletedItem, deletedIndex);
                     rproductList.remove(deletedIndex);
                     double totalespesa = mAdapter.sumAllItem();
@@ -396,22 +387,14 @@ public class SpesaClienteActivity extends AppCompatActivity
         }
     }
 
-    //aggiorna il prezzo totale quando viene modificata la quantità di un prodotto
-    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            txtPrezzoTotale.setText(String.valueOf(pdec.format(mAdapter.sumAllItem())));
-        }
-    };
-
-    private int checkExistInList (String scannedbc, int quantita, int operazione) {
+    private int checkExistInList(String scannedbc, int quantita, int operazione) {
 
         int f = 0;
 
-        for (int i=0; i<=productList.size()-1; i++) {
+        for (int i = 0; i <= productList.size() - 1; i++) {
             if (productList.get(i).getBarCode().equals(scannedbc)) {
                 if (operazione == AGGIUNGI) {
-                    productList.get(i).setQuantitàOrdinata(productList.get(i).getQuantitàOrdinata()+quantita);
+                    productList.get(i).setQuantitàOrdinata(productList.get(i).getQuantitàOrdinata() + quantita);
                 } else if (operazione == SOSTITUISCI) {
                     productList.get(i).setQuantitàOrdinata(quantita);
                 }
@@ -425,13 +408,13 @@ public class SpesaClienteActivity extends AppCompatActivity
         return f;
     }
 
-    private void aggiungiOrdine (String stato, final int idordine, final VolleyCallBack callback) {
+    private void aggiungiOrdine(String stato, final int idordine, final VolleyCallBack callback) {
 
         String queryurl = "";
 
         //se sono stati rimossi prodotti dalla recycleview li elimino anche dal DB
-        if (rproductList.size()>0) {
-            for (int i=0; i<rproductList.size(); i++) {
+        if (rproductList.size() > 0) {
+            for (int i = 0; i < rproductList.size(); i++) {
                 queryurl = DELETE_PRODOTTI_DA_ORDINE + rproductList.get(i).getIdprodottovenduto();
 
                 StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
@@ -458,30 +441,30 @@ public class SpesaClienteActivity extends AppCompatActivity
             //modifico la INSERT in base al tipo di ordine effettuato ( IN_NEGOZIO | ONLINE )
             if (tipospesa == IN_NEGOZIO) {
                 queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "In negozio" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
+                        "Stato=" + stato + "&" +
+                        "Tipo=" + "In negozio" + "&" +
+                        "Importo=" + mAdapter.sumAllItem() + "&" +
+                        "IDUtente=" + loggeduser;
             } else {
                 queryurl = INSERT_ORDINE + "IDOrdine=null" + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "Online" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
+                        "Stato=" + stato + "&" +
+                        "Tipo=" + "Online" + "&" +
+                        "Importo=" + mAdapter.sumAllItem() + "&" +
+                        "IDUtente=" + loggeduser;
             }
         } else {
             if (tipospesa == IN_NEGOZIO) {
                 queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "In negozio" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
+                        "Stato=" + stato + "&" +
+                        "Tipo=" + "In negozio" + "&" +
+                        "Importo=" + mAdapter.sumAllItem() + "&" +
+                        "IDUtente=" + loggeduser;
             } else {
                 queryurl = INSERT_ORDINE + "IDOrdine=" + idordine + "&" +
-                                            "Stato=" + stato + "&" +
-                                            "Tipo=" + "Online" + "&" +
-                                            "Importo=" + mAdapter.sumAllItem() + "&" +
-                                            "IDUtente=" + loggeduser;
+                        "Stato=" + stato + "&" +
+                        "Tipo=" + "Online" + "&" +
+                        "Importo=" + mAdapter.sumAllItem() + "&" +
+                        "IDUtente=" + loggeduser;
             }
         }
 
@@ -505,24 +488,24 @@ public class SpesaClienteActivity extends AppCompatActivity
 
     }
 
-    private void aggiungiProdottiOrdinati (String IDOrdine) {
+    private void aggiungiProdottiOrdinati(String IDOrdine) {
 
         String queryurl = "";
 
-        for (int i=0; i<productList.size(); i++) {
+        for (int i = 0; i < productList.size(); i++) {
             //verifico se il prodotto è già stato aggiunto al DB (fa parte di un ordine già esistente)
             if (productList.get(i).getIdprodottovenduto() == 0) {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + "&" +
-                                                    "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
-                                                    "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
-                                                    "Ordini_IDOrdine=" + IDOrdine + "&" +
-                                                    "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
+                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
+                        "Ordini_IDOrdine=" + IDOrdine + "&" +
+                        "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             } else {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + productList.get(i).getIdprodottovenduto() + "&" +
-                                                    "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
-                                                    "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
-                                                    "Ordini_IDOrdine=" + IDOrdine + "&" +
-                                                    "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
+                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
+                        "Ordini_IDOrdine=" + IDOrdine + "&" +
+                        "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             }
 
 
@@ -545,31 +528,35 @@ public class SpesaClienteActivity extends AppCompatActivity
         }
     }
 
-    private void caricaOrdine (int idordine) {
+    private void caricaOrdine(int idordine) {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, SELECT_PRODOTTI_DA_ORDINE + idordine,
-        new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                ParseProductJSON pj = new ParseProductJSON(response);
-                pj.getProductFromDB();
-                productList.addAll(pj.getProduct());
-                //crea l'adapter e lo assegna alla recycleview
-                mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
-                double totalespesa = mAdapter.sumAllItem();
-                txtPrezzoTotale.setText(pdec.format(totalespesa));
-                recyclerView.setAdapter(mAdapter);
-            }
-        },
-        new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseProductJSON pj = new ParseProductJSON(response);
+                        pj.getProductFromDB();
+                        productList.addAll(pj.getProduct());
+                        //crea l'adapter e lo assegna alla recycleview
+                        mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
+                        double totalespesa = mAdapter.sumAllItem();
+                        txtPrezzoTotale.setText(pdec.format(totalespesa));
+                        recyclerView.setAdapter(mAdapter);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-            }
-        });
+                    }
+                });
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);
 
+    }
+
+    public interface VolleyCallBack {
+        void onSuccess(String response);
     }
 }

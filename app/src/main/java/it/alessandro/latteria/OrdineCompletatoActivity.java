@@ -1,8 +1,8 @@
 package it.alessandro.latteria;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,6 +19,8 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
 
     private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_status_from_orderid.php?";
 
+    private static final int ONLINE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,16 +30,27 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
 
         final int idordine = getIntent().getIntExtra("ID_ORDINE", -1);
         double totaleordine = getIntent().getDoubleExtra("TOTALE_ORDINE", -1);
+        final int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 
         TextView txtTotale = findViewById(R.id.txtTotale);
-        txtTotale.setText("Il totale dovuto è di: " + pdec.format(totaleordine));
+        if (tipospesa == ONLINE) {
+            txtTotale.setText("Il totale pagato è di: " + pdec.format(totaleordine));
+        } else {
+            txtTotale.setText("Il totale dovuto è di: " + pdec.format(totaleordine));
+        }
+
 
         Button btnOrdineCompletato = findViewById(R.id.btnOrdineCompletato);
 
         btnOrdineCompletato.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setOrdineCompletato(idordine);
+                if (tipospesa == ONLINE) {
+                    setOrdineCompletato(idordine, "Evaso");
+                } else {
+                    setOrdineCompletato(idordine, "Completato");
+                }
+
                 Intent intentcommesso = new Intent(getApplicationContext(), CommessoActivity.class);
                 startActivity(intentcommesso);
             }
@@ -45,11 +58,11 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
 
     }
 
-    private void setOrdineCompletato (int idordine) {
+    private void setOrdineCompletato(int idordine, String stato) {
 
         //modifico lo stato dell'ordine a "Completato"
         String queryurl = UPDATE_ORDINE_IMPORTO_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
-                "Stato=" + "Completato";
+                "Stato=" + stato;
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {
