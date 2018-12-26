@@ -17,9 +17,12 @@ import java.text.DecimalFormat;
 
 public class OrdineCompletatoActivity extends AppCompatActivity {
 
-    private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_status_from_orderid.php?";
+    private static final String UPDATE_STATO_ORDINE_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_status_from_orderid.php?";
+    private static final String SELECT_INDIRIZZO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_address_from_orderid.php?";
 
     private static final int ONLINE = 2;
+
+    Utente utente;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +37,10 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
 
         TextView txtTotale = findViewById(R.id.txtTotale);
         if (tipospesa == ONLINE) {
-            txtTotale.setText("Il totale pagato è di: " + pdec.format(totaleordine));
+            getUtente(idordine);
         } else {
             txtTotale.setText("Il totale dovuto è di: " + pdec.format(totaleordine));
         }
-
 
         Button btnOrdineCompletato = findViewById(R.id.btnOrdineCompletato);
 
@@ -60,8 +62,8 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
 
     private void setOrdineCompletato(int idordine, String stato) {
 
-        //modifico lo stato dell'ordine a "Completato"
-        String queryurl = UPDATE_ORDINE_IMPORTO_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
+        //modifico lo stato dell'ordine
+        String queryurl = UPDATE_STATO_ORDINE_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
                 "Stato=" + stato;
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
@@ -69,6 +71,33 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
 
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
+
+    }
+
+    private void getUtente (int idordine) {
+
+        String queryurl = SELECT_INDIRIZZO_DA_IDORDINE + "IDOrdine=" + idordine;
+
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseUserJSON pj = new ParseUserJSON(response);
+                        pj.getUserFromDB();
+                        utente = pj.getUtente();
+                        TextView txtTotale = findViewById(R.id.txtTotale);
+                        txtTotale.setText("L'ordine è stato eseguito da " + utente.getnome() + " " + utente.getcognome() + " la consegna va effettuata all'indirizzo " + utente.getindirizzo());
                     }
                 },
                 new Response.ErrorListener() {

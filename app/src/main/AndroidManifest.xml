@@ -47,7 +47,9 @@
         <activity android:name=".VisualizzaProdottiActivity" />
         <activity android:name=".ModificaProdottoActivity" />
         <activity android:name=".CercaProdottoCommessoActivity" />
-        <activity android:name=".OrdiniOnlineActivity"></activity>
+        <activity android:name=".OrdiniOnlineActivity" />
+        <activity android:name=".OrdiniConclusiActivity" />
+        <activity android:name=".StatisticheActivity"></activity>
     </application>
 
 </manifest>

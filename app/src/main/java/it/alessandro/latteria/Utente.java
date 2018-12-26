@@ -7,12 +7,14 @@ public class Utente {
     private String indirizzo;
     private String tipo;
 
-    public Utente(/*String UID, String nome, String cognome, String indirizzo, String tipo*/) {
-        /*this.UID = UID;
+    public Utente () { };
+
+    public Utente(String UID, String nome, String cognome, String indirizzo, String tipo) {
+        this.UID = UID;
         this.nome = nome;
         this.cognome = cognome;
         this.indirizzo = indirizzo;
-        this.tipo = tipo;*/
+        this.tipo = tipo;
     }
 
     public String getUID() {

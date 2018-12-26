@@ -15,6 +15,7 @@ import java.util.List;
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
     private static final int COMPLETATO = 1;
+    private static final int EVASO = 2;
 
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
@@ -63,6 +64,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             @Override
             public void onClick(View v) {
                 switch (orderList.get(position).getStato()) {
+                    case "Evaso":
+                        Intent intentevaso = new Intent(mCtx, SpesaClienteActivity.class);
+                        intentevaso.putExtra("STATO_ORDINE", EVASO);
+                        intentevaso.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
+                        mCtx.startActivity(intentevaso);
+                        break;
                     case "Completato":
                         if (commesso == COMMESSO) {
                             Intent intentcompletatocommesso = new Intent(mCtx, SpesaCommessoActivity.class);
@@ -95,6 +102,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                         if (orderList.get(position).getTipo().equals("Online"))
                             intentspesa.putExtra("TIPO_SPESA", ONLINE);
                         mCtx.startActivity(intentspesa);
+                        break;
                 }
             }
         });

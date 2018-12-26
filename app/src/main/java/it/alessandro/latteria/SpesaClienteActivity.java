@@ -59,6 +59,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
     private static final int COMPLETATO = 1;
+    private static final int EVASO = 2;
     private static final int EAN_13 = 13;
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -104,7 +105,7 @@ public class SpesaClienteActivity extends AppCompatActivity
         //Barra di ricerca importata da https://github.com/mancj/MaterialSearchBar
         searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
         //se l'ordine è in stato COMPLETATO nasconde la barra di ricerca
-        if (statoordine == COMPLETATO) searchBar.setVisibility(View.INVISIBLE);
+        if (statoordine == COMPLETATO || statoordine == EVASO) searchBar.setVisibility(View.INVISIBLE);
         searchBar.setOnSearchActionListener(this);
         //abilita l'icona per la scansione del codice a barre
         searchBar.setSpeechMode(true);
@@ -153,7 +154,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                 new IntentFilter("quantita_modificata"));
 
         Button btnProcediCassa = findViewById(R.id.btnProcediCassa);
-        if (statoordine == COMPLETATO) {
+        if (statoordine == COMPLETATO || statoordine == EVASO) {
             btnProcediCassa.setVisibility(View.INVISIBLE);
         } else if (tipospesa == ONLINE) btnProcediCassa.setText("COMPLETA L'ORDINE");
 
@@ -176,7 +177,7 @@ public class SpesaClienteActivity extends AppCompatActivity
         });
 
         Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
-        if (statoordine == COMPLETATO) salvaOrdine.setVisibility(View.INVISIBLE);
+        if (statoordine == COMPLETATO || statoordine == EVASO) salvaOrdine.setVisibility(View.INVISIBLE);
         salvaOrdine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

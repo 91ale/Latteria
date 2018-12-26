@@ -28,10 +28,10 @@ import com.mancj.materialsearchbar.MaterialSearchBar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrdiniOnlineActivity extends AppCompatActivity
+public class OrdiniConclusiActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String SELECT_ORDINI_ONLINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_orders_online_completato.php";
+    private static final String SELECT_ORDINI_CONCLUSI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_orders_completato_evaso.php";
 
     private static final int QR = 14;
     private static final int RC_SCANNED_QR = 105;
@@ -48,7 +48,7 @@ public class OrdiniOnlineActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ordini_online);
+        setContentView(R.layout.activity_ordini_conclusi);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
@@ -66,14 +66,13 @@ public class OrdiniOnlineActivity extends AppCompatActivity
 
         recyclerView = findViewById(R.id.recycler_view);
 
-        mAdapter = new OrderAdapter(OrdiniOnlineActivity.this, orderList, COMMESSO);
+        mAdapter = new OrderAdapter(OrdiniConclusiActivity.this, orderList, COMMESSO);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        getOrdini(SELECT_ORDINI_ONLINE);
-
+        getOrdini(SELECT_ORDINI_CONCLUSI);
     }
 
     @Override
@@ -139,7 +138,7 @@ public class OrdiniOnlineActivity extends AppCompatActivity
                         pj.getOrderFromDB();
                         orderList.addAll(pj.getOrder());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new OrderAdapter(OrdiniOnlineActivity.this, orderList, COMMESSO);
+                        mAdapter = new OrderAdapter(OrdiniConclusiActivity.this, orderList, COMMESSO);
                         recyclerView.setAdapter(mAdapter);
                     }
                 },
@@ -163,4 +162,5 @@ public class OrdiniOnlineActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

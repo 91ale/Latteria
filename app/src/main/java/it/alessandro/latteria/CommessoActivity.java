@@ -22,6 +22,8 @@ public class CommessoActivity extends AppCompatActivity {
         Button btnSpesa = findViewById(R.id.btnSpesa);
         Button btnProdotti = findViewById(R.id.btnProdotti);
         Button btnOrdiniOnline = findViewById(R.id.btnOrdiniOnline);
+        Button btnOrdiniConclusi = findViewById(R.id.btnOrdiniConclusi);
+        Button btnStatisticheVendita = findViewById(R.id.btnStatisticheVendita);
 
         btnSpesa.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,6 +49,22 @@ public class CommessoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
                 startActivity(intentordinionline);
+            }
+        });
+
+        btnOrdiniConclusi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentordiniconclusi = new Intent(getApplicationContext(), OrdiniConclusiActivity.class);
+                startActivity(intentordiniconclusi);
+            }
+        });
+
+        btnStatisticheVendita.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentstatistiche = new Intent(getApplicationContext(), StatisticheActivity.class);
+                startActivity(intentstatistiche);
             }
         });
     }
