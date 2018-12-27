@@ -49,7 +49,10 @@
         <activity android:name=".CercaProdottoCommessoActivity" />
         <activity android:name=".OrdiniOnlineActivity" />
         <activity android:name=".OrdiniConclusiActivity" />
-        <activity android:name=".StatisticheActivity"></activity>
+        <activity android:name=".StatisticheActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        </activity>
     </application>
 
 </manifest>
