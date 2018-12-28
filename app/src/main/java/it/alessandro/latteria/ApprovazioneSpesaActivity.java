@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.braintreepayments.api.BraintreeFragment;
+import com.braintreepayments.api.exceptions.InvalidArgumentException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -22,6 +24,8 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
 
     int tipospesa = 0;
     String idordine;
+    BraintreeFragment mBraintreeFragment;
+    String mAuthorization;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,12 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
         btnPagaPayPal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                try {
+                    mBraintreeFragment = BraintreeFragment.newInstance(ApprovazioneSpesaActivity.this, mAuthorization);
+                    // mBraintreeFragment is ready to use!
+                } catch (InvalidArgumentException e) {
+                    // There was an issue with your authorization string.
+                }
             }
         });
 

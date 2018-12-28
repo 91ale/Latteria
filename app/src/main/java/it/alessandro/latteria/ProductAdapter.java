@@ -22,13 +22,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     private static final int IN_NEGOZIO = 1;
     private static final int QUANTITA_SELEZIONATA = 102;
-    private static final int COMPLETATO = 1;
+    private static final int RICERCA = 5;
     private Context mCtx;
     private List<Prodotto> productList;
     private int tipospesa;
     private int statoordine;
-    //dichiaro l'interfaccia
-    private OrderAdapter.OnItemClicked onClick;
 
     public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine) {
         this.mCtx = mCtx;
@@ -96,6 +94,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
             }
         });
+
+        if (statoordine == RICERCA) {
+            holder.quantita.setVisibility(View.INVISIBLE);
+            holder.txtQuantita.setVisibility(View.INVISIBLE);
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,7 +187,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {
         public ImageView immagine;
-        public TextView nome, prezzo, marca;
+        public TextView nome, prezzo, marca, txtQuantita;
         public Spinner quantita;
         public ConstraintLayout viewBackground;
         public ConstraintLayout viewForeground;
@@ -197,6 +200,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             prezzo = view.findViewById(R.id.txtPrezzo);
             marca = view.findViewById(R.id.txtMarca);
             quantita = view.findViewById(R.id.spnQuantità);
+            txtQuantita = view.findViewById(R.id.txtQuantità);
 
             viewBackground = itemView.findViewById(R.id.view_background);
             viewForeground = itemView.findViewById(R.id.view_foreground);

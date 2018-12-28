@@ -26,6 +26,7 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
 
     private static final int QUANTITA_SELEZIONATA = 102;
+    private static final int RICERCA = 5;
     ProductAdapter mAdapter;
     private List<Prodotto> productList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -103,7 +104,7 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -118,7 +119,7 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa);
+                        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa, RICERCA);
                         recyclerView.setAdapter(mAdapter);
                     }
                 },

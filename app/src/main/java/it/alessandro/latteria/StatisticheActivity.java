@@ -98,6 +98,7 @@ public class StatisticheActivity extends AppCompatActivity
                             }
 
                             graph.addSeries(seriescosti);
+                            seriescosti.setColor(Color.RED);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -148,7 +149,7 @@ public class StatisticheActivity extends AppCompatActivity
                             }
 
                             graph.addSeries(seriesricavi);
-                            seriesricavi.setColor(Color.RED);
+                            seriesricavi.setColor(Color.GREEN);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

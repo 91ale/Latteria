@@ -37,6 +37,8 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     //https://github.com/jjoe64/GraphView
     implementation 'com.jjoe64:graphview:4.2.2'
+    //https://developers.braintreepayments.com/guides/client-sdk/setup/android/v2
+    implementation 'com.braintreepayments.api:braintree:2.+'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

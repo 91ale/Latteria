@@ -11,10 +11,13 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+
 public class InformazioniProdottoActivity extends AppCompatActivity {
 
 
     private static final int COMPLETATO = 1;
+    DecimalFormat pdec = new DecimalFormat("€ 0.00");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,7 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         String descrizione = intentinformazioniprodotto.getStringExtra("DESCRIZIONE");
 
         txtNomeMarca.setText(nome + " " + marca);
-        txtPrezzo.setText(String.valueOf(prezzo));
+        txtPrezzo.setText(String.valueOf(pdec.format(prezzo)));
         new DownloadImageTask(imgProdotto).execute(immagine);
         txtDescrizione.setText(descrizione);
 
