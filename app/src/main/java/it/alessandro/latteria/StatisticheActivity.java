@@ -2,7 +2,7 @@ package it.alessandro.latteria;
 
 import android.app.DatePickerDialog;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;

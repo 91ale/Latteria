@@ -8,17 +8,19 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.annotation.NonNull;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
+
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -39,6 +41,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +78,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     int tipospesa = 0;
     int statoordine = 0;
     int idordine = 0;
-    int commessocliente = 0;
+
     private MaterialSearchBar searchBar;
     private DrawerLayout drawerLayout;
     private List<Prodotto> productList = new ArrayList<>();
@@ -166,6 +169,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                     public void onSuccess(String response) {
                         Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
                         intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
+                        intentapproviazionespesa.putExtra("IMPORTO", String.valueOf(mAdapter.sumAllItem()));
                         if (tipospesa == IN_NEGOZIO)
                             intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
                         if (tipospesa == ONLINE)

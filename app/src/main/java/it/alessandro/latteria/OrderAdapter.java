@@ -2,13 +2,14 @@ package it.alessandro.latteria;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.RecyclerView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -88,6 +89,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                     case "In attesa di pagamento":
                         Intent intentapproviazionespesa = new Intent(mCtx, ApprovazioneSpesaActivity.class);
                         intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(orderList.get(position).getIDordine()));
+                        intentapproviazionespesa.putExtra("IMPORTO", String.valueOf(orderList.get(position).getImporto()));
                         if (orderList.get(position).getTipo().equals("In negozio"))
                             intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
                         if (orderList.get(position).getTipo().equals("Online"))

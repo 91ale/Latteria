@@ -1,5 +1,6 @@
 package it.alessandro.latteria;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class Ordine {
@@ -7,9 +8,9 @@ public class Ordine {
     private int idordine;
     private Date dataora;
     private String stato, tipo;
-    private double importo;
+    private BigDecimal importo;
 
-    public Ordine(int idordine, Date dataora, String stato, String tipo, double importo) {
+    public Ordine(int idordine, Date dataora, String stato, String tipo, BigDecimal importo) {
         this.idordine = idordine;
         this.dataora = dataora;
         this.stato = stato;
@@ -49,11 +50,11 @@ public class Ordine {
         this.tipo = tipo;
     }
 
-    public double getImporto() {
+    public BigDecimal getImporto() {
         return importo;
     }
 
-    public void setImporto(double importo) {
+    public void setImporto(BigDecimal importo) {
         this.importo = importo;
     }
 

@@ -2,9 +2,10 @@ package it.alessandro.latteria;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 public class TipoSpesaActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -18,6 +19,14 @@ public class TipoSpesaActivity extends AppCompatActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipo_spesa);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         btnInNegozio = findViewById(R.id.btnInNegozio);
         btnADomicilio = findViewById(R.id.btnADomicilio);

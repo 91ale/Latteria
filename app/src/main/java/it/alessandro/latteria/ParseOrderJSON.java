@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.math.BigDecimal;
+
+
 public class ParseOrderJSON {
 
     List<Ordine> orderList;
@@ -44,7 +47,7 @@ public class ParseOrderJSON {
                         sdf.parse(ordineJ.getString("DataOra")),
                         ordineJ.getString("Stato"),
                         ordineJ.getString("Tipo"),
-                        ordineJ.getDouble("Importo")
+                        new BigDecimal(ordineJ.getString("Importo"))
                 ));
             }
 
