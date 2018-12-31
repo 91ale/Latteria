@@ -13,11 +13,14 @@ import android.widget.ImageButton;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.android.gms.common.internal.safeparcel.SafeParcelable.NULL;
 
 public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
@@ -93,10 +96,10 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        ParseProductJSON pj = new ParseProductJSON(response);
-                        pj.getProductFromDB();
-                        productList.addAll(pj.getProduct());
-                        if (productList.size() > 0) {
+                        if (!response.equals("[]")) {
+                            ParseProductJSON pj = new ParseProductJSON(response);
+                            pj.getProductFromDB();
+                            productList.addAll(pj.getProduct());
                             edtNome = findViewById(R.id.edtNome);
                             edtMarca = findViewById(R.id.edtMarca);
                             edtCategoria = findViewById(R.id.edtCategoria);
@@ -122,7 +125,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
     }
 
     private void aggiungiProdottoCatalogo() {
-
+        VolleyLog.DEBUG = true;
         String queryurl = "";
 
         edtNome = findViewById(R.id.edtNome);
@@ -138,7 +141,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                     "Categoria=" + edtCategoria.getText() + "&" +
                     "Descrizione=" + edtDescrizione.getText();
         } else {
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + "&" +
+            queryurl = INSERT_PRODOTTO_IN_CATALOGO +
                     "BarCode=" + scannedbc + "&" +
                     "Nome=" + edtNome.getText() + "&" +
                     "Marca=" + edtMarca.getText() + "&" +

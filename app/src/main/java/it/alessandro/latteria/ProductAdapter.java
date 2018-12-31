@@ -22,6 +22,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     private static final int IN_NEGOZIO = 1;
     private static final int QUANTITA_SELEZIONATA = 102;
+    private static final int COMPLETATO = 1;
+    private static final int EVASO = 2;
     private static final int RICERCA = 5;
     private Context mCtx;
     private List<Prodotto> productList;
@@ -75,6 +77,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
         // specifica il layout della lista scelte
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        if(statoordine == COMPLETATO || statoordine == EVASO) holder.quantita.setEnabled(false);
         // applica l'adapter allo spinner
         holder.quantita.setAdapter(spinnerAdapter);
         holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);

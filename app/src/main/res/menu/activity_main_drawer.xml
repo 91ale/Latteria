@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/nav_spesa"
-        android:title="Inizia spesa" />
-    <item
-        android:id="@+id/nav_profilo"
-        android:title="Il mio profilo" />
-    <item
-        android:id="@+id/nav_ordini"
-        android:title="I miei ordini" />
-    <item
-        android:id="@+id/nav_aiuto"
-        android:title="Aiuto" />
-    <item
-        android:id="@+id/nav_logout"
-        android:title="Logout" />
+    <group
+        android:id="@+id/group_spesa">
+        <item
+            android:id="@+id/nav_spesa"
+            android:title="Inizia spesa" />
+    </group>
+    <group
+        android:id="@+id/group_profilo">
+        <item
+            android:id="@+id/nav_profilo"
+            android:title="Il mio profilo" />
+    </group>
+    <group
+        android:id="@+id/group_ordini">
+        <item
+            android:id="@+id/nav_ordini"
+            android:title="I miei ordini" />
+    </group>
+    <group
+        android:id="@+id/group_aiuto">
+        <item
+            android:id="@+id/nav_aiuto"
+            android:title="Aiuto" />
+    </group>
+    <group
+        android:id="@+id/group_logout">
+        <item
+            android:id="@+id/nav_logout"
+            android:title="Logout" />
+    </group>
 
 
 </menu>

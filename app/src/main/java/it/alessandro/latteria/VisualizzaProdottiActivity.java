@@ -1,6 +1,7 @@
 package it.alessandro.latteria;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.navigation.NavigationView;
@@ -17,6 +18,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -35,6 +37,7 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialSearchBar.OnSearchActionListener {
 
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
+    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
 
     private static final int QR = 14;
 
@@ -45,11 +48,25 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
     private List<Prodotto> productList = new ArrayList<>();
     private RecyclerView recyclerView;
     ProductCommessoAdapter mAdapter;
+    private Utente utente = new Utente();
+    String loggeduser = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualizza_prodotti);
+
+        //ricava l'ID dell'utente loggato (loggeduser) ed un eventuale ordine da caricare (idordine) dalle SharedPreferences
+        SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+        loggeduser = myPrefs.getString("FirebaseUser", "0");
+
+        getInformazioniUtente(loggeduser, new VolleyCallBack() {
+            @Override
+            public void onSuccess(String response) {
+                TextView txtNomeCognome = findViewById(R.id.txtNomeCognome);
+                txtNomeCognome.setText("Benvenuto " + utente.getnome() + " " + utente.getcognome());
+            }
+        });
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -118,14 +135,17 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
             intentscanqrcode.putExtra("MESSAGGIO", messaggio);
             startActivityForResult(intentscanqrcode, RC_SCANNED_QR);
         } else if (id == R.id.nav_prodotti) {
-            Intent intentprofilo = new Intent(getApplicationContext(), MioProfiloActivity.class);
-            startActivity(intentprofilo);
+            Intent intentgestioneprodotti = new Intent(getApplicationContext(), GestioneProdottiActivity.class);
+            startActivity(intentgestioneprodotti);
         } else if (id == R.id.nav_ordini_online) {
-            Intent intentordini = new Intent(getApplicationContext(), OrdiniActivity.class);
-            startActivity(intentordini);
+            Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+            startActivity(intentordinionline);
         } else if (id == R.id.nav_ordini_conclusi) {
-            Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
-            startActivity(intentaiuto);
+            Intent intentordiniconclusi = new Intent(getApplicationContext(), OrdiniConclusiActivity.class);
+            startActivity(intentordiniconclusi);
+        } else if (id == R.id.nav_statistiche_vendita) {
+            Intent intentstatistiche = new Intent(getApplicationContext(), StatisticheActivity.class);
+            startActivity(intentstatistiche);
         } else if (id == R.id.nav_logout) {
             SignOut();
             Intent intentlogin = new Intent(getApplicationContext(), LoginActivity.class);
@@ -203,6 +223,36 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+    public interface VolleyCallBack {
+        void onSuccess(String response);
+    }
+
+    private void getInformazioniUtente(String idutente, final VolleyCallBack callback) {
+
+        String queryurl = SELECT_UTENTE_DA_IDUTENTE + idutente;
+
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseUserJSON pj = new ParseUserJSON(response);
+                        pj.getUserFromDB();
+                        utente = pj.getUtente();
+                        callback.onSuccess(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
+
     }
 
 }

@@ -16,6 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -34,6 +35,7 @@ public class OrdiniConclusiActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String SELECT_ORDINI_CONCLUSI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_orders_completato_evaso.php";
+    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
 
     private static final int QR = 14;
     private static final int RC_SCANNED_QR = 105;
@@ -46,6 +48,7 @@ public class OrdiniConclusiActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private List<Ordine> orderList = new ArrayList<>();
     private RecyclerView recyclerView;
+    private Utente utente = new Utente();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,16 +61,16 @@ public class OrdiniConclusiActivity extends AppCompatActivity
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
 
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         loggeduser = myPrefs.getString("FirebaseUser", "0");
+
+        getInformazioniUtente(loggeduser, new VolleyCallBack() {
+            @Override
+            public void onSuccess(String response) {
+                TextView txtNomeCognome = findViewById(R.id.txtNomeCognome);
+                txtNomeCognome.setText("Benvenuto " + utente.getnome() + " " + utente.getcognome());
+            }
+        });
 
         //imposta il navigation drawer
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -113,8 +116,11 @@ public class OrdiniConclusiActivity extends AppCompatActivity
             Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
             startActivity(intentordinionline);
         } else if (id == R.id.nav_ordini_conclusi) {
-            Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
-            startActivity(intentaiuto);
+            Intent intentordiniconclusi = new Intent(getApplicationContext(), OrdiniConclusiActivity.class);
+            startActivity(intentordiniconclusi);
+        } else if (id == R.id.nav_statistiche_vendita) {
+            Intent intentstatistiche = new Intent(getApplicationContext(), StatisticheActivity.class);
+            startActivity(intentstatistiche);
         } else if (id == R.id.nav_logout) {
             SignOut();
             Intent intentlogin = new Intent(getApplicationContext(), LoginActivity.class);
@@ -171,6 +177,36 @@ public class OrdiniConclusiActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public interface VolleyCallBack {
+        void onSuccess(String response);
+    }
+
+    private void getInformazioniUtente(String idutente, final VolleyCallBack callback) {
+
+        String queryurl = SELECT_UTENTE_DA_IDUTENTE + idutente;
+
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseUserJSON pj = new ParseUserJSON(response);
+                        pj.getUserFromDB();
+                        utente = pj.getUtente();
+                        callback.onSuccess(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
+
     }
 
 }

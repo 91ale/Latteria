@@ -22,7 +22,7 @@ import java.util.List;
 
 public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
 
-    private static final String SELECT_PRODOTTO_IN_NEGOZIO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
     private static final String INSERT_PRODOTTO_IN_NEGOZIO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_shop.php?";
 
     private static final int EAN_13 = 13;
@@ -83,7 +83,7 @@ public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
                 scannedbc = data.getStringExtra("SCANNED_CODE");
                 Log.d("SCANNED_CODE", scannedbc);
                 //se il prodotto scansionato esiste già in catalogo ne estraggo le info
-                getProduct(SELECT_PRODOTTO_IN_NEGOZIO, scannedbc);
+                getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
             }
         }
     }

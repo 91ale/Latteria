@@ -14,15 +14,19 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
-    private static final String SELECT_PRODOTTO_IN_MAGAZZINO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
     private static final String INSERT_PRODOTTO_IN_MAGAZZINO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_warehouse.php?";
 
     private static final int EAN_13 = 13;
@@ -85,13 +89,13 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                 scannedbc = data.getStringExtra("SCANNED_CODE");
                 Log.d("SCANNED_CODE", scannedbc);
                 //se il prodotto scansionato esiste già in catalogo ne estraggo le info
-                getProduct(SELECT_PRODOTTO_IN_MAGAZZINO, scannedbc);
+                getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
             }
         }
     }
 
     private void getProduct(final String urlWebService, String scannedbc) {
-        //VolleyLog.DEBUG = true;
+        VolleyLog.DEBUG = true;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + scannedbc,
                 new Response.Listener<String>() {
                     @Override
@@ -130,9 +134,21 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
         edtPrezzoVendita = findViewById(R.id.edtPrezzoVendita);
         edtQuantita = findViewById(R.id.edtQuantita);
 
+        NumberFormat format = NumberFormat.getInstance(Locale.ITALY);
+        Number pacquisto = null;
+        Number pvendita = null;
+        try {
+            pacquisto = format.parse(edtPrezzoAcquisto.getText().toString());
+            pvendita = format.parse(edtPrezzoVendita.getText().toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        double dpacquisto = pacquisto.doubleValue();
+        double dpvendita = pvendita.doubleValue();
+
         queryurl = INSERT_PRODOTTO_IN_MAGAZZINO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
-                "PrezzoAcquisto=" + edtPrezzoAcquisto.getText() + "&" +
-                "PrezzoVenditaAttuale=" + edtPrezzoVendita.getText() + "&" +
+                "PrezzoAcquisto=" + dpacquisto + "&" +
+                "PrezzoVenditaAttuale=" + dpvendita + "&" +
                 "Quantita=" + edtQuantita.getText() + "&";
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,

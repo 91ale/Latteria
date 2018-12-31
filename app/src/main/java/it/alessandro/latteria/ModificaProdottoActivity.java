@@ -14,8 +14,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ModificaProdottoActivity extends AppCompatActivity {
 
@@ -114,12 +117,21 @@ public class ModificaProdottoActivity extends AppCompatActivity {
         edtQuantitaNegozio = findViewById(R.id.edtQuantitaNegozio);
         edtQuantitaMagazzino = findViewById(R.id.edtQuantitaMagazzino);
 
+        NumberFormat format = NumberFormat.getInstance(Locale.ITALY);
+        Number pvendita = null;
+        try {
+            pvendita = format.parse(edtPrezzoVendita.getText().toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        double dpvendita = pvendita.doubleValue();
+
         queryurl = UPDATE_PRODOTTO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
                 "Nome=" + edtNome.getText() + "&" +
                 "Marca=" + edtMarca.getText() + "&" +
                 "Categoria=" + edtCategoria.getText() + "&" +
                 "Descrizione=" + edtDescrizione.getText() + "&" +
-                "PrezzoVenditaAttuale=" + edtPrezzoVendita.getText() + "&" +
+                "PrezzoVenditaAttuale=" + dpvendita + "&" +
                 "QuantitaNegozio=" + edtQuantitaNegozio.getText() + "&" +
                 "QuantitaMagazzino=" + edtQuantitaMagazzino.getText();
 

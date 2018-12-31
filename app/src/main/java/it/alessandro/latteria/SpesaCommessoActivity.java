@@ -51,6 +51,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final String SELECT_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_products_from_orderid.php?IDOrdine=";
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
     private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_total_from_orderid.php?";
+    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
+
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
     private static final int PRODOTTO_SELEZIONATO = 103;
@@ -81,6 +83,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private List<Prodotto> productList = new ArrayList<>();
     private List<Prodotto> rproductList = new ArrayList<>();
     private RecyclerView recyclerView;
+    private Utente utente = new Utente();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +99,14 @@ public class SpesaCommessoActivity extends AppCompatActivity
         //ricava l'ID dell'utente loggato (loggeduser) ed un eventuale ordine da caricare (idordine) dalle SharedPreferences
         SharedPreferences myPrefs = this.getSharedPreferences("myPrefs", MODE_PRIVATE);
         loggeduser = myPrefs.getString("FirebaseUser", "0");
+
+        getInformazioniUtente(loggeduser, new SpesaClienteActivity.VolleyCallBack() {
+            @Override
+            public void onSuccess(String response) {
+                TextView txtNomeCognome = findViewById(R.id.txtNomeCognome);
+                txtNomeCognome.setText("Benvenuto " + utente.getnome() + " " + utente.getcognome());
+            }
+        });
 
         //imposta il navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -209,8 +220,11 @@ public class SpesaCommessoActivity extends AppCompatActivity
             Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
             startActivity(intentordinionline);
         } else if (id == R.id.nav_ordini_conclusi) {
-            Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
-            startActivity(intentaiuto);
+            Intent intentordiniconclusi = new Intent(getApplicationContext(), OrdiniConclusiActivity.class);
+            startActivity(intentordiniconclusi);
+        } else if (id == R.id.nav_statistiche_vendita) {
+            Intent intentstatistiche = new Intent(getApplicationContext(), StatisticheActivity.class);
+            startActivity(intentstatistiche);
         } else if (id == R.id.nav_logout) {
             SignOut();
             Intent intentlogin = new Intent(getApplicationContext(), LoginActivity.class);
@@ -521,6 +535,32 @@ public class SpesaCommessoActivity extends AppCompatActivity
 
     public interface VolleyCallBack {
         void onSuccess(String response);
+    }
+
+    private void getInformazioniUtente(String idutente, final SpesaClienteActivity.VolleyCallBack callback) {
+
+        String queryurl = SELECT_UTENTE_DA_IDUTENTE + idutente;
+
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseUserJSON pj = new ParseUserJSON(response);
+                        pj.getUserFromDB();
+                        utente = pj.getUtente();
+                        callback.onSuccess(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
+
     }
 
 }
