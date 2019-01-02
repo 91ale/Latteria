@@ -1,0 +1,38 @@
+{
+  "UserAgent": "MobileHub/1.0",
+  "Version": "1.0",
+  "CredentialsProvider": {
+    "CognitoIdentity": {
+      "Default": {
+        "PoolId": "eu-central-1:cc882430-8872-4b3f-9c16-29712eb7e7c3",
+        "Region": "eu-central-1"
+      }
+    }
+  },
+  "IdentityManager": {
+    "Default": {}
+  },
+  "S3TransferUtility": {
+    "Default": {
+      "Bucket": "latteria-userfiles-mobilehub-1901756941",
+      "Region": "eu-central-1"
+    }
+  },
+  "PinpointAnalytics": {
+    "Default": {
+      "AppId": "66e945ab106c4e228e08574df5dc6bb6",
+      "Region": "us-east-1"
+    }
+  },
+  "PinpointTargeting": {
+    "Default": {
+      "Region": "us-east-1"
+    }
+  },
+  "UserFileManager": {
+    "Default": {
+      "Bucket": "latteria-userfiles-mobilehub-1901756941",
+      "Region": "eu-central-1"
+    }
+  }
+}
