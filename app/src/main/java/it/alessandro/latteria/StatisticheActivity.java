@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class StatisticheActivity extends AppCompatActivity
         implements DatePickerDialog.OnDateSetListener {
@@ -84,15 +85,13 @@ public class StatisticheActivity extends AppCompatActivity
                                 //getting user object from json array
                                 try {
 
-                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ITALY);
 
                                     JSONObject costiJ = jsonArray.getJSONObject(i);
 
                                     seriescosti.appendData(new DataPoint(sdf.parse(costiJ.getString("DataOra")), costiJ.getDouble("Costo")),true,365);
 
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                } catch (JSONException e) {
+                                } catch (ParseException | JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
