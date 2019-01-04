@@ -143,8 +143,9 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     public void uploadWithTransferUtility() {
 
+        credenzialiAWS cAWS = new credenzialiAWS();
         AmazonS3Client s3client = new AmazonS3Client( new BasicAWSCredentials(
-                "AKIAITTVW7UFYIJQYFTQ", "vEVGUb2YTLXUmvIgdJ1NDRc5YaqhJq2c/r1ElwL9" ) );
+                cAWS.getAccessKey(), cAWS.getSecretKey() ) );
 
         TransferUtility transferUtility =
                 TransferUtility.builder()
