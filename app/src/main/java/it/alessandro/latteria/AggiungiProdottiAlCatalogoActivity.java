@@ -1,9 +1,11 @@
 package it.alessandro.latteria;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.UserStateDetails;
@@ -25,7 +28,9 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferService;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -33,9 +38,10 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -65,7 +71,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     String mCurrentPhotoPath;
     String imageFileName;
-    File photoFile;
+    Uri photoURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +121,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                 // Verifica se è presente una camera activity per scattare la foto
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                     // Crea il file sul quale verrà salvata la foto
-                    photoFile = null;
+                    File photoFile = null;
                     try {
                         photoFile = salvaImmagineSuFile();
                     } catch (IOException ex) {
@@ -123,7 +129,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                     }
                     // Acquisisce l'immagine solo se il file è stato creato
                     if (photoFile != null) {
-                        Uri photoURI = FileProvider.getUriForFile(AggiungiProdottiAlCatalogoActivity.this,
+                        photoURI = FileProvider.getUriForFile(AggiungiProdottiAlCatalogoActivity.this,
                                 "it.alessandro.latteria.fileprovider",
                                 photoFile);
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -137,17 +143,21 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     public void uploadWithTransferUtility() {
 
+        AmazonS3Client s3client = new AmazonS3Client( new BasicAWSCredentials(
+                "AKIAITTVW7UFYIJQYFTQ", "vEVGUb2YTLXUmvIgdJ1NDRc5YaqhJq2c/r1ElwL9" ) );
+
         TransferUtility transferUtility =
                 TransferUtility.builder()
                         .context(getApplicationContext())
                         .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                        .s3Client(new AmazonS3Client(AWSMobileClient.getInstance()))
+                        .s3Client(s3client)
                         .build();
 
         TransferObserver uploadObserver =
                 transferUtility.upload(
                         "public/"+imageFileName+".jpg",
-                        new File(mCurrentPhotoPath));
+                        new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),imageFileName+"2.jpg"),
+                        CannedAccessControlList.PublicRead);
 
         // collega il listener all'observer per ottenere lo stato di avanzamento del processo
         uploadObserver.setTransferListener(new TransferListener() {
@@ -206,7 +216,50 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
             }
         } else if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
+                //comprime l'immagine catturata dalla fotocamera
+                File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),imageFileName+"2.jpg");
+                InputStream imageStream = null;
+                try {
+                    imageStream = getContentResolver().openInputStream(
+                            photoURI);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                Bitmap bmp = BitmapFactory.decodeStream(imageStream);
+                bmp = Bitmap.createScaledBitmap(bmp,(int)(bmp.getWidth()*0.5), (int)(bmp.getHeight()*0.5), true);
 
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                bmp.compress(Bitmap.CompressFormat.JPEG, 30, out);
+
+                //ricopia le informazioni di orientamento dal vecchio file al nuovo
+                ExifInterface oldExif = null;
+                try {
+                    oldExif = new ExifInterface(mCurrentPhotoPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String exifOrientation = oldExif.getAttribute(ExifInterface.TAG_ORIENTATION);
+
+                if (exifOrientation != null) {
+                    Log.d("EXIF",exifOrientation);
+                    try {
+                        ExifInterface newExif = new ExifInterface(file.getAbsolutePath());
+                        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, exifOrientation);
+                        newExif.saveAttributes();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //elimina l'immagine acquisita
+                getContentResolver().delete(photoURI, null,null);
+
+                //carica l'immagine compressa sul server amazon S3
                 uploadWithTransferUtility();
             }
         }
@@ -226,30 +279,6 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
         // Save a file: file_paths for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
-    }
-
-    private void reduceImageSize() {
-        // Get the dimensions of the View
-        int targetW = mImageView.getWidth();
-        int targetH = mImageView.getHeight();
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        mImageView.setImageBitmap(bitmap);
     }
 
     private void getProduct(final String urlWebService, String scannedbc) {
