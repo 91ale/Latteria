@@ -1,4 +1,4 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Parser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.math.BigDecimal;
+
+import it.alessandro.latteria.Object.Ordine;
 
 
 public class ParseOrderJSON {
@@ -24,7 +26,7 @@ public class ParseOrderJSON {
     }
 
 
-    protected void getOrderFromDB() {
+    public void getOrderFromDB() {
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
@@ -58,7 +60,7 @@ public class ParseOrderJSON {
         }
     }
 
-    List<Ordine> getOrder() {
+    public List<Ordine> getOrder() {
         return orderList;
     }
 

@@ -51,7 +51,7 @@
         <activity android:name=".ApprovazioneSpesaActivity" />
         <activity android:name=".OrdiniActivity" />
         <activity android:name=".MioProfiloActivity" />
-        <activity android:name=".AiutoActivity" />
+        <activity android:name=".AiutoActivity" android:theme="@style/TransparentCompat"/>
         <activity android:name=".InformazioniProdottoActivity" />
         <activity android:name=".CercaProdottoActivity" />
         <activity android:name=".OrdineCompletatoActivity" />

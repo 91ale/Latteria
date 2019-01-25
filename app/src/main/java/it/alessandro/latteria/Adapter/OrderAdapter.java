@@ -1,15 +1,20 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.ApprovazioneSpesaActivity;
+import it.alessandro.latteria.Object.Ordine;
+import it.alessandro.latteria.R;
+import it.alessandro.latteria.SpesaClienteActivity;
+import it.alessandro.latteria.SpesaCommessoActivity;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
 

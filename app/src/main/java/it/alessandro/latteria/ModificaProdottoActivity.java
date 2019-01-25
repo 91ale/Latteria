@@ -2,6 +2,9 @@ package it.alessandro.latteria;
 
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.Parser.ParseProductJSON;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;

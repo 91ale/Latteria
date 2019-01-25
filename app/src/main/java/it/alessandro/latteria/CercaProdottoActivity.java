@@ -10,6 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.Adapter.ProductAdapter;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.Parser.ParseProductJSON;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -23,7 +27,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CercaProdottoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class CercaProdottoActivity extends AppCompatActivity {
 
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
 
@@ -48,11 +52,6 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
 
         String nomemarca = getIntent().getStringExtra("NOME_MARCA_PRODOTTO");
         int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
-
-        //imposta il navigation drawer
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
         recyclerView = findViewById(R.id.recycler_view);
 
@@ -91,32 +90,6 @@ public class CercaProdottoActivity extends AppCompatActivity implements Navigati
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        //Rileva quale voce del menu è stata selezionata ed avvia l'activity corrispondente
-        int id = item.getItemId();
-
-        if (id == R.id.nav_spesa) {
-            Intent intentspesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-            startActivity(intentspesa);
-        } else if (id == R.id.nav_profilo) {
-            Intent intentprofilo = new Intent(getApplicationContext(), MioProfiloActivity.class);
-            startActivity(intentprofilo);
-        } else if (id == R.id.nav_ordini) {
-            Intent intentordini = new Intent(getApplicationContext(), OrdiniActivity.class);
-            startActivity(intentordini);
-        } else if (id == R.id.nav_aiuto) {
-            Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
-            startActivity(intentaiuto);
-        } else if (id == R.id.nav_logout) {
-
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     private void getProduct(final String urlWebService, String nome, final int tipospesa) {

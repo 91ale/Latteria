@@ -1,4 +1,4 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Utility;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

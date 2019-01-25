@@ -1,4 +1,4 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Object;
 
 import java.math.BigDecimal;
 import java.util.Date;

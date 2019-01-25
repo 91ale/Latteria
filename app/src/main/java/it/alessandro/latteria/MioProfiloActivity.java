@@ -3,6 +3,8 @@ package it.alessandro.latteria;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import it.alessandro.latteria.Object.Utente;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;

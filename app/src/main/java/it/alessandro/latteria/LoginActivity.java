@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import it.alessandro.latteria.Object.Utente;
+
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
@@ -56,8 +59,8 @@ public class LoginActivity extends AppCompatActivity {
                         .createSignInIntentBuilder()
                         .setIsSmartLockEnabled(false) //per test, disabilita smart lock
                         .setAvailableProviders(providers)
-                        //.setLogo(R.drawable.my_great_logo)      // Set logo drawable
-                        //.setTheme(R.style.MySuperAppTheme)      // Set theme
+                        .setLogo(R.drawable.la_mia_spesa_logo)      // Set logo drawable
+                        .setTheme(R.style.AppTheme)      // Set theme
                         .build(),
                 RC_SIGN_IN);
     }
@@ -92,33 +95,34 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void getUtente(final String urlWebService) {
-
+        VolleyLog.DEBUG = true;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
 
-                            for (int i = 0; i < jsonArray.length(); i++) {
+                        if (response.equals("[]\n")) {
+                            Intent intentsignup = new Intent(getApplicationContext(), SignUpActivity.class);
+                            intentsignup.putExtra("UID", loggeduser.getUid());
+                            startActivity(intentsignup);
+                        } else {
+                            try {
+                                JSONArray jsonArray = new JSONArray(response);
 
-                                //getting user object from json array
-                                try {
-                                    utenteJ = jsonArray.getJSONObject(i);
+                                for (int i = 0; i < jsonArray.length(); i++) {
 
-                                    Utente utente = new Utente();
+                                    //ottengo l'oggetto utente dall'array JSON
+                                    try {
+                                        utenteJ = jsonArray.getJSONObject(i);
 
-                                    utente.setUID(utenteJ.getString("IDUtente"));
-                                    utente.setnome(utenteJ.getString("Nome"));
-                                    utente.setcognome(utenteJ.getString("Cognome"));
-                                    utente.setindirizzo(utenteJ.getString("Indirizzo"));
-                                    utente.settipo(utenteJ.getString("Tipo"));
+                                        Utente utente = new Utente();
 
-                                    if (utente.getUID() == null) {
-                                        Intent intentsignup = new Intent(getApplicationContext(), SignUpActivity.class);
-                                        intentsignup.putExtra("UID", loggeduser.getUid());
-                                        startActivity(intentsignup);
-                                    } else {
+                                        utente.setUID(utenteJ.getString("IDUtente"));
+                                        utente.setnome(utenteJ.getString("Nome"));
+                                        utente.setcognome(utenteJ.getString("Cognome"));
+                                        utente.setindirizzo(utenteJ.getString("Indirizzo"));
+                                        utente.settipo(utenteJ.getString("Tipo"));
+
                                         switch (utente.gettipo()) {
 
                                             case "cliente":
@@ -133,23 +137,23 @@ public class LoginActivity extends AppCompatActivity {
                                                 break;
                                         }
 
+
+                                        final SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = prefs.edit();
+                                        String jsonValue = new Gson().toJson(utente);
+                                        editor.putString("CurrentUser", jsonValue);
+                                        editor.apply();
+
+                                        Log.d("Utente", utente.getnome());
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-
-                                    final SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    String jsonValue = new Gson().toJson(utente);
-                                    editor.putString("CurrentUser", jsonValue);
-                                    editor.apply();
-
-                                    Log.d("Utente", utente.getnome());
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
-                            }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 },

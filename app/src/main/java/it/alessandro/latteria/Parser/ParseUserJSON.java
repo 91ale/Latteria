@@ -1,22 +1,10 @@
-package it.alessandro.latteria;
-
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
+package it.alessandro.latteria.Parser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import it.alessandro.latteria.Object.Utente;
 
 public class ParseUserJSON {
 
@@ -29,7 +17,7 @@ public class ParseUserJSON {
         this.json = json;
     }
 
-    protected void getUserFromDB() {
+    public void getUserFromDB() {
 
         try {
             //converte la stringa in array JSON
@@ -57,7 +45,7 @@ public class ParseUserJSON {
         }
     }
 
-    Utente getUtente() {
+    public Utente getUtente() {
         return utente;
     }
 

@@ -24,15 +24,12 @@ import java.io.IOException;
 
 public class ScanBarcodeActivity extends AppCompatActivity {
 
-
     private static final int EAN_13 = 13;
-    private static final int QR = 14;
 
     SurfaceView surfaceView;
     CameraSource cameraSource;
     BarcodeDetector barcodeDetector;
     TextView txtTipoScansione;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +47,7 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         int tipocodice = getIntent().getIntExtra("TIPO_CODICE", -1);
         String messaggio = getIntent().getStringExtra("MESSAGGIO");
 
-        surfaceView = (SurfaceView) findViewById(R.id.camerapreview);
+        surfaceView = findViewById(R.id.camerapreview);
         txtTipoScansione = findViewById(R.id.txtTipoScansione);
 
         if (tipocodice == EAN_13) {
@@ -73,10 +70,8 @@ public class ScanBarcodeActivity extends AppCompatActivity {
 
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
 
-
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
@@ -85,27 +80,20 @@ public class ScanBarcodeActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
             }
 
             @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) { }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 cameraSource.stop();
-
             }
         });
 
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
-            public void release() {
-
-            }
+            public void release() { }
 
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
@@ -121,6 +109,4 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         });
 
     }
-
-
 }

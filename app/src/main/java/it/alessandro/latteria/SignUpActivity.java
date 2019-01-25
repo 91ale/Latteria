@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import it.alessandro.latteria.Object.Utente;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +21,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private static final String INSERT_USER = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_user.php?";
 
-    Utente Utente = new Utente();
+    it.alessandro.latteria.Object.Utente Utente = new Utente();
 
     EditText edtNome;
     EditText edtCognome;

@@ -1,4 +1,4 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Object;
 
 import java.io.Serializable;
 

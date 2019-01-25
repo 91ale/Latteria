@@ -3,6 +3,9 @@ package it.alessandro.latteria;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import it.alessandro.latteria.Object.Utente;
+import it.alessandro.latteria.Parser.ParseUserJSON;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;

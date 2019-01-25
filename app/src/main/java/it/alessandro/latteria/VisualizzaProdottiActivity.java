@@ -11,6 +11,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.Adapter.ProductCommessoAdapter;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.Object.Utente;
+import it.alessandro.latteria.Parser.ParseProductJSON;
+import it.alessandro.latteria.Parser.ParseUserJSON;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;

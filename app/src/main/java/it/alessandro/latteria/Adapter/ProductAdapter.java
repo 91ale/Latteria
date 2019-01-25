@@ -1,4 +1,4 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,6 +6,11 @@ import android.content.Intent;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.Utility.DownloadImageTask;
+import it.alessandro.latteria.InformazioniProdottoActivity;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.R;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

@@ -1,4 +1,4 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Object;
 
 public class Utente {
     private String UID;

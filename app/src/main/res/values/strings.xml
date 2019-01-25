@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Latteria</string>
+    <string name="app_name">La mia spesa</string>
 
     <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
     <string name="facebook_application_id" translatable="false">fb2311510358923141</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fbYOUR_APP_ID</string>
-    <string name="app_label">Latteria</string>
+    <string name="app_label">La mia spesa</string>
 
     <string name="title_activity_main2">MaterialSearchBar C.S.A</string>
 

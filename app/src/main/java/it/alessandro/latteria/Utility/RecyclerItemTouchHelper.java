@@ -1,8 +1,10 @@
-package it.alessandro.latteria;
+package it.alessandro.latteria.Utility;
 
 import android.graphics.Canvas;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import it.alessandro.latteria.Adapter.ProductAdapter;
+
 import android.view.View;
 
 /**

@@ -19,8 +19,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import it.alessandro.latteria.Adapter.ProductAdapter;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.Object.Utente;
+import it.alessandro.latteria.Parser.ParseProductJSON;
+import it.alessandro.latteria.Parser.ParseUserJSON;
+import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -41,7 +46,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -236,6 +240,7 @@ public class SpesaClienteActivity extends AppCompatActivity
             startActivity(intentordini);
         } else if (id == R.id.nav_aiuto) {
             Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
+            intentaiuto.putExtra("htype", "spesa");
             startActivity(intentaiuto);
         } else if (id == R.id.nav_logout) {
             SignOut();
