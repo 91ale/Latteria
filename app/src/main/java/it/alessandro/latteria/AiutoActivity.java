@@ -23,8 +23,10 @@ public class AiutoActivity extends AppCompatActivity {
         switch (htype) {
             case "spesa":
                 imgHelp.setImageResource(R.drawable.help_spesa);
+                break;
             case "ordini":
-                //imgHelp.setImageResource(R.drawable.help_ordini);
+                imgHelp.setImageResource(R.drawable.help_ordini);
+                break;
         }
 
         ImageButton btnBack = findViewById(R.id.btnBack);

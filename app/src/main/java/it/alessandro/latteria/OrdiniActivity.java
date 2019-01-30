@@ -114,6 +114,7 @@ public class OrdiniActivity extends AppCompatActivity
             startActivity(intentordini);
         } else if (id == R.id.nav_aiuto) {
             Intent intentaiuto = new Intent(getApplicationContext(), AiutoActivity.class);
+            intentaiuto.putExtra("htype", "ordini");
             startActivity(intentaiuto);
         } else if (id == R.id.nav_logout) {
             SignOut();
