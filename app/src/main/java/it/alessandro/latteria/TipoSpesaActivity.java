@@ -20,14 +20,6 @@ public class TipoSpesaActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipo_spesa);
 
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         btnInNegozio = findViewById(R.id.btnInNegozio);
         btnADomicilio = findViewById(R.id.btnADomicilio);
 
@@ -53,5 +45,11 @@ public class TipoSpesaActivity extends AppCompatActivity implements View.OnClick
                 startActivity(intentspesainnegozio);
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+
     }
 }

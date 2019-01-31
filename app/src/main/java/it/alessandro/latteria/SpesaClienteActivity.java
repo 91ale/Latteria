@@ -8,33 +8,15 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import it.alessandro.latteria.Adapter.ProductAdapter;
-import it.alessandro.latteria.Object.Prodotto;
-import it.alessandro.latteria.Object.Utente;
-import it.alessandro.latteria.Parser.ParseProductJSON;
-import it.alessandro.latteria.Parser.ParseUserJSON;
-import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
-
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -44,11 +26,30 @@ import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.Adapter.ProductAdapter;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.Object.Utente;
+import it.alessandro.latteria.Parser.ParseProductJSON;
+import it.alessandro.latteria.Parser.ParseUserJSON;
+import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 
 public class SpesaClienteActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialSearchBar.OnSearchActionListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
@@ -74,6 +75,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     ProductAdapter mAdapter;
     TextView txtPrezzoTotale;
     DecimalFormat pdec = new DecimalFormat("€ 0.00");
+
     //aggiorna il prezzo totale quando viene modificata la quantità di un prodotto
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -81,6 +83,7 @@ public class SpesaClienteActivity extends AppCompatActivity
             txtPrezzoTotale.setText(String.valueOf(pdec.format(mAdapter.sumAllItem())));
         }
     };
+
     int tipospesa = 0;
     int statoordine = 0;
     int idordine = 0;
@@ -96,6 +99,18 @@ public class SpesaClienteActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spesa_cliente);
+
+        //inizializzaione della toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.baseline_menu_24));
+        toolbar.setTitle("La mia spesa");
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
 
         //valorizza la variabile in base alla selezione effettuata dall'utente nell'activity TipoSpesaActivity (IN_NEGOZIO | ONLINE)
         tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
@@ -120,11 +135,20 @@ public class SpesaClienteActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         //Barra di ricerca importata da https://github.com/mancj/MaterialSearchBar
-        searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
-        //se l'ordine è in stato COMPLETATO nasconde la barra di ricerca
-        if (statoordine == COMPLETATO || statoordine == EVASO) searchBar.setVisibility(View.INVISIBLE);
+        /*searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
+        //se l'ordine è in stato di COMPLETATO o EVASO nasconde la barra di ricerca e visualizza la freccia di ritorno
+        if (statoordine == COMPLETATO || statoordine == EVASO) {
+            searchBar.setVisibility(View.INVISIBLE);
+            ImageButton btnBack = findViewById(R.id.btnBack);
+            btnBack.setVisibility(View.VISIBLE);
+            btnBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
         searchBar.setOnSearchActionListener(this);
         //abilita l'icona per la scansione del codice a barre
         searchBar.setSpeechMode(true);
@@ -147,13 +171,9 @@ public class SpesaClienteActivity extends AppCompatActivity
 
             }
 
-        });
+        });*/
 
         recyclerView = findViewById(R.id.recycler_view);
-
-        txtPrezzoTotale = findViewById(R.id.txtPrezzoTotale);
-        //imposta il formato del prezzo totale nel modo seguente € 0,00
-        txtPrezzoTotale.setText(pdec.format(0.00));
 
         //assegna l'adapter alla recyclerview
         mAdapter = new ProductAdapter(this, productList, tipospesa, statoordine);
@@ -197,7 +217,8 @@ public class SpesaClienteActivity extends AppCompatActivity
         });
 
         Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
-        if (statoordine == COMPLETATO || statoordine == EVASO) salvaOrdine.setVisibility(View.INVISIBLE);
+        if (statoordine == COMPLETATO || statoordine == EVASO)
+            salvaOrdine.setVisibility(View.INVISIBLE);
         salvaOrdine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -220,8 +241,47 @@ public class SpesaClienteActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+
+        final MenuItem CompletaSpesa = menu.findItem(R.id.action_importo);
+        txtPrezzoTotale = CompletaSpesa.getActionView().findViewById(R.id.txtImportoTotale);
+        //imposta il formato del prezzo totale nel modo seguente € 0,00
+        txtPrezzoTotale.setText(pdec.format(0.00));
+
+        final Menu finalMenu = menu;
+        CompletaSpesa.getActionView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finalMenu.performIdentifierAction(CompletaSpesa.getItemId(), 0);
+            }
+        });
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_importo) {
+            Toast.makeText(getApplicationContext(), "Importo Menu", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_cerca) {
+            Toast.makeText(getApplicationContext(), "Cerca Menu", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_scansiona) {
+            Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
+            String messaggio = "Inquadra il codice a barre del prodotto che vuoi acquistare";
+            intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
+            intentscanbarcode.putExtra("MESSAGGIO", messaggio);
+            startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -325,6 +385,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                 mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
+
                 recyclerView.setAdapter(mAdapter);
             }
         } else if (requestCode == PRODOTTO_SELEZIONATO) {

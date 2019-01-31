@@ -25,6 +25,7 @@ import java.io.IOException;
 public class ScanBarcodeActivity extends AppCompatActivity {
 
     private static final int EAN_13 = 13;
+    private static final String BACK = "back";
 
     SurfaceView surfaceView;
     CameraSource cameraSource;
@@ -40,6 +41,9 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("SCANNED_CODE", BACK);
+                setResult(Activity.RESULT_OK, returnIntent);
                 finish();
             }
         });

@@ -31,6 +31,7 @@ public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
     private static final int EAN_13 = 13;
 
     private static final int RC_SCANNED_BC = 100;
+    private static final String BACK = "back";
 
     String scannedbc;
 
@@ -84,6 +85,7 @@ public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
         if (requestCode == RC_SCANNED_BC) {
             if (resultCode == Activity.RESULT_OK) {
                 scannedbc = data.getStringExtra("SCANNED_CODE");
+                if (scannedbc.equals(BACK)) finish();
                 Log.d("SCANNED_CODE", scannedbc);
                 //se il prodotto scansionato esiste già in catalogo ne estraggo le info
                 getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);

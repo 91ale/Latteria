@@ -19,6 +19,12 @@ public class AiutoActivity extends AppCompatActivity {
         String htype = intent.getStringExtra("htype");
 
         ImageView imgHelp = findViewById(R.id.imgHelp);
+        imgHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         switch (htype) {
             case "spesa":
@@ -29,12 +35,5 @@ public class AiutoActivity extends AppCompatActivity {
                 break;
         }
 
-        ImageButton btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 }

@@ -1,5 +1,6 @@
 package it.alessandro.latteria;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import it.alessandro.latteria.Object.Utente;
 import it.alessandro.latteria.Parser.ParseOrderJSON;
 import it.alessandro.latteria.Parser.ParseUserJSON;
 
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -43,12 +45,13 @@ public class OrdiniOnlineActivity extends AppCompatActivity
 
     private static final int QR = 14;
     private static final int RC_SCANNED_QR = 105;
+    private static final int IN_NEGOZIO = 1;
+    private static final String BACK = "back";
 
     private static final int COMMESSO = 1;
 
     String loggeduser = "";
     OrderAdapter mAdapter;
-    private MaterialSearchBar searchBar;
     private DrawerLayout drawerLayout;
     private List<Ordine> orderList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -59,8 +62,9 @@ public class OrdiniOnlineActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ordini_online);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
+        getSupportActionBar().setTitle("Ordini online");
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
@@ -211,6 +215,24 @@ public class OrdiniOnlineActivity extends AppCompatActivity
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == RC_SCANNED_QR) {
+            if (resultCode == Activity.RESULT_OK) {
+                String scannedqr = data.getStringExtra("SCANNED_CODE");
+                if (!scannedqr.equals(BACK)) {
+                    int idordine = Integer.valueOf(scannedqr);
+                    Log.d("SCANNED_CODE", scannedqr);
+
+                    Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
+                    intentspesacommesso.putExtra("ID_ORDINE", idordine);
+                    intentspesacommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                    startActivity(intentspesacommesso);
+                }
+            }
+        }
     }
 }

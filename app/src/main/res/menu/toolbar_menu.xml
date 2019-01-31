@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_cerca"
+        android:icon="@drawable/ic_baseline_search_24px"
+        android:orderInCategory="100"
+        android:title="Cerca Prodotto"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_scansiona"
+        android:icon="@drawable/ic_camera_alt_black_24dp"
+        android:orderInCategory="200"
+        android:title="Scansiona codice"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_importo"
+        android:orderInCategory="300"
+        android:title="Importo"
+        app:showAsAction="always"
+        app:actionLayout="@layout/menu_importo" />
+</menu>

@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -67,6 +68,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final int RC_SCANNED_QR = 105;
     private static final int AGGIUNGI = 1;
     private static final int SOSTITUISCI = 2;
+    private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
     private static final int COMPLETATO = 1;
     private static final int EAN_13 = 13;
@@ -123,7 +125,17 @@ public class SpesaCommessoActivity extends AppCompatActivity
         //Barra di ricerca importata da https://github.com/mancj/MaterialSearchBar
         searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
         //se l'ordine è in stato COMPLETATO nasconde la barra di ricerca
-        if (statoordine == COMPLETATO) searchBar.setVisibility(View.INVISIBLE);
+        if (statoordine == COMPLETATO) {
+            searchBar.setVisibility(View.INVISIBLE);
+            ImageButton btnBack = findViewById(R.id.btnBack);
+            btnBack.setVisibility(View.VISIBLE);
+            btnBack.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
         searchBar.setOnSearchActionListener(this);
         //abilita l'icona per la scansione del codice a barre
         searchBar.setSpeechMode(true);
@@ -327,6 +339,17 @@ public class SpesaCommessoActivity extends AppCompatActivity
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                     recyclerView.setAdapter(mAdapter);
                 }
+            }
+        } else if (requestCode == RC_SCANNED_QR) {
+            if (resultCode == Activity.RESULT_OK) {
+                String scannedqr = data.getStringExtra("SCANNED_CODE");
+                int idordine = Integer.valueOf(scannedqr);
+                Log.d("SCANNED_CODE", scannedqr);
+
+                Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
+                intentspesacommesso.putExtra("ID_ORDINE", idordine);
+                intentspesacommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                startActivity(intentspesacommesso);
             }
         }
     }

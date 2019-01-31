@@ -15,5 +15,9 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_approvazione_spesa">ApprovazioneSpesaActivity</string>
     <string name="title_activity_qrscan">QRScanActivity</string>
+    <string name="title_activity_spesa_cliente_new">SpesaClienteActivityNew</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
 
 </resources>
