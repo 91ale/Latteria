@@ -71,6 +71,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final int IN_NEGOZIO = 1;
     private static final int ONLINE = 2;
     private static final int COMPLETATO = 1;
+    private static final int EVASO = 2;
     private static final int EAN_13 = 13;
 
     String loggeduser = "";
@@ -124,8 +125,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
 
         //Barra di ricerca importata da https://github.com/mancj/MaterialSearchBar
         searchBar = (MaterialSearchBar) findViewById(R.id.searchBar);
-        //se l'ordine è in stato COMPLETATO nasconde la barra di ricerca
-        if (statoordine == COMPLETATO) {
+        //se l'ordine è in stato COMPLETATO o EVASO nasconde la barra di ricerca
+        if (statoordine == COMPLETATO || statoordine == EVASO) {
             searchBar.setVisibility(View.INVISIBLE);
             ImageButton btnBack = findViewById(R.id.btnBack);
             btnBack.setVisibility(View.VISIBLE);
@@ -190,6 +191,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
             } else {
                 btnCompletaOrdine.setVisibility(View.INVISIBLE);
             }
+        } else if (statoordine == EVASO) {
+            btnCompletaOrdine.setVisibility(View.INVISIBLE);
         }
 
         btnCompletaOrdine.setOnClickListener(new View.OnClickListener() {

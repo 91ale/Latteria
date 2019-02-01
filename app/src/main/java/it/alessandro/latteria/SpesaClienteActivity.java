@@ -80,7 +80,6 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
-    private static final int RICERCA = 5;
     String loggeduser = "";
     ProductAdapter mAdapter;
     TextView txtPrezzoTotale;
@@ -179,47 +178,6 @@ public class SpesaClienteActivity extends AppCompatActivity
         //riceve gli intent inviati in dalla classe ProductAdapter quando viene modificata la quantità dallo spinner
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("quantita_modificata"));
-
-        Button btnProcediCassa = findViewById(R.id.btnProcediCassa);
-        if (statoordine == COMPLETATO || statoordine == EVASO) {
-            btnProcediCassa.setVisibility(View.INVISIBLE);
-        } else if (tipospesa == ONLINE) btnProcediCassa.setText("COMPLETA L'ORDINE");
-
-        btnProcediCassa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                aggiungiOrdine("In attesa di pagamento", idordine, new VolleyCallBack() {
-                    @Override
-                    public void onSuccess(String response) {
-                        Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
-                        intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(response));
-                        intentapproviazionespesa.putExtra("IMPORTO", String.valueOf(mAdapter.sumAllItem()));
-                        if (tipospesa == IN_NEGOZIO)
-                            intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
-                        if (tipospesa == ONLINE)
-                            intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
-                        startActivity(intentapproviazionespesa);
-                    }
-                });
-            }
-        });
-
-        Button salvaOrdine = findViewById(R.id.btnSalvaOrdine);
-        if (statoordine == COMPLETATO || statoordine == EVASO)
-            salvaOrdine.setVisibility(View.INVISIBLE);
-        salvaOrdine.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                aggiungiOrdine("In corso", idordine, new VolleyCallBack() {
-                    @Override
-                    public void onSuccess(String response) {
-
-                    }
-                });
-                Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-                startActivity(intenttipospesa);
-            }
-        });
 
     }
 
@@ -329,10 +287,26 @@ public class SpesaClienteActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_importo) {
-            Toast.makeText(getApplicationContext(), "Importo Menu", Toast.LENGTH_SHORT).show();
+            if (productList.size() == 0) {
+                Toast.makeText(SpesaClienteActivity.this, "Aggiungere almeno un prodotto all'ordine", Toast.LENGTH_SHORT).show();
+            } else {
+                aggiungiOrdine("In corso", idordine, new VolleyCallBack() {
+                    @Override
+                    public void onSuccess(String response) {
+                        if (!response.equals("0")) idordine = Integer.valueOf(response);
+                        Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
+                        intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(idordine));
+                        intentapproviazionespesa.putExtra("IMPORTO", String.valueOf(mAdapter.sumAllItem()));
+                        if (tipospesa == IN_NEGOZIO)
+                            intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                        if (tipospesa == ONLINE)
+                            intentapproviazionespesa.putExtra("TIPO_SPESA", ONLINE);
+                        startActivity(intentapproviazionespesa);
+                    }
+                });
+            }
             return true;
         } else if (id == R.id.action_cerca) {
-            Toast.makeText(getApplicationContext(), "Cerca Menu", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.action_scansiona) {
             Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);

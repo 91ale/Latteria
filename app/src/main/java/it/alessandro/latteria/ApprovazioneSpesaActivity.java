@@ -129,15 +129,12 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
 
                 sendPayments();
             }
-
         }
     }
 
     private void submitPayment() {
-
         DropInRequest dropInRequest = new DropInRequest().clientToken(token);
         startActivityForResult(dropInRequest.getIntent(this),REQUEST_CODE);
-
     }
 
     private void sendPayments() {
@@ -151,7 +148,7 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
                         if (response.contains("Successful"))
                         {
                             Toast.makeText(ApprovazioneSpesaActivity.this, "Transazione completata", Toast.LENGTH_SHORT).show();
-                            setOrdineCompletato(Integer.valueOf(idordine), "Completato");
+                            setOrdineCompletato(Integer.valueOf(idordine));
                             finish();
                         }
                         else {
@@ -232,11 +229,11 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
         }
     }
 
-    private void setOrdineCompletato(int idordine, String stato) {
+    private void setOrdineCompletato(int idordine) {
 
         //modifico lo stato dell'ordine
         String queryurl = UPDATE_STATO_ORDINE_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
-                "Stato=" + stato;
+                "Stato=Completato";
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                 new Response.Listener<String>() {
@@ -274,6 +271,5 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
-
     }
 }

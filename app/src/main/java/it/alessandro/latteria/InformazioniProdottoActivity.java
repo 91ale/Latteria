@@ -20,6 +20,7 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
 
 
     private static final int COMPLETATO = 1;
+    private static final int EVASO = 2;
     DecimalFormat pdec = new DecimalFormat("€ 0.00");
 
     @Override
@@ -59,7 +60,7 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         txtDescrizione.setText(descrizione);
 
         //se l'ordine è già stato completato nascondo il bottone e lo spinner
-        if (statoordine == COMPLETATO) {
+        if (statoordine == COMPLETATO || statoordine == EVASO) {
             spnQuantita.setVisibility(View.INVISIBLE);
             btnAggiungiProdotto.setVisibility(View.INVISIBLE);
         }

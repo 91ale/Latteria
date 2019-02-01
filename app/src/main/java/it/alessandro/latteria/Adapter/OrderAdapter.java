@@ -71,7 +71,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             public void onClick(View v) {
                 switch (orderList.get(position).getStato()) {
                     case "Evaso":
-                        Intent intentevaso = new Intent(mCtx, SpesaClienteActivity.class);
+                        Intent intentevaso = new Intent(mCtx, SpesaCommessoActivity.class);
                         intentevaso.putExtra("STATO_ORDINE", EVASO);
                         intentevaso.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
                         mCtx.startActivity(intentevaso);
