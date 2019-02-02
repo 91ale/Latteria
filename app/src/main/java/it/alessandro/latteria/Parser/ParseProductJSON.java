@@ -12,7 +12,7 @@ import it.alessandro.latteria.Object.Prodotto;
 
 public class ParseProductJSON {
 
-    List<Prodotto> productList;
+    private List<Prodotto> productList;
 
     private String json;
 

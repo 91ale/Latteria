@@ -132,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 break;
 
                                             case "commesso":
-                                                Intent intentcommesso = new Intent(getApplicationContext(), CommessoActivity.class);
+                                                Intent intentcommesso = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
                                                 startActivity(intentcommesso);
                                                 break;
                                         }

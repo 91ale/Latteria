@@ -38,13 +38,16 @@
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
 
-        <activity android:name=".SpesaClienteActivity"
+        <activity
+            android:name=".SpesaClienteActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".TipoSpesaActivity" />
         <activity android:name=".LoginActivity">
@@ -66,7 +69,16 @@
         <activity android:name=".InformazioniProdottoActivity" />
         <activity android:name=".CercaProdottoActivity" />
         <activity android:name=".OrdineCompletatoActivity" />
-        <activity android:name=".SpesaCommessoActivity" />
+        <activity android:name=".SpesaCommessoActivity"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
         <activity android:name=".GestioneProdottiActivity" />
         <activity android:name=".AggiungiProdottiAlCatalogoActivity" />
         <activity android:name=".AggiungiProdottiNegozioActivity" />
@@ -79,7 +91,7 @@
         <activity
             android:name=".StatisticheActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
             android:launchMode="singleTask">

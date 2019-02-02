@@ -19,7 +19,7 @@
     <group android:id="@+id/group_ordini_conclusi">
         <item
             android:id="@+id/nav_ordini_conclusi"
-            android:title="Ordini completati" />
+            android:title="Ordini conclusi" />
     </group>
     <group android:id="@+id/group_statistiche">
         <item

@@ -13,13 +13,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +29,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -57,6 +52,7 @@ import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.Object.Utente;
 import it.alessandro.latteria.Parser.ParseProductJSON;
 import it.alessandro.latteria.Parser.ParseUserJSON;
+import it.alessandro.latteria.Parser.ParserCategoryJSON;
 import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 
 public class SpesaClienteActivity extends AppCompatActivity
@@ -69,6 +65,8 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
     private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
+    private static final String SELECT_PRODOTTO_DA_CATEGORIA = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_category.php?Categoria=";
+    private static final String SELECT_CATEGORIE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_category.php";
 
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
@@ -80,6 +78,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
+
     String loggeduser = "";
     ProductAdapter mAdapter;
     TextView txtPrezzoTotale;
@@ -100,7 +99,6 @@ public class SpesaClienteActivity extends AppCompatActivity
     int statoordine = 0;
     int idordine = 0;
 
-    private MaterialSearchBar searchBar;
     private DrawerLayout drawerLayout;
     private List<Prodotto> productList = new ArrayList<>();
     private List<Prodotto> rproductList = new ArrayList<>();
@@ -144,8 +142,8 @@ public class SpesaClienteActivity extends AppCompatActivity
 
         if (statoordine != COMPLETATO && statoordine != EVASO) {
             //imposta il navigation drawer e l'icona relativa visualizzata nella toolbar
-            drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            drawerLayout = findViewById(R.id.drawer_layout);
+            NavigationView navigationView = findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
             toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.baseline_menu_24));
         } else {
@@ -234,7 +232,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                 }
             });
             //inizializza la funzione di ricerca nel menu della toolbar
-            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
             searchView = (SearchView) menu.findItem(R.id.action_cerca)
                     .getActionView();
             searchView.setSearchableInfo(searchManager
@@ -242,6 +240,7 @@ public class SpesaClienteActivity extends AppCompatActivity
             final String[] from = new String[] {"NomeProdotto"};
             final int[] to = new int[] {android.R.id.text1};
             cursorAdapter = new SimpleCursorAdapter(SpesaClienteActivity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+            getCategorySearch();
             searchView.setSuggestionsAdapter(cursorAdapter);
             // ottiene il suggerimento cliccato e lo assegna alla casella di ricerca
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
@@ -274,7 +273,14 @@ public class SpesaClienteActivity extends AppCompatActivity
 
                 @Override
                 public boolean onQueryTextChange(String s) {
-                    getProductFromName(s);
+                    //carica i suggerimenti soltanto se è stato inserito almeno un carattere
+                    if (s.length() == 0){
+                        searchView.setSuggestionsAdapter(cursorAdapter);
+                        getCategorySearch();
+                    } else {
+                        searchView.setSuggestionsAdapter(cursorAdapter);
+                        getProductSearch(SELECT_PRODOTTO_DA_NOME, s);
+                    }
                     return false;
                 }
             });
@@ -424,9 +430,9 @@ public class SpesaClienteActivity extends AppCompatActivity
         Volley.newRequestQueue(this).add(stringRequest);
     }
 
-    private void getProductFromName (final String nome) {
+    private void getProductSearch (final String urlWebService, final String nome) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, SELECT_PRODOTTO_DA_NOME + nome,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
                 new Response.Listener<String>() {
                     ArrayList<String> dataList = new ArrayList<String>();
                     @Override
@@ -443,6 +449,36 @@ public class SpesaClienteActivity extends AppCompatActivity
                         for (int i=0; i<strArrData.length; i++) {
                             if (strArrData[i].toLowerCase().startsWith(nome.toLowerCase()))
                                 mc.addRow(new Object[] {i, strArrData[i]});
+                        }
+                        cursorAdapter.changeCursor(mc);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //aggiunge la stringrequest alla coda
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+    private void getCategorySearch() {
+        //VolleyLog.DEBUG = true;
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, SELECT_CATEGORIE,
+                new Response.Listener<String>() {
+                    ArrayList<String> dataList = new ArrayList<String>();
+                    @Override
+                    public void onResponse(String response) {
+                        ParserCategoryJSON cj = new ParserCategoryJSON(response);
+                        cj.getCategoriaFromDB();
+                        dataList.addAll(cj.getCategorie());
+                        strArrData = dataList.toArray(new String[dataList.size()]);
+                        // Filter data
+                        final MatrixCursor mc = new MatrixCursor(new String[]{ BaseColumns._ID, "NomeProdotto" });
+                        for (int i=0; i<strArrData.length; i++) {
+                            mc.addRow(new Object[] {i, strArrData[i]});
                         }
                         cursorAdapter.changeCursor(mc);
                     }

@@ -30,6 +30,7 @@ import java.util.List;
 public class CercaProdottoActivity extends AppCompatActivity {
 
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
+    private static final String SELECT_PRODOTTO_DA_CATEGORIA = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_category.php?Categoria=";
 
     private static final int QUANTITA_SELEZIONATA = 102;
     private static final int RICERCA = 5;
@@ -62,6 +63,7 @@ public class CercaProdottoActivity extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         getProduct(SELECT_PRODOTTO_DA_NOME, nomemarca, tipospesa);
+        getProduct(SELECT_PRODOTTO_DA_CATEGORIA, nomemarca, tipospesa);
         //getProduct(SELECT_PRODOTTO_DA_MARCA, nomemarca);
 
     }
@@ -79,16 +81,6 @@ public class CercaProdottoActivity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
         }
     }
 

@@ -79,8 +79,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                     case "Completato":
                         if (commesso == COMMESSO) {
                             Intent intentcompletatocommesso = new Intent(mCtx, SpesaCommessoActivity.class);
-                            if (orderList.get(position).getTipo().equals("Online"))
+                            if (orderList.get(position).getTipo().equals("Online")) {
                                 intentcompletatocommesso.putExtra("TIPO_SPESA", ONLINE);
+                            } else {
+                                intentcompletatocommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                            }
                             intentcompletatocommesso.putExtra("STATO_ORDINE", COMPLETATO);
                             intentcompletatocommesso.putExtra("ID_ORDINE", orderList.get(position).getIDordine());
                             mCtx.startActivity(intentcompletatocommesso);

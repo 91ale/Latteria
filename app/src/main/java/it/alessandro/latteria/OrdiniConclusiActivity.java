@@ -52,7 +52,6 @@ public class OrdiniConclusiActivity extends AppCompatActivity
 
     String loggeduser = "";
     OrderAdapter mAdapter;
-    private MaterialSearchBar searchBar;
     private DrawerLayout drawerLayout;
     private List<Ordine> orderList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -65,7 +64,7 @@ public class OrdiniConclusiActivity extends AppCompatActivity
 
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
-        getSupportActionBar().setTitle("Ordini completati");
+        getSupportActionBar().setTitle("Ordini conclusi");
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.baseline_menu_24);
