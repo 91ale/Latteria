@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -77,6 +78,8 @@ public class MioProfiloActivity extends AppCompatActivity {
                 edtCognome.setEnabled(true);
                 edtIndirizzo.setEnabled(true);
                 btnSalva.setVisibility(View.VISIBLE);
+                edtPassword.setVisibility(View.INVISIBLE);
+                btnSalvaPassword.setVisibility(View.INVISIBLE);
                 btnModificaProfilo.setVisibility(View.INVISIBLE);
                 btnCambiaPassword.setVisibility(View.INVISIBLE);
             }
@@ -106,16 +109,24 @@ public class MioProfiloActivity extends AppCompatActivity {
                 edtPassword.setVisibility(View.VISIBLE);
                 btnSalvaPassword.setVisibility(View.VISIBLE);
                 btnCambiaPassword.setVisibility(View.INVISIBLE);
+                btnModificaProfilo.setVisibility(View.INVISIBLE);
+                btnSalva.setVisibility(View.INVISIBLE);
             }
         });
 
         btnSalvaPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setFirebasePassword(edtPassword.getText().toString());
-                btnSalvaPassword.setVisibility(View.INVISIBLE);
-                btnCambiaPassword.setVisibility(View.VISIBLE);
-                edtPassword.setVisibility(View.INVISIBLE);
+                if (edtPassword.length() == 0) {
+                    Toast.makeText(MioProfiloActivity.this, "La password deve contenere almeno 6 caratteri", Toast.LENGTH_SHORT).show();
+                } else {
+                    setFirebasePassword(edtPassword.getText().toString());
+                    btnSalvaPassword.setVisibility(View.INVISIBLE);
+                    btnCambiaPassword.setVisibility(View.VISIBLE);
+                    edtPassword.setVisibility(View.INVISIBLE);
+                    btnModificaProfilo.setVisibility(View.VISIBLE);
+                }
+
             }
         });
 

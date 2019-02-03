@@ -30,7 +30,6 @@ import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,6 @@ public class OrdiniActivity extends AppCompatActivity
 
     String loggeduser = "";
     OrderAdapter mAdapter;
-    private MaterialSearchBar searchBar;
     private DrawerLayout drawerLayout;
     private List<Ordine> orderList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -54,7 +52,7 @@ public class OrdiniActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ordini);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);

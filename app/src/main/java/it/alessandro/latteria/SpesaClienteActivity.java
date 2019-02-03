@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +66,6 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
     private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
-    private static final String SELECT_PRODOTTO_DA_CATEGORIA = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_category.php?Categoria=";
     private static final String SELECT_CATEGORIE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_category.php";
 
     private static final int RC_SCANNED_BC = 100;
@@ -78,6 +78,8 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
+    private static final int VISUALIZZA = 1;
+    private static final int NASCONDI = 0;
 
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -121,7 +123,6 @@ public class SpesaClienteActivity extends AppCompatActivity
             }
         });
         handleIntent(getIntent());
-
         //valorizza la variabile in base alla selezione effettuata dall'utente nell'activity TipoSpesaActivity (IN_NEGOZIO | ONLINE)
         tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
         //valorizza la variabile in base allo stato dell'ordine (COMPLETATO | IN_CORSO)
@@ -168,8 +169,10 @@ public class SpesaClienteActivity extends AppCompatActivity
         recyclerView.setAdapter(mAdapter);
 
         //collega l'ItemTouchHelper alla recyclerview (necessario per rilevare lo swipe di eliminazione prodotto)
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.RIGHT, this);
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
+        if (statoordine != COMPLETATO) {
+            ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.RIGHT, this);
+            new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
+        }
 
         caricaOrdine(idordine);
 
@@ -386,7 +389,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                 mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
-
                 recyclerView.setAdapter(mAdapter);
             }
         } else if (requestCode == PRODOTTO_SELEZIONATO) {
@@ -394,6 +396,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                 Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
                 if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1) {
                     productList.add(Prodotto);
+                    visualizzaAiuto();
                     mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
@@ -412,6 +415,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
+                        visualizzaAiuto();
                         //crea l'adapter e lo assegna alla recycleview
                         mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                         double totalespesa = mAdapter.sumAllItem();
@@ -512,6 +516,7 @@ public class SpesaClienteActivity extends AppCompatActivity
 
             // rimuove l'oggetto dalla recycler e dalla lista prodotti
             mAdapter.removeItem(viewHolder.getAdapterPosition());
+            visualizzaAiuto();
             double totalespesa = mAdapter.sumAllItem();
             txtPrezzoTotale.setText(pdec.format(totalespesa));
 
@@ -526,6 +531,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                     // ANNULLA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
                     mAdapter.restoreItem(deletedItem, deletedIndex);
                     rproductList.remove(deletedIndex);
+                    visualizzaAiuto();
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                 }
@@ -685,6 +691,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
+                        visualizzaAiuto();
                         //crea l'adapter e lo assegna alla recycleview
                         mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                         double totalespesa = mAdapter.sumAllItem();
@@ -731,6 +738,32 @@ public class SpesaClienteActivity extends AppCompatActivity
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
+    }
+
+    private void visualizzaAiuto() {
+        TextView txtAiuto = findViewById(R.id.txtAiuto);
+        TextView txtAiuto2 = findViewById(R.id.txtAiuto2);
+        TextView txtAiuto3 = findViewById(R.id.txtAiuto3);
+        TextView txtAiuto4 = findViewById(R.id.txtAiuto4);
+        ImageView imgSearch = findViewById(R.id.imgSearch);
+        ImageView imgScan = findViewById(R.id.imgScan);
+
+        if (productList.size() == 0) {
+            txtAiuto.setVisibility(View.VISIBLE);
+            txtAiuto2.setVisibility(View.VISIBLE);
+            txtAiuto3.setVisibility(View.VISIBLE);
+            txtAiuto4.setVisibility(View.VISIBLE);
+            imgSearch.setVisibility(View.VISIBLE);
+            imgScan.setVisibility(View.VISIBLE);
+        } else {
+            txtAiuto.setVisibility(View.GONE);
+            txtAiuto2.setVisibility(View.GONE);
+            txtAiuto3.setVisibility(View.GONE);
+            txtAiuto4.setVisibility(View.GONE);
+            imgSearch.setVisibility(View.GONE);
+            imgScan.setVisibility(View.GONE);
+        }
+
     }
 
 }

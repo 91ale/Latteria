@@ -1,8 +1,16 @@
 package it.alessandro.latteria;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import it.alessandro.latteria.Object.Utente;
 
@@ -24,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +50,41 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        createSignInIntent();
+        checkConnection();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
+
+    private void checkConnection() {
+
+        ConnectivityManager cm =
+                (ConnectivityManager) LoginActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+        alertDialog.setTitle("Controlla connessione");
+        alertDialog.setMessage("Verifica la connessione ad internet e riavvia l'applicazione");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        checkConnection();
+                    }
+                });
+
+        if (!isConnected) {
+            alertDialog.show();
+        } else {
+            alertDialog.dismiss();
+            createSignInIntent();
+        }
 
     }
 
@@ -88,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
                 //verifico se l'utente che si è loggato è gia presente nel dblatteria, nel caso non lo dovesse essere lo faccio registrare
                 getUtente(SELECT_UTENTE_DA_UID + loggeduser.getUid());
             } else {
-                createSignInIntent();
+                checkConnection();
             }
         }
 
@@ -127,7 +170,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                             case "cliente":
                                                 Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
-                                                intenttipospesa.putExtra("LOGGED_UID", loggeduser.getUid());
+                                                //intenttipospesa.putExtra("LOGGED_UID", loggeduser.getUid());
                                                 startActivity(intenttipospesa);
                                                 break;
 
@@ -136,7 +179,6 @@ public class LoginActivity extends AppCompatActivity {
                                                 startActivity(intentcommesso);
                                                 break;
                                         }
-
 
                                         final SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();

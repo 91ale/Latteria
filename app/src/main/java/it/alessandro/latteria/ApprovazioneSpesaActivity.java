@@ -71,6 +71,8 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
+                startActivity(intenttipospesa);
             }
         });
 
@@ -150,6 +152,8 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
                             Toast.makeText(ApprovazioneSpesaActivity.this, "Transazione completata", Toast.LENGTH_SHORT).show();
                             setOrdineCompletato(Integer.valueOf(idordine));
                             finish();
+                            Intent intenttipospesa = new Intent(getApplicationContext(), TipoSpesaActivity.class);
+                            startActivity(intenttipospesa);
                         }
                         else {
                             Toast.makeText(ApprovazioneSpesaActivity.this, "Transazione fallita", Toast.LENGTH_SHORT).show();

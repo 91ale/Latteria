@@ -25,7 +25,6 @@ public class TipoSpesaActivity extends AppCompatActivity implements View.OnClick
 
         btnInNegozio.setOnClickListener(this);
         btnADomicilio.setOnClickListener(this);
-
     }
 
     @Override

@@ -77,31 +77,36 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         } else {
             arrayquantità = arrayQuantità(prodotto.getQuantitamagazzino());
         }
-        // crea un ArrayAdapter usando l'array delle quantità e il layout passato
-        ArrayAdapter<String> spinnerAdapter =
-                new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
-        // specifica il layout della lista scelte
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        if(statoordine == COMPLETATO || statoordine == EVASO) holder.quantita.setEnabled(false);
-        // applica l'adapter allo spinner
-        holder.quantita.setAdapter(spinnerAdapter);
-        holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);
+        if(statoordine == COMPLETATO || statoordine == EVASO) {
+            holder.txtQuantita.setText("Quantità " + productList.get(position).getQuantitàOrdinata());
+            holder.quantita.setVisibility(View.GONE);
+        } else {
+            // crea un ArrayAdapter usando l'array delle quantità e il layout passato
+            ArrayAdapter<String> spinnerAdapter =
+                    new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
+            // specifica il layout della lista scelte
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // applica l'adapter allo spinner
+            holder.quantita.setAdapter(spinnerAdapter);
+            holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);
 
-        holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int positionInSpinner, long id) {
-                String quantita = parent.getItemAtPosition(positionInSpinner).toString();
-                productList.get(position).setQuantitàOrdinata(Integer.parseInt(quantita));
-                Intent intent = new Intent("quantita_modificata");
-                LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intent);
-            }
+            holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view,
+                                           int positionInSpinner, long id) {
+                    String quantita = parent.getItemAtPosition(positionInSpinner).toString();
+                    productList.get(position).setQuantitàOrdinata(Integer.parseInt(quantita));
+                    Intent intent = new Intent("quantita_modificata");
+                    LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intent);
+                }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
 
-            }
-        });
+                }
+            });
+        }
+        //if(statoordine == COMPLETATO || statoordine == EVASO) holder.quantita.setEnabled(false);
 
         if (statoordine == RICERCA) {
             holder.quantita.setVisibility(View.INVISIBLE);

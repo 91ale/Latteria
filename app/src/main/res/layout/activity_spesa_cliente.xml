@@ -19,6 +19,69 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/txtAiuto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="Premere"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.466" />
+
+        <ImageView
+            android:id="@+id/imgSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/txtAiuto"
+            app:layout_constraintStart_toEndOf="@+id/txtAiuto"
+            app:srcCompat="@drawable/ic_baseline_search_24px" />
+
+        <TextView
+            android:id="@+id/txtAiuto2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="per cercare prodotti da aggiungere alla spesa"
+            app:layout_constraintBaseline_toBaselineOf="@+id/txtAiuto"
+            app:layout_constraintStart_toEndOf="@+id/imgSearch" />
+
+        <TextView
+            android:id="@+id/txtAiuto3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="Premere"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.586" />
+
+        <ImageView
+            android:id="@+id/imgScan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/txtAiuto3"
+            app:layout_constraintStart_toEndOf="@+id/txtAiuto3"
+            app:srcCompat="@drawable/ic_camera_alt_black_24dp" />
+
+        <TextView
+            android:id="@+id/txtAiuto4"
+            android:layout_width="289dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="per scansionare il codice a barre del prodotto da aggiungere alla spesa"
+            android:textAlignment="center"
+            app:layout_constraintBaseline_toBaselineOf="@+id/txtAiuto3"
+            app:layout_constraintStart_toEndOf="@+id/imgScan" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
