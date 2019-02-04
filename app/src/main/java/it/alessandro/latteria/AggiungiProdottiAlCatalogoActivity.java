@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -219,53 +220,52 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
             }
         } else if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
-                //comprime l'immagine catturata dalla fotocamera
                 File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES),imageFileName+"2.jpg");
                 InputStream imageStream = null;
                 try {
                     imageStream = getContentResolver().openInputStream(
                             photoURI);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                Bitmap bmp = BitmapFactory.decodeStream(imageStream);
-                bmp = Bitmap.createScaledBitmap(bmp,(int)(bmp.getWidth()*0.5), (int)(bmp.getHeight()*0.5), true);
+                    Bitmap bmp = BitmapFactory.decodeStream(imageStream);
+                    //verifica l'orientamento della fotocamera (ricavato dai metadati EXIF) e ruota l'immagine di conseguenza
+                    ExifInterface exif = new ExifInterface(mCurrentPhotoPath);
+                    Log.d("EXIF value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+                    if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")){
+                        bmp= rotate(bmp, 90);
+                    } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")){
+                        bmp= rotate(bmp, 270);
+                    } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")){
+                        bmp= rotate(bmp, 180);
+                    } else if(exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("0")){
+                        bmp= rotate(bmp, 90);
+                    }
+                    bmp = Bitmap.createScaledBitmap(bmp,(int)(bmp.getWidth()*0.5), (int)(bmp.getHeight()*0.5), true);
 
-                FileOutputStream out = null;
-                try {
+                    FileOutputStream out = null;
                     out = new FileOutputStream(file);
+                    //comprime l'immagine catturata dalla fotocamera
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 30, out);
+                    //elimina l'immagine acquisita
+                    getContentResolver().delete(photoURI, null,null);
+                    //carica l'immagine compressa sul server amazon S3
+                    uploadWithTransferUtility();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                }
-                bmp.compress(Bitmap.CompressFormat.JPEG, 30, out);
-
-                //ricopia le informazioni di orientamento dal vecchio file al nuovo
-                ExifInterface oldExif = null;
-                try {
-                    oldExif = new ExifInterface(mCurrentPhotoPath);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                String exifOrientation = oldExif.getAttribute(ExifInterface.TAG_ORIENTATION);
-
-                if (exifOrientation != null) {
-                    Log.d("EXIF",exifOrientation);
-                    try {
-                        ExifInterface newExif = new ExifInterface(file.getAbsolutePath());
-                        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, exifOrientation);
-                        newExif.saveAttributes();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                //elimina l'immagine acquisita
-                getContentResolver().delete(photoURI, null,null);
-
-                //carica l'immagine compressa sul server amazon S3
-                uploadWithTransferUtility();
             }
         }
+    }
+
+    public static Bitmap rotate(Bitmap bitmap, int degree) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Matrix mtx = new Matrix();
+        //       mtx.postRotate(degree);
+        mtx.setRotate(degree);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
     private File salvaImmagineSuFile() throws IOException {

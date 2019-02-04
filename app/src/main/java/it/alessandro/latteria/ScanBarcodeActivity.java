@@ -56,7 +56,7 @@ public class ScanBarcodeActivity extends AppCompatActivity {
 
         if (tipocodice == EAN_13) {
             barcodeDetector = new BarcodeDetector.Builder(this)
-                    .setBarcodeFormats(Barcode.EAN_13).build();
+                    .setBarcodeFormats(Barcode.EAN_13 | Barcode.EAN_8).build();
             txtTipoScansione.setText(messaggio);
         } else {
             barcodeDetector = new BarcodeDetector.Builder(this)
