@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -33,7 +34,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,12 +62,12 @@ import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 public class SpesaClienteActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
-    private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php";
     private static final String INSERT_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_order.php?";
     private static final String INSERT_PRODOTTI_VENDUTI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_ordered_products.php?";
     private static final String SELECT_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_products_from_orderid.php?IDOrdine=";
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
-    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
+    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php";
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
     private static final String SELECT_CATEGORIE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_category.php";
 
@@ -78,8 +81,6 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
-    private static final int VISUALIZZA = 1;
-    private static final int NASCONDI = 0;
 
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -115,7 +116,7 @@ public class SpesaClienteActivity extends AppCompatActivity
         //inizializzaione della toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("La mia spesa");
+        getSupportActionBar().setTitle("Spesa");
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -406,9 +407,9 @@ public class SpesaClienteActivity extends AppCompatActivity
         }
     }
 
-    private void getProduct(final String urlWebService, String scannedbc) {
+    private void getProduct(final String urlWebService, final String scannedbc) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + scannedbc,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -428,7 +429,21 @@ public class SpesaClienteActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("BarCode",scannedbc);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);
@@ -662,7 +677,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                         "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             }
 
-
             StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
                     new Response.Listener<String>() {
                         @Override
@@ -715,11 +729,11 @@ public class SpesaClienteActivity extends AppCompatActivity
         void onSuccess(String response);
     }
 
-    private void getInformazioniUtente(String idutente, final VolleyCallBack callback) {
+    private void getInformazioniUtente(final String idutente, final VolleyCallBack callback) {
 
-        String queryurl = SELECT_UTENTE_DA_IDUTENTE + idutente;
+        String queryurl = SELECT_UTENTE_DA_IDUTENTE;
 
-        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, queryurl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -734,7 +748,21 @@ public class SpesaClienteActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDUtente",idutente);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
@@ -747,7 +775,6 @@ public class SpesaClienteActivity extends AppCompatActivity
         TextView txtAiuto4 = findViewById(R.id.txtAiuto4);
         ImageView imgSearch = findViewById(R.id.imgSearch);
         ImageView imgScan = findViewById(R.id.imgScan);
-
         if (productList.size() == 0) {
             txtAiuto.setVisibility(View.VISIBLE);
             txtAiuto2.setVisibility(View.VISIBLE);
@@ -763,7 +790,5 @@ public class SpesaClienteActivity extends AppCompatActivity
             imgSearch.setVisibility(View.GONE);
             imgScan.setVisibility(View.GONE);
         }
-
     }
-
 }

@@ -1,6 +1,5 @@
 package it.alessandro.latteria;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,13 +8,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import it.alessandro.latteria.Object.Utente;
 
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -32,14 +31,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
-    private static final String SELECT_UTENTE_DA_UID = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
+    private static final String SELECT_UTENTE_DA_UID = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php";
 
     FirebaseUser loggeduser;
 
@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
                 prefsEditor.apply();
 
                 //verifico se l'utente che si è loggato è gia presente nel dblatteria, nel caso non lo dovesse essere lo faccio registrare
-                getUtente(SELECT_UTENTE_DA_UID + loggeduser.getUid());
+                getUtente(SELECT_UTENTE_DA_UID, loggeduser.getUid());
             } else {
                 checkConnection();
             }
@@ -137,9 +137,9 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void getUtente(final String urlWebService) {
+    private void getUtente(final String urlWebService, final String idutente) {
         VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -204,7 +204,21 @@ public class LoginActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDUtente",idutente);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);

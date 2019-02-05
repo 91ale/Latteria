@@ -33,6 +33,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,13 +49,15 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     private static final String INSERT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_catalogue.php?";
-    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php";
     private static final String S3_PRODUCT_IMAGE_PATH = "https://s3.eu-central-1.amazonaws.com/latteria-userfiles-mobilehub-1901756941/public/";
 
     private static final int EAN_13 = 13;
@@ -284,9 +287,9 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
         return image;
     }
 
-    private void getProduct(final String urlWebService, String scannedbc) {
+    private void getProduct(final String urlWebService, final String scannedbc) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + scannedbc,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -311,7 +314,21 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("BarCode",scannedbc);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);

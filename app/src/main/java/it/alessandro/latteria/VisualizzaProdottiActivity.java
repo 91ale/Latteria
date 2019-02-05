@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+
+import com.android.volley.AuthFailureError;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -37,13 +39,15 @@ import com.google.android.gms.tasks.Task;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VisualizzaProdottiActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MaterialSearchBar.OnSearchActionListener {
 
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
-    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
+    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php";
 
     private static final int QR = 14;
 
@@ -235,11 +239,9 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
         void onSuccess(String response);
     }
 
-    private void getInformazioniUtente(String idutente, final VolleyCallBack callback) {
+    private void getInformazioniUtente(final String idutente, final VolleyCallBack callback) {
 
-        String queryurl = SELECT_UTENTE_DA_IDUTENTE + idutente;
-
-        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, SELECT_UTENTE_DA_IDUTENTE,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -254,7 +256,21 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDUtente",idutente);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);

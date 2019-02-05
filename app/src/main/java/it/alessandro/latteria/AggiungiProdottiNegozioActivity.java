@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -21,11 +22,13 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
 
-    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php";
     private static final String INSERT_PRODOTTO_IN_NEGOZIO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_shop.php?";
 
     private static final int EAN_13 = 13;
@@ -93,9 +96,9 @@ public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
         }
     }
 
-    private void getProduct(final String urlWebService, String scannedbc) {
+    private void getProduct(final String urlWebService, final String scannedbc) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + scannedbc,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -118,7 +121,21 @@ public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("BarCode",scannedbc);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);

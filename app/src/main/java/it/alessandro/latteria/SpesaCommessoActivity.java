@@ -12,6 +12,8 @@ import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+
+import com.android.volley.AuthFailureError;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -52,17 +54,19 @@ import com.google.android.gms.tasks.Task;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SpesaCommessoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
-    private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php?BarCode=";
+    private static final String SELECT_PRODOTTO_DA_BARCODE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php";
     private static final String INSERT_PRODOTTI_VENDUTI = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_ordered_products.php?";
     private static final String SELECT_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_products_from_orderid.php?IDOrdine=";
     private static final String DELETE_PRODOTTI_DA_ORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/delete_product_from_order.php?IDProdottoVenduto=";
     private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_total_from_orderid.php?";
-    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php?IDUtente=";
+    private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php";
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
 
     private static final int RC_SCANNED_BC = 100;
@@ -110,7 +114,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
         //inizializzaione della toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Spesa cliente");
+        getSupportActionBar().setTitle("Spesa");
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -416,9 +420,9 @@ public class SpesaCommessoActivity extends AppCompatActivity
         }
     }
 
-    private void getProduct(final String urlWebService, String scannedbc) {
+    private void getProduct(final String urlWebService, final String scannedbc) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + scannedbc,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlWebService,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -437,7 +441,21 @@ public class SpesaCommessoActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("BarCode",scannedbc);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);
@@ -663,11 +681,11 @@ public class SpesaCommessoActivity extends AppCompatActivity
         void onSuccess(String response);
     }
 
-    private void getInformazioniUtente(String idutente, final SpesaCommessoActivity.VolleyCallBack callback) {
+    private void getInformazioniUtente(final String idutente, final SpesaCommessoActivity.VolleyCallBack callback) {
 
-        String queryurl = SELECT_UTENTE_DA_IDUTENTE + idutente;
+        String queryurl = SELECT_UTENTE_DA_IDUTENTE;
 
-        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, queryurl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -682,7 +700,21 @@ public class SpesaCommessoActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDUtente",idutente);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
