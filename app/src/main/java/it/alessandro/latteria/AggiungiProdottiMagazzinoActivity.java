@@ -33,7 +33,7 @@ import java.util.Map;
 public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
     private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php";
-    private static final String INSERT_PRODOTTO_IN_MAGAZZINO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_warehouse.php?";
+    private static final String INSERT_PRODOTTO_IN_MAGAZZINO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_warehouse.php";
 
     private static final int EAN_13 = 13;
 
@@ -150,7 +150,7 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
     private void aggiungiProdottoMagazzino() {
 
-        String queryurl = "";
+        //String queryurl = "";
 
         edtPrezzoAcquisto = findViewById(R.id.edtPrezzoAcquisto);
         edtPrezzoVendita = findViewById(R.id.edtPrezzoVendita);
@@ -165,15 +165,15 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        double dpacquisto = pacquisto.doubleValue();
-        double dpvendita = pvendita.doubleValue();
+        final double dpacquisto = pacquisto.doubleValue();
+        final double dpvendita = pvendita.doubleValue();
 
-        queryurl = INSERT_PRODOTTO_IN_MAGAZZINO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
+        /*queryurl = INSERT_PRODOTTO_IN_MAGAZZINO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
                 "PrezzoAcquisto=" + dpacquisto + "&" +
                 "PrezzoVenditaAttuale=" + dpvendita + "&" +
-                "Quantita=" + edtQuantita.getText() + "&";
+                "Quantita=" + edtQuantita.getText() + "&";*/
 
-        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, INSERT_PRODOTTO_IN_MAGAZZINO,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -185,7 +185,24 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDProdotto",String.valueOf(productList.get(0).getIDprodotto()));
+                params.put("PrezzoAcquisto",String.valueOf(dpacquisto));
+                params.put("PrezzoVenditaAttuale",String.valueOf(dpvendita));
+                params.put("Quantita",edtQuantita.getText().toString());
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);

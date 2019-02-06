@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -20,12 +21,14 @@ import com.android.volley.toolbox.Volley;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ModificaProdottoActivity extends AppCompatActivity {
 
-    private static final String UPDATE_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_product_from_PID.php?";
+    private static final String UPDATE_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_product_from_PID.php";
     private static final String SELECT_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_PID.php?IDProdotto=";
 
     EditText edtNome;
@@ -110,7 +113,7 @@ public class ModificaProdottoActivity extends AppCompatActivity {
 
     private void modificaProdotto() {
 
-        String queryurl = "";
+        //String queryurl = "";
 
         edtNome = findViewById(R.id.edtNome);
         edtMarca = findViewById(R.id.edtMarca);
@@ -127,18 +130,18 @@ public class ModificaProdottoActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        double dpvendita = pvendita.doubleValue();
+        final double dpvendita = pvendita.doubleValue();
 
-        queryurl = UPDATE_PRODOTTO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
+        /*queryurl = UPDATE_PRODOTTO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
                 "Nome=" + edtNome.getText() + "&" +
                 "Marca=" + edtMarca.getText() + "&" +
                 "Categoria=" + edtCategoria.getText() + "&" +
                 "Descrizione=" + edtDescrizione.getText() + "&" +
                 "PrezzoVenditaAttuale=" + dpvendita + "&" +
                 "QuantitaNegozio=" + edtQuantitaNegozio.getText() + "&" +
-                "QuantitaMagazzino=" + edtQuantitaMagazzino.getText();
+                "QuantitaMagazzino=" + edtQuantitaMagazzino.getText();*/
 
-        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, UPDATE_PRODOTTO,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -150,7 +153,28 @@ public class ModificaProdottoActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDProdotto", String.valueOf(productList.get(0).getIDprodotto()));
+                params.put("Nome",edtNome.getText().toString());
+                params.put("Marca",edtMarca.getText().toString());
+                params.put("Categoria",edtCategoria.getText().toString());
+                params.put("Descrizione",edtDescrizione.getText().toString());
+                params.put("PrezzoVenditaAttuale",String.valueOf(dpvendita));
+                params.put("QuantitaNegozio",edtQuantitaNegozio.getText().toString());
+                params.put("QuantitaMagazzino",edtQuantitaMagazzino.getText().toString());
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);

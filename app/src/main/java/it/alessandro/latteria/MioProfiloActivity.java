@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -21,9 +22,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MioProfiloActivity extends AppCompatActivity {
 
-    private static final String INSERT_USER = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_user.php?";
+    private static final String INSERT_USER = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_user.php";
 
     EditText edtNome;
     EditText edtCognome;
@@ -95,7 +99,7 @@ public class MioProfiloActivity extends AppCompatActivity {
                 utente.setnome(edtNome.getText().toString());
                 utente.setcognome(edtCognome.getText().toString());
                 utente.setindirizzo(edtIndirizzo.getText().toString());
-                insertUser(INSERT_USER + "IDUtente=" + utente.getUID() + "&Nome=" + utente.getnome() + "&Cognome=" + utente.getcognome() + "&Indirizzo=" + utente.getindirizzo() + "&Tipo=" + utente.gettipo());
+                insertUser(utente.getUID(), utente.getnome(), utente.getcognome(), utente.getindirizzo(), utente.gettipo());
                 setUtenteLoggato(utente);
                 btnSalva.setVisibility(View.INVISIBLE);
                 btnModificaProfilo.setVisibility(View.VISIBLE);
@@ -151,9 +155,9 @@ public class MioProfiloActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void insertUser(final String urlWebService) {
+    private void insertUser(final String UID, final String nome, final String cognome, final String indirizzo, final String tipo) {
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, INSERT_USER,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -165,7 +169,25 @@ public class MioProfiloActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("IDUtente",UID);
+                params.put("Nome",nome);
+                params.put("Cognome",cognome);
+                params.put("Indirizzo",indirizzo);
+                params.put("Tipo",tipo);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);

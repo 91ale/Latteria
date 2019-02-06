@@ -56,7 +56,7 @@ import java.util.Map;
 
 public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
-    private static final String INSERT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_catalogue.php?";
+    private static final String INSERT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/insert_product_in_catalogue.php";
     private static final String SELECT_PRODOTTO_IN_CATALOGO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_barcode.php";
     private static final String S3_PRODUCT_IMAGE_PATH = "https://s3.eu-central-1.amazonaws.com/latteria-userfiles-mobilehub-1901756941/public/";
 
@@ -337,14 +337,14 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     private void aggiungiProdottoCatalogo() {
         VolleyLog.DEBUG = true;
-        String queryurl = "";
+        //String queryurl = "";
 
         edtNome = findViewById(R.id.edtNome);
         edtMarca = findViewById(R.id.edtMarca);
         edtCategoria = findViewById(R.id.edtCategoria);
         edtDescrizione = findViewById(R.id.edtDescrizione);
 
-        if (productList.size() > 0) {
+        /*if (productList.size() > 0) {
             //se il prodotto già esisteva in catalogo
             queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
                     "BarCode=" + productList.get(0).getBarCode() + "&" +
@@ -361,9 +361,9 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                     "Categoria=" + edtCategoria.getText() + "&" +
                     "Descrizione=" + edtDescrizione.getText()+ "&" +
                     "Percorso=" + S3_PRODUCT_IMAGE_PATH + imageFileName + ".jpg";
-        }
+        }*/
 
-        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, INSERT_PRODOTTO_IN_CATALOGO,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -375,7 +375,37 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
 
                     }
-                });
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                if (productList.size() > 0) {
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("IDProdotto",String.valueOf(productList.get(0).getIDprodotto()));
+                    params.put("BarCode",String.valueOf(productList.get(0).getBarCode()));
+                    params.put("Nome",edtNome.getText().toString());
+                    params.put("Marca",edtMarca.getText().toString());
+                    params.put("Categoria",edtCategoria.getText().toString());
+                    params.put("Descrizione",edtDescrizione.getText().toString());
+                    return params;
+                } else {
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("BarCode",scannedbc);
+                    params.put("Nome",edtNome.getText().toString());
+                    params.put("Marca",edtMarca.getText().toString());
+                    params.put("Categoria",edtCategoria.getText().toString());
+                    params.put("Descrizione",edtDescrizione.getText().toString());
+                    params.put("Percorso",S3_PRODUCT_IMAGE_PATH + imageFileName + ".jpg");
+                    return params;
+                }
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequestAdd);
