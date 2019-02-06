@@ -51,7 +51,6 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
     private static final String UPDATE_QUANTITA_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_quantity_from_orderid.php?";
 
     private static final int IN_NEGOZIO = 1;
-    private static final int ONLINE = 2;
 
     String token, importo;
     HashMap<String,String> paramsHash;

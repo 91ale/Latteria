@@ -545,7 +545,7 @@ public class SpesaClienteActivity extends AppCompatActivity
 
                     // ANNULLA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
                     mAdapter.restoreItem(deletedItem, deletedIndex);
-                    rproductList.remove(deletedIndex);
+                    rproductList.remove(rproductList.size()-1);
                     visualizzaAiuto();
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));

@@ -19,6 +19,8 @@ import com.android.volley.toolbox.Volley;
 
 import java.text.DecimalFormat;
 
+import static com.google.android.gms.vision.barcode.Barcode.EAN_13;
+
 public class OrdineCompletatoActivity extends AppCompatActivity {
 
     private static final String UPDATE_STATO_ORDINE_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_status_from_orderid.php?";
@@ -26,6 +28,8 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
     private static final String UPDATE_QUANTITA_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_quantity_from_orderid.php?";
 
     private static final int ONLINE = 2;
+    private static final int QR = 14;
+    private static final int RC_SCANNED_QR = 105;
 
     Utente utente;
 
@@ -62,12 +66,13 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (tipospesa == ONLINE) {
                     setOrdineCompletato(idordine, "Evaso");
+                    Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                    startActivity(intentordinionline);
                 } else {
                     setOrdineCompletato(idordine, "Completato");
+                    Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                    startActivity(intentordinionline);
                 }
-
-                Intent intentcommesso = new Intent(getApplicationContext(), CommessoActivity.class);
-                startActivity(intentcommesso);
             }
         });
 

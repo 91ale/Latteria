@@ -34,6 +34,7 @@ import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.Object.Utente;
 import it.alessandro.latteria.Parser.ParseProductJSON;
 import it.alessandro.latteria.Parser.ParseUserJSON;
+import it.alessandro.latteria.Parser.ParserCategoryJSON;
 import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 
 import android.provider.BaseColumns;
@@ -68,6 +69,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final String UPDATE_ORDINE_IMPORTO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_total_from_orderid.php?";
     private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php";
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
+    private static final String SELECT_CATEGORIE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_category.php";
 
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
@@ -81,6 +83,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
+    private static final String BACK = "back";
 
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -251,6 +254,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
             final String[] from = new String[] {"NomeProdotto"};
             final int[] to = new int[] {android.R.id.text1};
             cursorAdapter = new SimpleCursorAdapter(SpesaCommessoActivity.this, android.R.layout.simple_spinner_dropdown_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+            getCategorySearch();
             searchView.setSuggestionsAdapter(cursorAdapter);
             // ottiene il suggerimento cliccato e lo assegna alla casella di ricerca
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
@@ -285,10 +289,11 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 public boolean onQueryTextChange(String s) {
                     //carica i suggerimenti soltanto se è stato inserito almeno un carattere
                     if (s.length() == 0){
-                        searchView.setSuggestionsAdapter(null);
+                        searchView.setSuggestionsAdapter(cursorAdapter);
+                        getCategorySearch();
                     } else {
                         searchView.setSuggestionsAdapter(cursorAdapter);
-                        getProductFromName(s);
+                        getProductSearch(SELECT_PRODOTTO_DA_NOME, s);
                     }
                     return false;
                 }
@@ -409,13 +414,15 @@ public class SpesaCommessoActivity extends AppCompatActivity
         } else if (requestCode == RC_SCANNED_QR) {
             if (resultCode == Activity.RESULT_OK) {
                 String scannedqr = data.getStringExtra("SCANNED_CODE");
-                int idordine = Integer.valueOf(scannedqr);
-                Log.d("SCANNED_CODE", scannedqr);
+                if (!scannedqr.equals(BACK)) {
+                    int idordine = Integer.valueOf(scannedqr);
+                    Log.d("SCANNED_CODE", scannedqr);
 
-                Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
-                intentspesacommesso.putExtra("ID_ORDINE", idordine);
-                intentspesacommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
-                startActivity(intentspesacommesso);
+                    Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
+                    intentspesacommesso.putExtra("ID_ORDINE", idordine);
+                    intentspesacommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                    startActivity(intentspesacommesso);
+                }
             }
         }
     }
@@ -461,9 +468,9 @@ public class SpesaCommessoActivity extends AppCompatActivity
         Volley.newRequestQueue(this).add(stringRequest);
     }
 
-    private void getProductFromName (final String nome) {
+    private void getProductSearch (final String urlWebService, final String nome) {
         //VolleyLog.DEBUG = true;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, SELECT_PRODOTTO_DA_NOME + nome,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
                 new Response.Listener<String>() {
                     ArrayList<String> dataList = new ArrayList<String>();
                     @Override
@@ -480,6 +487,36 @@ public class SpesaCommessoActivity extends AppCompatActivity
                         for (int i=0; i<strArrData.length; i++) {
                             if (strArrData[i].toLowerCase().startsWith(nome.toLowerCase()))
                                 mc.addRow(new Object[] {i, strArrData[i]});
+                        }
+                        cursorAdapter.changeCursor(mc);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //aggiunge la stringrequest alla coda
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+    private void getCategorySearch() {
+        //VolleyLog.DEBUG = true;
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, SELECT_CATEGORIE,
+                new Response.Listener<String>() {
+                    ArrayList<String> dataList = new ArrayList<String>();
+                    @Override
+                    public void onResponse(String response) {
+                        ParserCategoryJSON cj = new ParserCategoryJSON(response);
+                        cj.getCategoriaFromDB();
+                        dataList.addAll(cj.getCategorie());
+                        strArrData = dataList.toArray(new String[dataList.size()]);
+                        // Filter data
+                        final MatrixCursor mc = new MatrixCursor(new String[]{ BaseColumns._ID, "NomeProdotto" });
+                        for (int i=0; i<strArrData.length; i++) {
+                            mc.addRow(new Object[] {i, strArrData[i]});
                         }
                         cursorAdapter.changeCursor(mc);
                     }
@@ -526,7 +563,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
 
                     // ANNULLA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
                     mAdapter.restoreItem(deletedItem, deletedIndex);
-                    rproductList.remove(deletedIndex);
+                    rproductList.remove(rproductList.size()-1);
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                 }
