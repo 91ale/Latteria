@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Map;
 
 public class ModificaProdottoActivity extends AppCompatActivity {
 
-    private static final String UPDATE_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_product_from_PID.php";
+    private static final String UPDATE_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_product_from_PID_manual.php";
     private static final String SELECT_PRODOTTO = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_PID.php?IDProdotto=";
 
     EditText edtNome;
@@ -40,6 +41,8 @@ public class ModificaProdottoActivity extends AppCompatActivity {
     EditText edtDescrizione;
 
     private List<Prodotto> productList = new ArrayList<>();
+
+    DecimalFormat pdec = new DecimalFormat("0.00");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +94,7 @@ public class ModificaProdottoActivity extends AppCompatActivity {
                             edtNome.setText(productList.get(0).getNome());
                             edtMarca.setText(productList.get(0).getMarca());
                             edtCategoria.setText(productList.get(0).getCategoria());
-                            edtPrezzoVendita.setText(String.valueOf(productList.get(0).getPrezzovenditaAttuale()));
+                            edtPrezzoVendita.setText(pdec.format(productList.get(0).getPrezzovenditaAttuale()));
                             edtQuantitaNegozio.setText(String.valueOf(productList.get(0).getQuantitanegozio()));
                             edtQuantitaMagazzino.setText(String.valueOf(productList.get(0).getQuantitamagazzino()));
                             edtDescrizione.setText(productList.get(0).getDescrizione());

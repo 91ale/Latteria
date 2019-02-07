@@ -1,5 +1,6 @@
 package it.alessandro.latteria;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -52,6 +53,8 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
     private static final int QR = 14;
 
     private static final int RC_SCANNED_QR = 105;
+    private static final int IN_NEGOZIO = 1;
+    private static final String BACK = "back";
 
     private MaterialSearchBar searchBar;
     private DrawerLayout drawerLayout;
@@ -271,10 +274,27 @@ public class VisualizzaProdottiActivity extends AppCompatActivity
                 return params;
             }
         };
-
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == RC_SCANNED_QR) {
+            if (resultCode == Activity.RESULT_OK) {
+                String scannedqr = data.getStringExtra("SCANNED_CODE");
+                if (!scannedqr.equals(BACK)) {
+                    int idordine = Integer.valueOf(scannedqr);
+                    Log.d("SCANNED_CODE", scannedqr);
+
+                    Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
+                    intentspesacommesso.putExtra("ID_ORDINE", idordine);
+                    intentspesacommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
+                    startActivity(intentspesacommesso);
+                }
+            }
+        }
     }
 
 }
