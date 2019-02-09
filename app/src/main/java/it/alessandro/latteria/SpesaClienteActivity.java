@@ -380,6 +380,8 @@ public class SpesaClienteActivity extends AppCompatActivity
                 int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
                 //altrimenti acquisico le info dal DB e lo aggiungo alla lista
                 if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
+            } else {
+                Toast.makeText(SpesaClienteActivity.this, "Codice a barre non riconosciuto prego riprovare la scansione, oppure utilizzare la ricerca tramite nome prodotto", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == QUANTITA_SELEZIONATA) {
             if (resultCode == Activity.RESULT_OK) {
@@ -413,15 +415,19 @@ public class SpesaClienteActivity extends AppCompatActivity
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        ParseProductJSON pj = new ParseProductJSON(response);
-                        pj.getProductFromDB();
-                        productList.addAll(pj.getProduct());
-                        visualizzaAiuto();
-                        //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
-                        double totalespesa = mAdapter.sumAllItem();
-                        txtPrezzoTotale.setText(pdec.format(totalespesa));
-                        recyclerView.setAdapter(mAdapter);
+                        if (response.length() == 2) {
+                            Toast.makeText(SpesaClienteActivity.this, "Codice a barre non riconosciuto prego riprovare la scansione, oppure utilizzare la ricerca tramite nome prodotto", Toast.LENGTH_LONG).show();
+                        } else {
+                            ParseProductJSON pj = new ParseProductJSON(response);
+                            pj.getProductFromDB();
+                            productList.addAll(pj.getProduct());
+                            visualizzaAiuto();
+                            //crea l'adapter e lo assegna alla recycleview
+                            mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
+                            double totalespesa = mAdapter.sumAllItem();
+                            txtPrezzoTotale.setText(pdec.format(totalespesa));
+                            recyclerView.setAdapter(mAdapter);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -772,21 +778,18 @@ public class SpesaClienteActivity extends AppCompatActivity
         TextView txtAiuto = findViewById(R.id.txtAiuto);
         TextView txtAiuto2 = findViewById(R.id.txtAiuto2);
         TextView txtAiuto3 = findViewById(R.id.txtAiuto3);
-        TextView txtAiuto4 = findViewById(R.id.txtAiuto4);
         ImageView imgSearch = findViewById(R.id.imgSearch);
         ImageView imgScan = findViewById(R.id.imgScan);
         if (productList.size() == 0) {
             txtAiuto.setVisibility(View.VISIBLE);
             txtAiuto2.setVisibility(View.VISIBLE);
             txtAiuto3.setVisibility(View.VISIBLE);
-            txtAiuto4.setVisibility(View.VISIBLE);
             imgSearch.setVisibility(View.VISIBLE);
             imgScan.setVisibility(View.VISIBLE);
         } else {
             txtAiuto.setVisibility(View.GONE);
             txtAiuto2.setVisibility(View.GONE);
             txtAiuto3.setVisibility(View.GONE);
-            txtAiuto4.setVisibility(View.GONE);
             imgSearch.setVisibility(View.GONE);
             imgScan.setVisibility(View.GONE);
         }

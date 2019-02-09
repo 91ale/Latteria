@@ -43,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -417,7 +418,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 if (!scannedqr.equals(BACK)) {
                     int idordine = Integer.valueOf(scannedqr);
                     Log.d("SCANNED_CODE", scannedqr);
-
+                    finish();
                     Intent intentspesacommesso = new Intent(this, SpesaCommessoActivity.class);
                     intentspesacommesso.putExtra("ID_ORDINE", idordine);
                     intentspesacommesso.putExtra("TIPO_SPESA", IN_NEGOZIO);
@@ -433,14 +434,18 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        ParseProductJSON pj = new ParseProductJSON(response);
-                        pj.getProductFromDB();
-                        productList.addAll(pj.getProduct());
-                        //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
-                        double totalespesa = mAdapter.sumAllItem();
-                        txtPrezzoTotale.setText(pdec.format(totalespesa));
-                        recyclerView.setAdapter(mAdapter);
+                        if (response.length() == 2) {
+                            Toast.makeText(SpesaCommessoActivity.this, "Codice a barre non riconosciuto prego riprovare la scansione, oppure utilizzare la ricerca tramite nome prodotto", Toast.LENGTH_LONG).show();
+                        } else {
+                            ParseProductJSON pj = new ParseProductJSON(response);
+                            pj.getProductFromDB();
+                            productList.addAll(pj.getProduct());
+                            //crea l'adapter e lo assegna alla recycleview
+                            mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                            double totalespesa = mAdapter.sumAllItem();
+                            txtPrezzoTotale.setText(pdec.format(totalespesa));
+                            recyclerView.setAdapter(mAdapter);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
