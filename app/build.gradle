@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-s3:2.9.1'
     implementation('com.amazonaws:aws-android-sdk-mobile-client:2.9.+@aar') { transitive = true }
     implementation('com.amazonaws:aws-android-sdk-auth-userpools:2.9.+@aar') { transitive = true }
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
 
 }

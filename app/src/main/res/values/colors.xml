@@ -6,6 +6,6 @@
     <color name="grey">#999999</color>
     <color name="prezzo">#999999</color>
     <color name="nome">#222222</color>
-    <color name="bg_row_background">#fa315b</color>
+    <color name="bg_row_background">#FA315B</color>
     <color name="semi_transparent_black">#70000000</color>
 </resources>
