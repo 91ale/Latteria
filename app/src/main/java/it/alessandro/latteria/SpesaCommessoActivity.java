@@ -385,10 +385,12 @@ public class SpesaCommessoActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
                 String scannedbc = data.getStringExtra("SCANNED_CODE");
                 Log.d("SCANNED_CODE", scannedbc);
-                //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
-                int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
-                //altrimenti acquisico le info dal DB e lo aggiungo alla lista
-                if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
+                if (!scannedbc.equals(BACK)) {
+                    //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
+                    int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
+                    //altrimenti acquisico le info dal DB e lo aggiungo alla lista
+                    if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
+                }
             }
         } else if (requestCode == QUANTITA_SELEZIONATA) {
             if (resultCode == Activity.RESULT_OK) {

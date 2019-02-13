@@ -36,6 +36,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,8 @@ public class ApprovazioneSpesaActivity extends AppCompatActivity {
 
     int tipospesa = 0;
     String idordine;
+
+    DecimalFormat pdec = new DecimalFormat("0.00");
 
     private List<Prodotto> productList = new ArrayList<>();
 

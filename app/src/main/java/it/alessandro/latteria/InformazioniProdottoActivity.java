@@ -40,6 +40,7 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
         TextView txtPrezzo = findViewById(R.id.txtPrezzo);
         ImageView imgProdotto = findViewById(R.id.imgProdotto);
         TextView txtDescrizione = findViewById(R.id.txtDescrizione);
+        TextView txtQuantitaProdotto = findViewById(R.id.txtQuantitaProdotto);
         final Spinner spnQuantita = findViewById(R.id.spnQuantità);
         Button btnAggiungiProdotto = findViewById(R.id.btnAggiungiProdotto);
 
@@ -61,31 +62,32 @@ public class InformazioniProdottoActivity extends AppCompatActivity {
 
         //se l'ordine è già stato completato nascondo il bottone e lo spinner
         if (statoordine == COMPLETATO || statoordine == EVASO) {
-            spnQuantita.setVisibility(View.INVISIBLE);
-            btnAggiungiProdotto.setVisibility(View.INVISIBLE);
+            spnQuantita.setVisibility(View.GONE);
+            btnAggiungiProdotto.setVisibility(View.GONE);
+            txtQuantitaProdotto.setVisibility(View.VISIBLE);
+            txtQuantitaProdotto.setText(String.valueOf(quantitaselezionata));
+        } else {
+            String[] arrayquantità = arrayQuantità(quantitadisponibile);
+            // crea un ArrayAdapter usando l'array delle quantità e il layout passato
+            ArrayAdapter<String> spinnerAdapter =
+                    new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayquantità);
+            // specifica il layout della lista scelte
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // applica l'adapter allo spinner
+            spnQuantita.setAdapter(spinnerAdapter);
+            spnQuantita.setSelection(quantitaselezionata - 1);
+
+            btnAggiungiProdotto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intentspesa = new Intent();
+                    intentspesa.putExtra("QUANTITA_SELEZIONATA", Integer.valueOf(spnQuantita.getSelectedItem().toString()));
+                    intentspesa.putExtra("POSITION", position);
+                    setResult(Activity.RESULT_OK, intentspesa);
+                    finish();
+                }
+            });
         }
-
-        String[] arrayquantità = arrayQuantità(quantitadisponibile);
-        // crea un ArrayAdapter usando l'array delle quantità e il layout passato
-        ArrayAdapter<String> spinnerAdapter =
-                new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, arrayquantità);
-        // specifica il layout della lista scelte
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // applica l'adapter allo spinner
-        spnQuantita.setAdapter(spinnerAdapter);
-        spnQuantita.setSelection(quantitaselezionata - 1);
-
-        btnAggiungiProdotto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentspesa = new Intent();
-                intentspesa.putExtra("QUANTITA_SELEZIONATA", Integer.valueOf(spnQuantita.getSelectedItem().toString()));
-                intentspesa.putExtra("POSITION", position);
-                setResult(Activity.RESULT_OK, intentspesa);
-                finish();
-            }
-        });
-
     }
 
     private String[] arrayQuantità(int quantità) {

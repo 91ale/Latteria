@@ -2,15 +2,21 @@ package it.alessandro.latteria.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.LoginActivity;
+import it.alessandro.latteria.SpesaClienteActivity;
 import it.alessandro.latteria.Utility.DownloadImageTask;
 import it.alessandro.latteria.InformazioniProdottoActivity;
 import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.R;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
@@ -77,18 +84,28 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         } else {
             arrayquantità = arrayQuantità(prodotto.getQuantitamagazzino());
         }
+
+        // crea un ArrayAdapter usando l'array delle quantità e il layout passato
+        ArrayAdapter<String> spinnerAdapter =
+                new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
+        // specifica il layout della lista scelte
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // applica l'adapter allo spinner
+        holder.quantita.setAdapter(spinnerAdapter);
+
         if(statoordine == COMPLETATO || statoordine == EVASO) {
             holder.txtQuantita.setText("Quantità " + productList.get(position).getQuantitàOrdinata());
             holder.quantita.setVisibility(View.GONE);
         } else {
-            // crea un ArrayAdapter usando l'array delle quantità e il layout passato
-            ArrayAdapter<String> spinnerAdapter =
-                    new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
-            // specifica il layout della lista scelte
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            // applica l'adapter allo spinner
-            holder.quantita.setAdapter(spinnerAdapter);
-            holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);
+            if (tipospesa == IN_NEGOZIO && productList.get(position).getQuantitàOrdinata() > prodotto.getQuantitanegozio())
+            {
+                holder.quantita.setSelection(productList.get(position).getQuantitanegozio() - 1);
+            } else if (tipospesa != IN_NEGOZIO && productList.get(position).getQuantitàOrdinata() > prodotto.getQuantitamagazzino()) {
+                holder.quantita.setSelection(productList.get(position).getQuantitamagazzino() - 1);
+            } else {
+                //imposta il valore visualizzato nello spinner sulla quantità letta dal DB
+                holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);
+            }
 
             holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -106,7 +123,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 }
             });
         }
-        //if(statoordine == COMPLETATO || statoordine == EVASO) holder.quantita.setEnabled(false);
 
         if (statoordine == RICERCA) {
             holder.quantita.setVisibility(View.INVISIBLE);
@@ -173,8 +189,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public double sumAllItem() {
         int i;
         double sum = 0;
-        for (i = 0; i < productList.size(); i++)
-            sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitàOrdinata();
+        for (i = 0; i < productList.size(); i++) {
+            if (tipospesa == IN_NEGOZIO && productList.get(i).getQuantitàOrdinata() > productList.get(i).getQuantitanegozio()) {
+                sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitanegozio();
+            } else if (tipospesa != IN_NEGOZIO && productList.get(i).getQuantitàOrdinata() > productList.get(i).getQuantitamagazzino()) {
+                sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitamagazzino();
+            } else {
+                sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitàOrdinata();
+            }
+        }
         return sum;
     }
 

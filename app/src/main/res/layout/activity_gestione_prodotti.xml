@@ -26,7 +26,8 @@
         android:layout_marginEnd="8dp"
         android:text="Dove desideri aggiungere prodotti?"
         android:textAlignment="textStart"
-        android:textSize="20sp"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

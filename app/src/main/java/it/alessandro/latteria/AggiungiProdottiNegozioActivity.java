@@ -76,7 +76,7 @@ public class AggiungiProdottiNegozioActivity extends AppCompatActivity {
     private void scanBarCode() {
 
         Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
-        String messaggio = "Inquadra il codice a barre del prodotto che vuoi aggiungere al catalogo";
+        String messaggio = "Inquadra il codice a barre del prodotto che vuoi aggiungere al negozio";
         intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
         intentscanbarcode.putExtra("MESSAGGIO", messaggio);
         startActivityForResult(intentscanbarcode, RC_SCANNED_BC);

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -33,12 +34,16 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -81,6 +86,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
+    private static final String BACK = "back";
 
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -89,6 +95,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     private SimpleCursorAdapter cursorAdapter;
     private String[] strArrData = {"Inserisci il nome del prodotto"};
     DecimalFormat pdec = new DecimalFormat("€ 0.00");
+    DecimalFormat pdecd = new DecimalFormat("0.00", DecimalFormatSymbols.getInstance(Locale.US));
 
     //aggiorna il prezzo totale quando viene modificata la quantità di un prodotto
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -306,7 +313,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                         if (!response.equals("0")) idordine = Integer.valueOf(response);
                         Intent intentapproviazionespesa = new Intent(getApplicationContext(), ApprovazioneSpesaActivity.class);
                         intentapproviazionespesa.putExtra("ID_ORDINE", String.valueOf(idordine));
-                        intentapproviazionespesa.putExtra("IMPORTO", String.valueOf(mAdapter.sumAllItem()));
+                        intentapproviazionespesa.putExtra("IMPORTO", String.valueOf(pdecd.format(mAdapter.sumAllItem())));
                         if (tipospesa == IN_NEGOZIO)
                             intentapproviazionespesa.putExtra("TIPO_SPESA", IN_NEGOZIO);
                         if (tipospesa == ONLINE)
@@ -376,12 +383,12 @@ public class SpesaClienteActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
                 String scannedbc = data.getStringExtra("SCANNED_CODE");
                 Log.d("SCANNED_CODE", scannedbc);
-                //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
-                int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
-                //altrimenti acquisico le info dal DB e lo aggiungo alla lista
-                if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
-            } else {
-                Toast.makeText(SpesaClienteActivity.this, "Codice a barre non riconosciuto prego riprovare la scansione, oppure utilizzare la ricerca tramite nome prodotto", Toast.LENGTH_SHORT).show();
+                if (!scannedbc.equals(BACK)) {
+                    //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
+                    int exist = checkExistInList(scannedbc, 1, AGGIUNGI);
+                    //altrimenti acquisico le info dal DB e lo aggiungo alla lista
+                    if (exist == 0) getProduct(SELECT_PRODOTTO_DA_BARCODE, scannedbc);
+                }
             }
         } else if (requestCode == QUANTITA_SELEZIONATA) {
             if (resultCode == Activity.RESULT_OK) {
@@ -712,6 +719,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         visualizzaAiuto();
+                        quantitaDialog();
                         //crea l'adapter e lo assegna alla recycleview
                         mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                         double totalespesa = mAdapter.sumAllItem();
@@ -792,6 +800,59 @@ public class SpesaClienteActivity extends AppCompatActivity
             txtAiuto3.setVisibility(View.GONE);
             imgSearch.setVisibility(View.GONE);
             imgScan.setVisibility(View.GONE);
+        }
+    }
+
+    private void quantitaDialog() {
+
+        List<String> prodotti = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        int f = 0;
+
+        Iterator<Prodotto> productListIterator = productList.iterator();
+        while (productListIterator.hasNext()) {
+            Prodotto prodotto = productListIterator.next();
+            if (tipospesa == IN_NEGOZIO && prodotto.getQuantitàOrdinata() > prodotto.getQuantitanegozio()) {
+                if (prodotto.getQuantitanegozio() == 0) {
+                    rproductList.add(prodotto);
+                    double totalespesa = mAdapter.sumAllItem();
+                    txtPrezzoTotale.setText(pdec.format(totalespesa));
+                    productListIterator.remove();
+                    prodotti.add(prodotto.getNome());
+                } else {
+                    prodotti.add(prodotto.getNome());
+                }
+                f=1;
+            } else if (tipospesa != IN_NEGOZIO && prodotto.getQuantitàOrdinata() > prodotto.getQuantitamagazzino()) {
+                if (prodotto.getQuantitamagazzino() == 0) {
+                    rproductList.add(prodotto);
+                    double totalespesa = mAdapter.sumAllItem();
+                    txtPrezzoTotale.setText(pdec.format(totalespesa));
+                    productListIterator.remove();
+                    prodotti.add(prodotto.getNome());
+                } else {
+                    prodotti.add(prodotto.getNome());
+                }
+                f=1;
+            }
+
+        }
+
+        for (String nomeprodotto : prodotti) {
+            builder.append(nomeprodotto + "\n");
+        }
+
+        if (f==1) {
+            AlertDialog alertDialog = new AlertDialog.Builder(SpesaClienteActivity.this).create();
+            alertDialog.setTitle("Prodotto non disponibile");
+            alertDialog.setMessage("La quantità dei seguenti prodotti è stata modificata in quanto non sono più disponibili scorte a sufficienza\n\n" + builder.toString());
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
         }
     }
 }
