@@ -65,7 +65,7 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
     private static final int REQUEST_TAKE_PHOTO = 1;
     private static final String BACK = "back";
 
-    String scannedbc;
+    String scannedbc = "";
 
     EditText edtNome;
     EditText edtMarca;
@@ -203,12 +203,16 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
 
     private void scanBarCode() {
 
-        Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
-        String messaggio = "Inquadra il codice a barre del prodotto che vuoi aggiungere al catalogo";
-        intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
-        intentscanbarcode.putExtra("MESSAGGIO", messaggio);
-        startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
-
+        //se il prodotto non era presente a catalogo durante l'aggiunta a magazzino viene lanciata l'aggiunta al catalogo e passato il BC scansionato
+        if (getIntent().hasExtra("BAR_CODE")){
+            scannedbc = getIntent().getStringExtra("BAR_CODE");
+        } else {
+            Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
+            String messaggio = "Inquadra il codice a barre del prodotto che vuoi aggiungere al catalogo";
+            intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
+            intentscanbarcode.putExtra("MESSAGGIO", messaggio);
+            startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
+        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

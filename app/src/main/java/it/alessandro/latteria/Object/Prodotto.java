@@ -59,7 +59,7 @@ public class Prodotto implements Serializable {
         return categoria;
     }
 
-    public void setCategoria(String nome) {
+    public void setCategoria(String categoria) {
         this.categoria = categoria;
     }
 
@@ -103,11 +103,11 @@ public class Prodotto implements Serializable {
         this.immagine = immagine;
     }
 
-    public int getQuantitàOrdinata() {
+    public int getQuantitaOrdinata() {
         return quantitaordinata;
     }
 
-    public void setQuantitàOrdinata(int quantitaordinata) {
+    public void setQuantitaOrdinata(int quantitaordinata) {
         this.quantitaordinata = quantitaordinata;
     }
 

@@ -396,7 +396,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
                 int quantita = data.getIntExtra("QUANTITA_SELEZIONATA", -1);
                 int position = data.getIntExtra("POSITION", -1);
-                productList.get(position).setQuantitàOrdinata(quantita);
+                productList.get(position).setQuantitaOrdinata(quantita);
                 //crea l'adapter e lo assegna alla recycleview
                 mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
                 double totalespesa = mAdapter.sumAllItem();
@@ -406,7 +406,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
         } else if (requestCode == PRODOTTO_SELEZIONATO) {
             if (resultCode == Activity.RESULT_OK) {
                 Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
-                if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1) {
+                if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitaOrdinata(), SOSTITUISCI) != 1) {
                     productList.add(Prodotto);
                     mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
                     double totalespesa = mAdapter.sumAllItem();
@@ -587,9 +587,9 @@ public class SpesaCommessoActivity extends AppCompatActivity
         for (int i = 0; i <= productList.size() - 1; i++) {
             if (productList.get(i).getBarCode().equals(scannedbc)) {
                 if (operazione == AGGIUNGI) {
-                    productList.get(i).setQuantitàOrdinata(productList.get(i).getQuantitàOrdinata() + quantita);
+                    productList.get(i).setQuantitaOrdinata(productList.get(i).getQuantitaOrdinata() + quantita);
                 } else if (operazione == SOSTITUISCI) {
-                    productList.get(i).setQuantitàOrdinata(quantita);
+                    productList.get(i).setQuantitaOrdinata(quantita);
                 }
                 mAdapter.setListItems(productList);
                 mAdapter.notifyDataSetChanged();
@@ -661,13 +661,13 @@ public class SpesaCommessoActivity extends AppCompatActivity
             //verifico se il prodotto è già stato aggiunto al DB (fa parte di un ordine già esistente)
             if (productList.get(i).getIdprodottovenduto() == 0) {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + "&" +
-                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "Quantita=" + productList.get(i).getQuantitaOrdinata() + "&" +
                         "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
                         "Ordini_IDOrdine=" + IDOrdine + "&" +
                         "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             } else {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + productList.get(i).getIdprodottovenduto() + "&" +
-                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "Quantita=" + productList.get(i).getQuantitaOrdinata() + "&" +
                         "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
                         "Ordini_IDOrdine=" + IDOrdine + "&" +
                         "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();

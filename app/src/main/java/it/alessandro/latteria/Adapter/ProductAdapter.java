@@ -2,21 +2,16 @@ package it.alessandro.latteria.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
-import it.alessandro.latteria.LoginActivity;
-import it.alessandro.latteria.SpesaClienteActivity;
 import it.alessandro.latteria.Utility.DownloadImageTask;
 import it.alessandro.latteria.InformazioniProdottoActivity;
 import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.R;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +22,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
@@ -94,17 +88,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.quantita.setAdapter(spinnerAdapter);
 
         if(statoordine == COMPLETATO || statoordine == EVASO) {
-            holder.txtQuantita.setText("Quantità " + productList.get(position).getQuantitàOrdinata());
+            holder.txtQuantita.setText("Quantità " + productList.get(position).getQuantitaOrdinata());
             holder.quantita.setVisibility(View.GONE);
         } else {
-            if (tipospesa == IN_NEGOZIO && productList.get(position).getQuantitàOrdinata() > prodotto.getQuantitanegozio())
+            if (tipospesa == IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitanegozio())
             {
                 holder.quantita.setSelection(productList.get(position).getQuantitanegozio() - 1);
-            } else if (tipospesa != IN_NEGOZIO && productList.get(position).getQuantitàOrdinata() > prodotto.getQuantitamagazzino()) {
+            } else if (tipospesa != IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitamagazzino()) {
                 holder.quantita.setSelection(productList.get(position).getQuantitamagazzino() - 1);
             } else {
                 //imposta il valore visualizzato nello spinner sulla quantità letta dal DB
-                holder.quantita.setSelection(productList.get(position).getQuantitàOrdinata() - 1);
+                holder.quantita.setSelection(productList.get(position).getQuantitaOrdinata() - 1);
             }
 
             holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -112,7 +106,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 public void onItemSelected(AdapterView<?> parent, View view,
                                            int positionInSpinner, long id) {
                     String quantita = parent.getItemAtPosition(positionInSpinner).toString();
-                    productList.get(position).setQuantitàOrdinata(Integer.parseInt(quantita));
+                    productList.get(position).setQuantitaOrdinata(Integer.parseInt(quantita));
                     Intent intent = new Intent("quantita_modificata");
                     LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intent);
                 }
@@ -148,7 +142,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 intentinformazioniprodotto.putExtra("MARCA", productList.get(position).getMarca());
                 intentinformazioniprodotto.putExtra("PREZZO", productList.get(position).getPrezzovenditaAttuale());
                 intentinformazioniprodotto.putExtra("IMMAGINE", productList.get(position).getImmagine());
-                intentinformazioniprodotto.putExtra("QUANTITA_SELEZIONATA", productList.get(position).getQuantitàOrdinata());
+                intentinformazioniprodotto.putExtra("QUANTITA_SELEZIONATA", productList.get(position).getQuantitaOrdinata());
                 intentinformazioniprodotto.putExtra("QUANTITA_DISPONIBILE", quantitadisponibile);
                 intentinformazioniprodotto.putExtra("DESCRIZIONE", productList.get(position).getDescrizione());
 
@@ -190,12 +184,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         int i;
         double sum = 0;
         for (i = 0; i < productList.size(); i++) {
-            if (tipospesa == IN_NEGOZIO && productList.get(i).getQuantitàOrdinata() > productList.get(i).getQuantitanegozio()) {
+            if (tipospesa == IN_NEGOZIO && productList.get(i).getQuantitaOrdinata() > productList.get(i).getQuantitanegozio()) {
                 sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitanegozio();
-            } else if (tipospesa != IN_NEGOZIO && productList.get(i).getQuantitàOrdinata() > productList.get(i).getQuantitamagazzino()) {
+            } else if (tipospesa != IN_NEGOZIO && productList.get(i).getQuantitaOrdinata() > productList.get(i).getQuantitamagazzino()) {
                 sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitamagazzino();
             } else {
-                sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitàOrdinata();
+                sum += productList.get(i).getPrezzovenditaAttuale() * productList.get(i).getQuantitaOrdinata();
             }
         }
         return sum;

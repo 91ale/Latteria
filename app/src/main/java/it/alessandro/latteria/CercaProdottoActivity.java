@@ -3,11 +3,8 @@ package it.alessandro.latteria;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.navigation.NavigationView;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,9 +13,7 @@ import it.alessandro.latteria.Adapter.ProductAdapter;
 import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.Parser.ParseProductJSON;
 
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -83,7 +78,7 @@ public class CercaProdottoActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 int quantita = data.getIntExtra("QUANTITA_SELEZIONATA", -1);
                 int position = data.getIntExtra("POSITION", -1);
-                productList.get(position).setQuantitàOrdinata(quantita);
+                productList.get(position).setQuantitaOrdinata(quantita);
                 Intent intent = new Intent();
                 intent.putExtra("PRODOTTO_SELEZIONATO", productList.get(position));
                 setResult(Activity.RESULT_OK, intent);

@@ -1,8 +1,11 @@
 package it.alessandro.latteria;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.Parser.ParseProductJSON;
@@ -96,7 +99,7 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                 scannedbc = data.getStringExtra("SCANNED_CODE");
                 if (scannedbc.equals(BACK)) finish();
                 Log.d("SCANNED_CODE", scannedbc);
-                //se il prodotto scansionato esiste già in catalogo ne estraggo le info
+                //se il prodotto scansionato esiste già in catalogo ne estraggo le info altrimenti propongo l'aggiunta
                 getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
             }
         }
@@ -111,6 +114,7 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
+                        //verifica se il prodotto è presente a catalogo, se non lo è chiede all'utente se vuole aggiungerlo
                         if (productList.size() > 0) {
                             txtNomeProdotto = findViewById(R.id.txtNomeProdotto);
                             txtMarcaProdotto = findViewById(R.id.txtMarcaProdotto);
@@ -119,6 +123,28 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                             txtNomeProdotto.setText(productList.get(0).getNome());
                             txtMarcaProdotto.setText(productList.get(0).getMarca());
                             txtCategoriaProdotto.setText(productList.get(0).getCategoria());
+                        } else {
+                            AlertDialog alertDialog = new AlertDialog.Builder(AggiungiProdottiMagazzinoActivity.this).create();
+                            alertDialog.setTitle("Prodotto non presente in catalogo");
+                            alertDialog.setMessage("Il prodotto scansionato non è presente in catalogo, si desidera aggiungerlo ora?");
+                            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SI",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            Intent intentaggiungicatalogo = new Intent(getBaseContext(), AggiungiProdottiAlCatalogoActivity.class);
+                                            intentaggiungicatalogo.putExtra("BAR_CODE", scannedbc);
+                                            startActivity(intentaggiungicatalogo);
+                                            finish();
+                                        }
+                                    });
+                            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            finish();
+                                        }
+                                    });
+                            alertDialog.show();
                         }
                     }
                 },
@@ -150,8 +176,6 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
     private void aggiungiProdottoMagazzino() {
 
-        //String queryurl = "";
-
         edtPrezzoAcquisto = findViewById(R.id.edtPrezzoAcquisto);
         edtPrezzoVendita = findViewById(R.id.edtPrezzoVendita);
         edtQuantita = findViewById(R.id.edtQuantita);
@@ -167,11 +191,6 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
         }
         final double dpacquisto = pacquisto.doubleValue();
         final double dpvendita = pvendita.doubleValue();
-
-        /*queryurl = INSERT_PRODOTTO_IN_MAGAZZINO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
-                "PrezzoAcquisto=" + dpacquisto + "&" +
-                "PrezzoVenditaAttuale=" + dpvendita + "&" +
-                "Quantita=" + edtQuantita.getText() + "&";*/
 
         StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, INSERT_PRODOTTO_IN_MAGAZZINO,
                 new Response.Listener<String>() {

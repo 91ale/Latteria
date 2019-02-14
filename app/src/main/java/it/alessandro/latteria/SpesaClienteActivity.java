@@ -394,7 +394,7 @@ public class SpesaClienteActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
                 int quantita = data.getIntExtra("QUANTITA_SELEZIONATA", -1);
                 int position = data.getIntExtra("POSITION", -1);
-                productList.get(position).setQuantitàOrdinata(quantita);
+                productList.get(position).setQuantitaOrdinata(quantita);
                 //crea l'adapter e lo assegna alla recycleview
                 mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                 double totalespesa = mAdapter.sumAllItem();
@@ -404,7 +404,7 @@ public class SpesaClienteActivity extends AppCompatActivity
         } else if (requestCode == PRODOTTO_SELEZIONATO) {
             if (resultCode == Activity.RESULT_OK) {
                 Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
-                if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitàOrdinata(), SOSTITUISCI) != 1) {
+                if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitaOrdinata(), SOSTITUISCI) != 1) {
                     productList.add(Prodotto);
                     visualizzaAiuto();
                     mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
@@ -576,9 +576,9 @@ public class SpesaClienteActivity extends AppCompatActivity
         for (int i = 0; i <= productList.size() - 1; i++) {
             if (productList.get(i).getBarCode().equals(scannedbc)) {
                 if (operazione == AGGIUNGI) {
-                    productList.get(i).setQuantitàOrdinata(productList.get(i).getQuantitàOrdinata() + quantita);
+                    productList.get(i).setQuantitaOrdinata(productList.get(i).getQuantitaOrdinata() + quantita);
                 } else if (operazione == SOSTITUISCI) {
-                    productList.get(i).setQuantitàOrdinata(quantita);
+                    productList.get(i).setQuantitaOrdinata(quantita);
                 }
                 mAdapter.setListItems(productList);
                 mAdapter.notifyDataSetChanged();
@@ -678,13 +678,13 @@ public class SpesaClienteActivity extends AppCompatActivity
             //verifico se il prodotto è già stato aggiunto al DB (fa parte di un ordine già esistente)
             if (productList.get(i).getIdprodottovenduto() == 0) {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + "&" +
-                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "Quantita=" + productList.get(i).getQuantitaOrdinata() + "&" +
                         "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
                         "Ordini_IDOrdine=" + IDOrdine + "&" +
                         "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
             } else {
                 queryurl = INSERT_PRODOTTI_VENDUTI + "IDProdottoVenduto=" + productList.get(i).getIdprodottovenduto() + "&" +
-                        "Quantita=" + productList.get(i).getQuantitàOrdinata() + "&" +
+                        "Quantita=" + productList.get(i).getQuantitaOrdinata() + "&" +
                         "PrezzoVendita=" + productList.get(i).getPrezzovenditaAttuale() + "&" +
                         "Ordini_IDOrdine=" + IDOrdine + "&" +
                         "Prodotti_In_Catalogo_IDProdotto=" + productList.get(i).getIDprodotto();
@@ -812,7 +812,7 @@ public class SpesaClienteActivity extends AppCompatActivity
         Iterator<Prodotto> productListIterator = productList.iterator();
         while (productListIterator.hasNext()) {
             Prodotto prodotto = productListIterator.next();
-            if (tipospesa == IN_NEGOZIO && prodotto.getQuantitàOrdinata() > prodotto.getQuantitanegozio()) {
+            if (tipospesa == IN_NEGOZIO && prodotto.getQuantitaOrdinata() > prodotto.getQuantitanegozio()) {
                 if (prodotto.getQuantitanegozio() == 0) {
                     rproductList.add(prodotto);
                     double totalespesa = mAdapter.sumAllItem();
@@ -823,7 +823,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                     prodotti.add(prodotto.getNome());
                 }
                 f=1;
-            } else if (tipospesa != IN_NEGOZIO && prodotto.getQuantitàOrdinata() > prodotto.getQuantitamagazzino()) {
+            } else if (tipospesa != IN_NEGOZIO && prodotto.getQuantitaOrdinata() > prodotto.getQuantitamagazzino()) {
                 if (prodotto.getQuantitamagazzino() == 0) {
                     rproductList.add(prodotto);
                     double totalespesa = mAdapter.sumAllItem();
