@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_cerca"
+        android:icon="@drawable/ic_baseline_search_24px"
+        android:orderInCategory="100"
+        android:title="Cerca Prodotto"
+        app:showAsAction="always"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"/>
+    <item
+        android:id="@+id/action_catalogo"
+        android:icon="@drawable/icona_catalogo"
+        android:orderInCategory="200"
+        android:title="Aggiungi prodotto al catalogo"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_magazzino"
+        android:icon="@drawable/icona_magazzino"
+        android:orderInCategory="300"
+        android:title="Aggiungi prodotto al magazzino"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_negozio"
+        android:icon="@drawable/icona_negozio"
+        android:orderInCategory="300"
+        android:title="Aggiungi prodotto al negozio"
+        app:showAsAction="always" />
+</menu>

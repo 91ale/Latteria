@@ -78,11 +78,19 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity android:name=".GestioneProdottiActivity" />
+        <activity android:name=".GestioneProdottiActivity"
+            android:launchMode="singleTop">
+        <intent-filter>
+            <action android:name="android.intent.action.SEARCH" />
+        </intent-filter>
+
+        <meta-data
+            android:name="android.app.searchable"
+            android:resource="@xml/searchable" />
+        </activity>
         <activity android:name=".AggiungiProdottiAlCatalogoActivity" />
         <activity android:name=".AggiungiProdottiNegozioActivity" />
         <activity android:name=".AggiungiProdottiMagazzinoActivity" />
-        <activity android:name=".VisualizzaProdottiActivity" />
         <activity android:name=".ModificaProdottoActivity" />
         <activity android:name=".CercaProdottoCommessoActivity" />
         <activity android:name=".OrdiniOnlineActivity" />
