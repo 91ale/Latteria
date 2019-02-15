@@ -140,6 +140,7 @@ public class GestioneProdottiActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         productList.clear();
+        visualizzaAiuto();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -274,6 +275,7 @@ public class GestioneProdottiActivity extends AppCompatActivity
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
+                        visualizzaAiuto();
                         //crea l'adapter e lo assegna alla recycleview
                         mAdapter = new ProductCommessoAdapter(GestioneProdottiActivity.this, productList);
                         recyclerView.setAdapter(mAdapter);
@@ -392,6 +394,15 @@ public class GestioneProdottiActivity extends AppCompatActivity
 
         //aggiunge la stringrequest alla coda
         Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+    private void visualizzaAiuto() {
+        TextView txtAiuto = findViewById(R.id.txtAiuto);
+        if (productList.size() == 0) {
+            txtAiuto.setVisibility(View.VISIBLE);
+        } else {
+            txtAiuto.setVisibility(View.GONE);
+        }
     }
 
     //Logout utente

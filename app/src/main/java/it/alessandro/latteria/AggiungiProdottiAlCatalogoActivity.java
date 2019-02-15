@@ -348,25 +348,6 @@ public class AggiungiProdottiAlCatalogoActivity extends AppCompatActivity {
         edtCategoria = findViewById(R.id.edtCategoria);
         edtDescrizione = findViewById(R.id.edtDescrizione);
 
-        /*if (productList.size() > 0) {
-            //se il prodotto già esisteva in catalogo
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO + "IDProdotto=" + productList.get(0).getIDprodotto() + "&" +
-                    "BarCode=" + productList.get(0).getBarCode() + "&" +
-                    "Nome=" + edtNome.getText() + "&" +
-                    "Marca=" + edtMarca.getText() + "&" +
-                    "Categoria=" + edtCategoria.getText() + "&" +
-                    "Descrizione=" + edtDescrizione.getText();
-        } else {
-            //se il prodotto NON esisteva in catalogo
-            queryurl = INSERT_PRODOTTO_IN_CATALOGO +
-                    "BarCode=" + scannedbc + "&" +
-                    "Nome=" + edtNome.getText() + "&" +
-                    "Marca=" + edtMarca.getText() + "&" +
-                    "Categoria=" + edtCategoria.getText() + "&" +
-                    "Descrizione=" + edtDescrizione.getText()+ "&" +
-                    "Percorso=" + S3_PRODUCT_IMAGE_PATH + imageFileName + ".jpg";
-        }*/
-
         StringRequest stringRequestAdd = new StringRequest(Request.Method.POST, INSERT_PRODOTTO_IN_CATALOGO,
                 new Response.Listener<String>() {
                     @Override
