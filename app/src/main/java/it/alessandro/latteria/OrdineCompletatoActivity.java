@@ -28,8 +28,6 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
     private static final String UPDATE_QUANTITA_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_quantity_from_orderid.php?";
 
     private static final int ONLINE = 2;
-    private static final int QR = 14;
-    private static final int RC_SCANNED_QR = 105;
 
     Utente utente;
 
@@ -38,6 +36,7 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ordine_completato);
 
+        Button btnOrdineCompletato = findViewById(R.id.btnOrdineCompletato);
         ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,14 +51,14 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
         double totaleordine = getIntent().getDoubleExtra("TOTALE_ORDINE", -1);
         final int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 
+
         TextView txtTotale = findViewById(R.id.txtTotale);
         if (tipospesa == ONLINE) {
             getUtente(idordine);
         } else {
             txtTotale.setText("Il totale dovuto è di: " + pdec.format(totaleordine));
+            btnOrdineCompletato.setText("COMPLETA L'ORDINE");
         }
-
-        Button btnOrdineCompletato = findViewById(R.id.btnOrdineCompletato);
 
         btnOrdineCompletato.setOnClickListener(new View.OnClickListener() {
             @Override

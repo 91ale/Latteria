@@ -34,7 +34,6 @@ import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.util.ArrayList;
 import java.util.HashMap;

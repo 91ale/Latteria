@@ -136,13 +136,13 @@ public class GestioneProdottiActivity extends AppCompatActivity
         }
     }
 
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
         productList.clear();
         visualizzaAiuto();
         mAdapter.notifyDataSetChanged();
-    }
+    }*/
 
     @Override
     public void onBackPressed() {

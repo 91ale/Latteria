@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#1b96b1</color>
     <color name="colorAccent">#1aab64</color>
     <color name="grey">#999999</color>
+    <color name="white">#FFFFFF</color>
     <color name="prezzo">#999999</color>
     <color name="nome">#222222</color>
     <color name="bg_row_background">#FA315B</color>

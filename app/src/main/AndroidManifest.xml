@@ -95,10 +95,10 @@
         <activity android:name=".CercaProdottoCommessoActivity" />
         <activity android:name=".OrdiniOnlineActivity" />
         <activity android:name=".OrdiniConclusiActivity" />
-        <activity
-            android:name=".StatisticheActivity"
+        <activity android:name=".StatisticheActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            />
         <activity
             android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
             android:launchMode="singleTask">

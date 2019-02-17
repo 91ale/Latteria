@@ -13,7 +13,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -45,6 +47,8 @@ public class StatisticheActivity extends AppCompatActivity
         final DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this, StatisticheActivity.this, 2018, 12, 1);
 
+        datePickerDialog.show();
+
         graph = findViewById(R.id.graph);
 
         graph.setOnClickListener(new View.OnClickListener() {
@@ -55,7 +59,19 @@ public class StatisticheActivity extends AppCompatActivity
         });
 
         // imposta l'etichetta delle ascisse
-        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getBaseContext()));
+        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getBaseContext()){
+            @Override
+            public String formatLabel(double value, boolean isValueX) {
+                if (isValueX) {
+                    // show normal x values
+                    return super.formatLabel(value, isValueX);
+                } else {
+                    // show currency for y values
+                    return super.formatLabel(value, isValueX) + " €";
+                }
+            }
+        });
+
         graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
 
 
@@ -98,6 +114,7 @@ public class StatisticheActivity extends AppCompatActivity
 
                             graph.addSeries(seriescosti);
                             seriescosti.setColor(Color.RED);
+                            seriescosti.setTitle("Costi");
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -139,7 +156,6 @@ public class StatisticheActivity extends AppCompatActivity
 
                                     seriesricavi.appendData(new DataPoint(sdf.parse(costiJ.getString("DataOra")), costiJ.getDouble("Ricavo")),true,365);
 
-
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 } catch (JSONException e) {
@@ -149,6 +165,7 @@ public class StatisticheActivity extends AppCompatActivity
 
                             graph.addSeries(seriesricavi);
                             seriesricavi.setColor(Color.GREEN);
+                            seriesricavi.setTitle("Ricavi");
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -199,5 +216,8 @@ public class StatisticheActivity extends AppCompatActivity
             e.printStackTrace();
         }
         graph.getViewport().setXAxisBoundsManual(true);
+        // legenda
+        graph.getLegendRenderer().setVisible(true);
+        graph.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
     }
 }
