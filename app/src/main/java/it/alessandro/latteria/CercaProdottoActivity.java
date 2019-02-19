@@ -53,7 +53,6 @@ public class CercaProdottoActivity extends AppCompatActivity {
             }
         });
 
-
         String nomemarca = getIntent().getStringExtra("NOME_MARCA_PRODOTTO");
         int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 

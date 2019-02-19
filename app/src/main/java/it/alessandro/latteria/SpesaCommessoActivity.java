@@ -85,6 +85,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
     private static final String BACK = "back";
+    private static final int NO_DESC = 10;
+
 
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -166,7 +168,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
         recyclerView = findViewById(R.id.recycler_view);
 
         //assegna l'adapter alla recyclerview
-        mAdapter = new ProductAdapter(this, productList, tipospesa, statoordine);
+        mAdapter = new ProductAdapter(this, productList, tipospesa, statoordine, NO_DESC);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -398,7 +400,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 int position = data.getIntExtra("POSITION", -1);
                 productList.get(position).setQuantitaOrdinata(quantita);
                 //crea l'adapter e lo assegna alla recycleview
-                mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine, NO_DESC);
                 double totalespesa = mAdapter.sumAllItem();
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);
@@ -408,7 +410,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
                 if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitaOrdinata(), SOSTITUISCI) != 1) {
                     productList.add(Prodotto);
-                    mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                    mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine, NO_DESC);
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                     recyclerView.setAdapter(mAdapter);
@@ -443,7 +445,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                             pj.getProductFromDB();
                             productList.addAll(pj.getProduct());
                             //crea l'adapter e lo assegna alla recycleview
-                            mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                            mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine, NO_DESC);
                             double totalespesa = mAdapter.sumAllItem();
                             txtPrezzoTotale.setText(pdec.format(totalespesa));
                             recyclerView.setAdapter(mAdapter);
@@ -703,7 +705,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
-                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine, NO_DESC);
                         double totalespesa = mAdapter.sumAllItem();
                         txtPrezzoTotale.setText(pdec.format(totalespesa));
                         recyclerView.setAdapter(mAdapter);

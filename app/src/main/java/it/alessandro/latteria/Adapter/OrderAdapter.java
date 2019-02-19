@@ -10,6 +10,7 @@ import it.alessandro.latteria.R;
 import it.alessandro.latteria.SpesaClienteActivity;
 import it.alessandro.latteria.SpesaCommessoActivity;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,8 +64,19 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
         DecimalFormat importodec = new DecimalFormat("€ 0.00");
         holder.txtimporto.setText(importodec.format(ordine.getImporto()));
-        holder.txtordine.setText(String.valueOf(ordine.getIDordine()));
+        holder.txtordine.setText(String.valueOf("#" + ordine.getIDordine()));
         holder.txtstato.setText(ordine.getStato());
+        switch (orderList.get(position).getStato()) {
+            case "Evaso":
+                    holder.txtstato.setTextColor(Color.GREEN);
+                break;
+            case "Completato":
+                holder.txtstato.setTextColor(Color.RED);
+                break;
+            case "In corso":
+                holder.txtstato.setTextColor(Color.BLUE);
+                break;
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

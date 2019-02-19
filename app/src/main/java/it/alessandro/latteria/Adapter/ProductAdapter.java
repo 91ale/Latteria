@@ -7,6 +7,7 @@ import android.content.Intent;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.SpesaCommessoActivity;
 import it.alessandro.latteria.Utility.DownloadImageTask;
 import it.alessandro.latteria.InformazioniProdottoActivity;
 import it.alessandro.latteria.Object.Prodotto;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,22 +33,32 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private static final int COMPLETATO = 1;
     private static final int EVASO = 2;
     private static final int RICERCA = 5;
+    private static final int NO_DESC = 10;
     private Context mCtx;
     private List<Prodotto> productList;
     private int tipospesa;
     private int statoordine;
+    private int descrizione;
 
-    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine) {
+    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine, int descrizione) {
         this.mCtx = mCtx;
         this.productList = productList;
         this.tipospesa = tipospesa;
         this.statoordine = statoordine;
+        this.descrizione = descrizione;
     }
 
     public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa) {
         this.mCtx = mCtx;
         this.productList = productList;
         this.tipospesa = tipospesa;
+    }
+
+    public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine) {
+        this.mCtx = mCtx;
+        this.productList = productList;
+        this.tipospesa = tipospesa;
+        this.statoordine = statoordine;
     }
 
     //impostazione layout della recycleview
@@ -62,8 +74,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(ProductViewHolder holder, final int position) {
 
-        String[] arrayquantità;
-
         Prodotto prodotto = productList.get(position);
 
         DecimalFormat prezzovdec = new DecimalFormat("€ 0.00");
@@ -74,82 +84,39 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.prezzo.setText(prezzovdec.format(prodotto.getPrezzovenditaAttuale()));
         holder.marca.setText(prodotto.getMarca());
         if (tipospesa == IN_NEGOZIO) {
-            arrayquantità = arrayQuantità(prodotto.getQuantitanegozio());
+            holder.txtQuantitaDisponibile.setText(String.valueOf(prodotto.getQuantitanegozio()));
         } else {
-            arrayquantità = arrayQuantità(prodotto.getQuantitamagazzino());
+            holder.txtQuantitaDisponibile.setText(String.valueOf(prodotto.getQuantitamagazzino()));
         }
 
-        // crea un ArrayAdapter usando l'array delle quantità e il layout passato
-        ArrayAdapter<String> spinnerAdapter =
-                new ArrayAdapter<String>(mCtx, android.R.layout.simple_list_item_1, arrayquantità);
-        // specifica il layout della lista scelte
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // applica l'adapter allo spinner
-        holder.quantita.setAdapter(spinnerAdapter);
-
         if(statoordine == COMPLETATO || statoordine == EVASO) {
-            holder.txtQuantita.setText("Quantità " + productList.get(position).getQuantitaOrdinata());
-            holder.quantita.setVisibility(View.GONE);
+            holder.txtQuantita.setVisibility(View.VISIBLE);
+            holder.txtQuantita.setText("Quantità " + String.valueOf(productList.get(position).getQuantitaOrdinata()));
+            holder.txtSeparator.setVisibility(View.GONE);
+            holder.txtQuantitaDisponibile.setVisibility(View.GONE);
+            holder.txtQuantitaOrdinata.setVisibility(View.GONE);
+            holder.btnAdd.setVisibility(View.GONE);
+            holder.btnMin.setVisibility(View.GONE);
         } else {
             if (tipospesa == IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitanegozio())
             {
-                holder.quantita.setSelection(productList.get(position).getQuantitanegozio() - 1);
+                holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitanegozio()));
             } else if (tipospesa != IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitamagazzino()) {
-                holder.quantita.setSelection(productList.get(position).getQuantitamagazzino() - 1);
+                holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitamagazzino()));
             } else {
-                //imposta il valore visualizzato nello spinner sulla quantità letta dal DB
-                holder.quantita.setSelection(productList.get(position).getQuantitaOrdinata() - 1);
+                //imposta il valore visualizzato nella textview della quantità ordinata sulla quantità letta dal DB
+                holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitaOrdinata()));
             }
-
-            holder.quantita.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view,
-                                           int positionInSpinner, long id) {
-                    String quantita = parent.getItemAtPosition(positionInSpinner).toString();
-                    productList.get(position).setQuantitaOrdinata(Integer.parseInt(quantita));
-                    Intent intent = new Intent("quantita_modificata");
-                    LocalBroadcastManager.getInstance(view.getContext()).sendBroadcast(intent);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         }
 
         if (statoordine == RICERCA) {
-            holder.quantita.setVisibility(View.INVISIBLE);
-            holder.txtQuantita.setVisibility(View.INVISIBLE);
+            holder.txtSeparator.setVisibility(View.GONE);
+            holder.txtQuantitaDisponibile.setVisibility(View.GONE);
+            holder.txtQuantitaOrdinata.setVisibility(View.GONE);
+            holder.btnAdd.setVisibility(View.GONE);
+            holder.btnMin.setVisibility(View.GONE);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                int quantitadisponibile = 0;
-
-                if (tipospesa == IN_NEGOZIO) {
-                    quantitadisponibile = productList.get(position).getQuantitanegozio();
-                } else {
-                    quantitadisponibile = productList.get(position).getQuantitamagazzino();
-                }
-
-                Intent intentinformazioniprodotto = new Intent(mCtx, InformazioniProdottoActivity.class);
-                intentinformazioniprodotto.putExtra("STATO", statoordine);
-                intentinformazioniprodotto.putExtra("POSITION", position);
-                intentinformazioniprodotto.putExtra("NOME", productList.get(position).getNome());
-                intentinformazioniprodotto.putExtra("MARCA", productList.get(position).getMarca());
-                intentinformazioniprodotto.putExtra("PREZZO", productList.get(position).getPrezzovenditaAttuale());
-                intentinformazioniprodotto.putExtra("IMMAGINE", productList.get(position).getImmagine());
-                intentinformazioniprodotto.putExtra("QUANTITA_SELEZIONATA", productList.get(position).getQuantitaOrdinata());
-                intentinformazioniprodotto.putExtra("QUANTITA_DISPONIBILE", quantitadisponibile);
-                intentinformazioniprodotto.putExtra("DESCRIZIONE", productList.get(position).getDescrizione());
-
-                ((Activity) mCtx).startActivityForResult(intentinformazioniprodotto, QUANTITA_SELEZIONATA);
-
-            }
-        });
     }
 
     //restituisce la lunghezza della lista prodotti
@@ -195,14 +162,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         return sum;
     }
 
-    private String[] arrayQuantità(int quantità) {
-        String[] arrayquantità = new String[quantità];
-        for (int i = 0; i < quantità; i++) {
-            arrayquantità[i] = String.valueOf(i + 1);
-        }
-        return arrayquantità;
-    }
-
     public List<Prodotto> getListItems() {
         return productList;
     }
@@ -218,7 +177,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public class ProductViewHolder extends RecyclerView.ViewHolder {
         public ImageView immagine;
         public TextView nome, prezzo, marca, txtQuantita;
-        public Spinner quantita;
+        public Button btnMin;
+        public Button btnAdd;
+        public TextView txtQuantitaOrdinata;
+        public TextView txtQuantitaDisponibile;
+        public TextView txtSeparator;
         public ConstraintLayout viewBackground;
         public ConstraintLayout viewForeground;
 
@@ -229,11 +192,80 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             nome = view.findViewById(R.id.txtNome);
             prezzo = view.findViewById(R.id.txtPrezzo);
             marca = view.findViewById(R.id.txtMarca);
-            quantita = view.findViewById(R.id.spnQuantità);
-            txtQuantita = view.findViewById(R.id.txtQuantità);
+            btnMin = view.findViewById(R.id.btnMin);
+            btnAdd = view.findViewById(R.id.btnAdd);
+            txtQuantita = view.findViewById(R.id.txtQuantita);
+            txtQuantitaOrdinata = view.findViewById(R.id.txtQuantitaOrdinata);
+            txtQuantitaDisponibile = view.findViewById(R.id.txtQuantitaDisponibile);
+            txtSeparator = view.findViewById(R.id.txtSeparator);
 
             viewBackground = itemView.findViewById(R.id.view_background);
             viewForeground = itemView.findViewById(R.id.view_foreground);
+
+            btnMin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int quantita = productList.get(getAdapterPosition()).getQuantitaOrdinata();
+                    if (quantita > 0) {
+                        quantita--;
+                        productList.get(getAdapterPosition()).setQuantitaOrdinata(quantita);
+                        txtQuantitaOrdinata.setText(String.valueOf(quantita));
+                        Intent intent = new Intent("quantita_modificata");
+                        LocalBroadcastManager.getInstance(v.getContext()).sendBroadcast(intent);
+                    }
+                }
+            });
+
+            btnAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int quantita = productList.get(getAdapterPosition()).getQuantitaOrdinata();
+                    if (tipospesa == IN_NEGOZIO && productList.get(getAdapterPosition()).getQuantitanegozio() > quantita) {
+                        quantita++;
+                        productList.get(getAdapterPosition()).setQuantitaOrdinata(quantita);
+                        txtQuantitaOrdinata.setText(String.valueOf(quantita));
+                        Intent intent = new Intent("quantita_modificata");
+                        LocalBroadcastManager.getInstance(v.getContext()).sendBroadcast(intent);
+                    } else if (tipospesa != IN_NEGOZIO && productList.get(getAdapterPosition()).getQuantitamagazzino() > quantita) {
+                        quantita++;
+                        productList.get(getAdapterPosition()).setQuantitaOrdinata(quantita);
+                        txtQuantitaOrdinata.setText(String.valueOf(quantita));
+                        Intent intent = new Intent("quantita_modificata");
+                        LocalBroadcastManager.getInstance(v.getContext()).sendBroadcast(intent);
+                    }
+                }
+            });
+
+            if (descrizione != NO_DESC) {
+                immagine.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        int quantitadisponibile = 0;
+
+                        if (tipospesa == IN_NEGOZIO) {
+                            quantitadisponibile = productList.get(getAdapterPosition()).getQuantitanegozio();
+                        } else {
+                            quantitadisponibile = productList.get(getAdapterPosition()).getQuantitamagazzino();
+                        }
+
+                        Intent intentinformazioniprodotto = new Intent(mCtx, InformazioniProdottoActivity.class);
+                        intentinformazioniprodotto.putExtra("STATO", statoordine);
+                        intentinformazioniprodotto.putExtra("POSITION", getAdapterPosition());
+                        intentinformazioniprodotto.putExtra("NOME", productList.get(getAdapterPosition()).getNome());
+                        intentinformazioniprodotto.putExtra("MARCA", productList.get(getAdapterPosition()).getMarca());
+                        intentinformazioniprodotto.putExtra("PREZZO", productList.get(getAdapterPosition()).getPrezzovenditaAttuale());
+                        intentinformazioniprodotto.putExtra("IMMAGINE", productList.get(getAdapterPosition()).getImmagine());
+                        intentinformazioniprodotto.putExtra("QUANTITA_SELEZIONATA", productList.get(getAdapterPosition()).getQuantitaOrdinata());
+                        intentinformazioniprodotto.putExtra("QUANTITA_DISPONIBILE", quantitadisponibile);
+                        intentinformazioniprodotto.putExtra("DESCRIZIONE", productList.get(getAdapterPosition()).getDescrizione());
+
+                        ((Activity) mCtx).startActivityForResult(intentinformazioniprodotto, QUANTITA_SELEZIONATA);
+
+                    }
+                });
+            }
+
 
         }
     }
