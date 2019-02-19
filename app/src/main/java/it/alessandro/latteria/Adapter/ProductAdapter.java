@@ -83,6 +83,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.nome.setText(prodotto.getNome());
         holder.prezzo.setText(prezzovdec.format(prodotto.getPrezzovenditaAttuale()));
         holder.marca.setText(prodotto.getMarca());
+
         if (tipospesa == IN_NEGOZIO) {
             holder.txtQuantitaDisponibile.setText(String.valueOf(prodotto.getQuantitanegozio()));
         } else {
@@ -103,9 +104,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitanegozio()));
             } else if (tipospesa != IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitamagazzino()) {
                 holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitamagazzino()));
-            } else {
+            } else if (productList.get(position).getQuantitaOrdinata() != 0){
                 //imposta il valore visualizzato nella textview della quantità ordinata sulla quantità letta dal DB
                 holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitaOrdinata()));
+            } else {
+                holder.txtQuantitaOrdinata.setText("1");
+                productList.get(position).setQuantitaOrdinata(1);
             }
         }
 
@@ -206,7 +210,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 @Override
                 public void onClick(View v) {
                     int quantita = productList.get(getAdapterPosition()).getQuantitaOrdinata();
-                    if (quantita > 0) {
+                    if (quantita > 1) {
                         quantita--;
                         productList.get(getAdapterPosition()).setQuantitaOrdinata(quantita);
                         txtQuantitaOrdinata.setText(String.valueOf(quantita));

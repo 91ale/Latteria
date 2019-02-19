@@ -576,7 +576,11 @@ public class SpesaClienteActivity extends AppCompatActivity
         for (int i = 0; i <= productList.size() - 1; i++) {
             if (productList.get(i).getBarCode().equals(scannedbc)) {
                 if (operazione == AGGIUNGI) {
-                    productList.get(i).setQuantitaOrdinata(productList.get(i).getQuantitaOrdinata() + quantita);
+                    if (tipospesa == IN_NEGOZIO && productList.get(i).getQuantitanegozio() > productList.get(i).getQuantitaOrdinata() + quantita) {
+                        productList.get(i).setQuantitaOrdinata(productList.get(i).getQuantitaOrdinata() + quantita);
+                    } else if (tipospesa != IN_NEGOZIO && productList.get(i).getQuantitamagazzino() > productList.get(i).getQuantitaOrdinata() + quantita) {
+                        productList.get(i).setQuantitaOrdinata(quantita);
+                    }
                 } else if (operazione == SOSTITUISCI) {
                     productList.get(i).setQuantitaOrdinata(quantita);
                 }
