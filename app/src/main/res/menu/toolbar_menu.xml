@@ -9,14 +9,8 @@
         app:showAsAction="ifRoom"
         app:actionViewClass="androidx.appcompat.widget.SearchView"/>
     <item
-        android:id="@+id/action_scansiona"
-        android:icon="@drawable/ic_camera_alt_black_24dp"
-        android:orderInCategory="200"
-        android:title="Scansiona codice"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/action_importo"
-        android:orderInCategory="300"
+        android:orderInCategory="200"
         android:title="Importo"
         app:showAsAction="always"
         app:actionLayout="@layout/menu_importo" />

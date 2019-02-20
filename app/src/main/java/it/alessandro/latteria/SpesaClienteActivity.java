@@ -30,6 +30,7 @@ import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -156,6 +157,14 @@ public class SpesaClienteActivity extends AppCompatActivity
             NavigationView navigationView = findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
             toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.baseline_menu_24));
+            FloatingActionButton fabScanCode = findViewById(R.id.fabScanCode);
+            fabScanCode.show();
+            fabScanCode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ScanBarcode();
+                }
+            });
         } else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -232,7 +241,6 @@ public class SpesaClienteActivity extends AppCompatActivity
 
         if (statoordine == COMPLETATO || statoordine == EVASO) {
             menu.findItem(R.id.action_cerca).setVisible(false);
-            menu.findItem(R.id.action_scansiona).setVisible(false);
             menu.findItem(R.id.action_importo).getActionView().findViewById(R.id.imgCart).setVisibility(View.GONE);
         } else {
             //imposta un click listener sul tasto completa spesa
@@ -333,13 +341,6 @@ public class SpesaClienteActivity extends AppCompatActivity
             }
             return true;
         } else if (id == R.id.action_cerca) {
-            return true;
-        } else if (id == R.id.action_scansiona) {
-            Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
-            String messaggio = "Inquadra il codice a barre del prodotto che vuoi acquistare";
-            intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
-            intentscanbarcode.putExtra("MESSAGGIO", messaggio);
-            startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -819,6 +820,14 @@ public class SpesaClienteActivity extends AppCompatActivity
         Volley.newRequestQueue(this).add(stringRequestAdd);
     }
 
+    private void ScanBarcode () {
+        Intent intentscanbarcode = new Intent(this, ScanBarcodeActivity.class);
+        String messaggio = "Inquadra il codice a barre del prodotto che vuoi acquistare";
+        intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
+        intentscanbarcode.putExtra("MESSAGGIO", messaggio);
+        startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
+    }
+
     private void quantitaDialog() {
 
         List<String> prodotti = new ArrayList<>();
@@ -851,7 +860,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                 }
                 f=1;
             }
-
         }
 
         for (String nomeprodotto : prodotti) {
