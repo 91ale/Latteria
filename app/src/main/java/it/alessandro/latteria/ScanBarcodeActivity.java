@@ -4,6 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +35,9 @@ public class ScanBarcodeActivity extends AppCompatActivity {
     private static final String BACK = "back";
 
     SurfaceView surfaceView;
+    SurfaceView transparentView;
+    SurfaceHolder holderTransparent;
+    int  deviceHeight,deviceWidth;
     CameraSource cameraSource;
     BarcodeDetector barcodeDetector;
     TextView txtTipoScansione;
@@ -52,6 +62,34 @@ public class ScanBarcodeActivity extends AppCompatActivity {
         String messaggio = getIntent().getStringExtra("MESSAGGIO");
 
         surfaceView = findViewById(R.id.camerapreview);
+        transparentView = findViewById(R.id.transparentView);
+
+        holderTransparent = transparentView.getHolder();
+        transparentView.getHolder().addCallback(new SurfaceHolder.Callback() {
+
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Draw(surfaceView.getHeight(), surfaceView.getWidth());
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+
+            }
+        });
+
+        holderTransparent.setFormat(PixelFormat.TRANSLUCENT);
+        transparentView.setZOrderMediaOverlay(true);
+
+        //getting the device heigth and width
+        deviceWidth = getScreenWidth();
+        deviceHeight = getScreenHeight();
+
         txtTipoScansione = findViewById(R.id.txtTipoScansione);
 
         if (tipocodice == EAN_13) {
@@ -111,6 +149,30 @@ public class ScanBarcodeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    public static int getScreenWidth() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public static int getScreenHeight() {
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
+
+    private void Draw(int height, int width) {
+
+        float RectLeft, RectTop,RectRight,RectBottom ;
+        Canvas canvas = holderTransparent.lockCanvas(null);
+        Paint  paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.GREEN);
+        paint.setStrokeWidth(3);
+        RectLeft = 200;
+        RectTop = 400 ;
+        RectRight = width - 200;
+        RectBottom = height - 400;
+        Rect rec=new Rect((int) RectLeft,(int)RectTop,(int)RectRight,(int)RectBottom);
+        canvas.drawRect(rec,paint);
+        holderTransparent.unlockCanvasAndPost(canvas);
     }
 }

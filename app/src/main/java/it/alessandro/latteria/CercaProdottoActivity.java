@@ -2,6 +2,8 @@ package it.alessandro.latteria;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
@@ -40,11 +42,22 @@ public class CercaProdottoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cerca_prodotto);
 
+        String nome_categoria_prodotto = getIntent().getStringExtra("NOME_CATEGORIA_PRODOTTO");
+        boolean nome_categoria = getIntent().getBooleanExtra("NOME_CATEGORIA", false);
+        int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Cerca prodotto");
+        if (nome_categoria) {
+            getSupportActionBar().setTitle(nome_categoria_prodotto);
+        } else {
+            getSupportActionBar().setTitle("Risultati per: " + nome_categoria_prodotto);
+        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        ColorDrawable colorDrawable = new ColorDrawable(Color.GREEN);
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_baseline_arrow_back_ios_24px));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,9 +65,6 @@ public class CercaProdottoActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        String nomemarca = getIntent().getStringExtra("NOME_MARCA_PRODOTTO");
-        int tipospesa = getIntent().getIntExtra("TIPO_SPESA", -1);
 
         recyclerView = findViewById(R.id.recycler_view);
 
@@ -64,10 +74,11 @@ public class CercaProdottoActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        getProduct(SELECT_PRODOTTO_DA_NOME, nomemarca, tipospesa);
-        getProduct(SELECT_PRODOTTO_DA_CATEGORIA, nomemarca, tipospesa);
-        //getProduct(SELECT_PRODOTTO_DA_MARCA, nomemarca);
-
+        if (nome_categoria) {
+            getProduct(SELECT_PRODOTTO_DA_CATEGORIA, nome_categoria_prodotto, tipospesa);
+        } else {
+            getProduct(SELECT_PRODOTTO_DA_NOME, nome_categoria_prodotto, tipospesa);
+        }
     }
 
     @Override

@@ -9,12 +9,6 @@
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView"/>
     <item
-        android:id="@+id/action_catalogo"
-        android:icon="@drawable/icona_catalogo"
-        android:orderInCategory="200"
-        android:title="Aggiungi prodotto al catalogo"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_magazzino"
         android:icon="@drawable/icona_magazzino"
         android:orderInCategory="300"

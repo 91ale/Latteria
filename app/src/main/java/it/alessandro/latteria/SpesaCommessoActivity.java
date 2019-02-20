@@ -86,6 +86,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final int EAN_13 = 13;
     private static final String BACK = "back";
     private static final int NO_DESC = 10;
+    private boolean CATEGORIA = false;
 
 
     String loggeduser = "";
@@ -201,8 +202,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchView.setIconified(true);
             searchView.setIconified(true);
-            Intent intentcercaprodotto = new Intent(this, CercaProdottoCommessoActivity.class);
-            intentcercaprodotto.putExtra("NOME_MARCA_PRODOTTO", query);
+            Intent intentcercaprodotto = new Intent(this, CercaProdottoActivity.class);
+            intentcercaprodotto.putExtra("NOME_CATEGORIA_PRODOTTO", query);
             intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
             startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
         }
@@ -270,11 +271,17 @@ public class SpesaCommessoActivity extends AppCompatActivity
                     cursor.moveToPosition(position);
                     searchView.setIconified(true);
                     searchView.setIconified(true);
-                    Intent intentcercaprodotto = new Intent(SpesaCommessoActivity.this, CercaProdottoActivity.class);
-                    intentcercaprodotto.putExtra("NOME_MARCA_PRODOTTO", cursor.getString(cursor.getColumnIndex("NomeProdotto")));
-                    intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
-                    startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
-                    return true;
+                    if (CATEGORIA) {
+                        Intent intentcercaprodotto = new Intent(SpesaCommessoActivity.this, CercaProdottoActivity.class);
+                        intentcercaprodotto.putExtra("NOME_CATEGORIA_PRODOTTO", cursor.getString(cursor.getColumnIndex("NomeProdotto")));
+                        intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
+                        intentcercaprodotto.putExtra("NOME_CATEGORIA", CATEGORIA);
+                        startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
+                        return true;
+                    } else {
+                        getProductFromName(SELECT_PRODOTTO_DA_NOME, cursor.getString(cursor.getColumnIndex("NomeProdotto")), tipospesa);
+                        return true;
+                    }
                 }
 
                 @Override
@@ -477,6 +484,33 @@ public class SpesaCommessoActivity extends AppCompatActivity
         Volley.newRequestQueue(this).add(stringRequest);
     }
 
+    private void getProductFromName(final String urlWebService, String nome, final int tipospesa) {
+        //VolleyLog.DEBUG = true;
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseProductJSON pj = new ParseProductJSON(response);
+                        pj.getProductFromDB();
+                        productList.addAll(pj.getProduct());
+                        //crea l'adapter e lo assegna alla recycleview
+                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                        double totalespesa = mAdapter.sumAllItem();
+                        txtPrezzoTotale.setText(pdec.format(totalespesa));
+                        recyclerView.setAdapter(mAdapter);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //aggiunge la stringrequest alla coda
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
     private void getProductSearch (final String urlWebService, final String nome) {
         //VolleyLog.DEBUG = true;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
@@ -484,6 +518,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                     ArrayList<String> dataList = new ArrayList<String>();
                     @Override
                     public void onResponse(String response) {
+                        CATEGORIA = false;
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         List<Prodotto> productList = pj.getProduct();
@@ -518,6 +553,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                     ArrayList<String> dataList = new ArrayList<String>();
                     @Override
                     public void onResponse(String response) {
+                        CATEGORIA = true;
                         ParserCategoryJSON cj = new ParserCategoryJSON(response);
                         cj.getCategoriaFromDB();
                         dataList.addAll(cj.getCategorie());
@@ -589,7 +625,11 @@ public class SpesaCommessoActivity extends AppCompatActivity
         for (int i = 0; i <= productList.size() - 1; i++) {
             if (productList.get(i).getBarCode().equals(scannedbc)) {
                 if (operazione == AGGIUNGI) {
-                    productList.get(i).setQuantitaOrdinata(productList.get(i).getQuantitaOrdinata() + quantita);
+                    if (tipospesa == IN_NEGOZIO && productList.get(i).getQuantitanegozio() > productList.get(i).getQuantitaOrdinata() + quantita) {
+                        productList.get(i).setQuantitaOrdinata(productList.get(i).getQuantitaOrdinata() + quantita);
+                    } else if (tipospesa != IN_NEGOZIO && productList.get(i).getQuantitamagazzino() > productList.get(i).getQuantitaOrdinata() + quantita) {
+                        productList.get(i).setQuantitaOrdinata(quantita);
+                    }
                 } else if (operazione == SOSTITUISCI) {
                     productList.get(i).setQuantitaOrdinata(quantita);
                 }

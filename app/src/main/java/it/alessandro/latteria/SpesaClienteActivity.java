@@ -87,6 +87,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     private static final int EVASO = 2;
     private static final int EAN_13 = 13;
     private static final String BACK = "back";
+    private boolean CATEGORIA = false;
 
     String loggeduser = "";
     ProductAdapter mAdapter;
@@ -101,7 +102,7 @@ public class SpesaClienteActivity extends AppCompatActivity
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            txtPrezzoTotale.setText(String.valueOf(pdec.format(mAdapter.sumAllItem())));
+            txtPrezzoTotale.setText(pdec.format(mAdapter.sumAllItem()));
         }
     };
 
@@ -204,7 +205,7 @@ public class SpesaClienteActivity extends AppCompatActivity
             searchView.setIconified(true);
             searchView.setIconified(true);
             Intent intentcercaprodotto = new Intent(this, CercaProdottoActivity.class);
-            intentcercaprodotto.putExtra("NOME_MARCA_PRODOTTO", query);
+            intentcercaprodotto.putExtra("NOME_CATEGORIA_PRODOTTO", query);
             intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
             startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
         }
@@ -255,6 +256,7 @@ public class SpesaClienteActivity extends AppCompatActivity
             searchView.setSuggestionsAdapter(cursorAdapter);
             // ottiene il suggerimento cliccato e lo assegna alla casella di ricerca
             searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+
                 @Override
                 public boolean onSuggestionClick(int position) {
 
@@ -264,11 +266,17 @@ public class SpesaClienteActivity extends AppCompatActivity
                     cursor.moveToPosition(position);
                     searchView.setIconified(true);
                     searchView.setIconified(true);
-                    Intent intentcercaprodotto = new Intent(SpesaClienteActivity.this, CercaProdottoActivity.class);
-                    intentcercaprodotto.putExtra("NOME_MARCA_PRODOTTO", cursor.getString(cursor.getColumnIndex("NomeProdotto")));
-                    intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
-                    startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
-                    return true;
+                    if (CATEGORIA) {
+                        Intent intentcercaprodotto = new Intent(SpesaClienteActivity.this, CercaProdottoActivity.class);
+                        intentcercaprodotto.putExtra("NOME_CATEGORIA_PRODOTTO", cursor.getString(cursor.getColumnIndex("NomeProdotto")));
+                        intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
+                        intentcercaprodotto.putExtra("NOME_CATEGORIA", CATEGORIA);
+                        startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
+                        return true;
+                    } else {
+                        getProductFromName(SELECT_PRODOTTO_DA_NOME, cursor.getString(cursor.getColumnIndex("NomeProdotto")), tipospesa);
+                        return true;
+                    }
                 }
 
                 @Override
@@ -276,6 +284,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                     return true;
                 }
             });
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String s) {
@@ -406,7 +415,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                 Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
                 if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitaOrdinata(), SOSTITUISCI) != 1) {
                     productList.add(Prodotto);
-                    visualizzaAiuto();
                     mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
@@ -428,7 +436,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                             ParseProductJSON pj = new ParseProductJSON(response);
                             pj.getProductFromDB();
                             productList.addAll(pj.getProduct());
-                            visualizzaAiuto();
                             //crea l'adapter e lo assegna alla recycleview
                             mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
                             double totalespesa = mAdapter.sumAllItem();
@@ -462,6 +469,33 @@ public class SpesaClienteActivity extends AppCompatActivity
         Volley.newRequestQueue(this).add(stringRequest);
     }
 
+    private void getProductFromName(final String urlWebService, String nome, final int tipospesa) {
+        //VolleyLog.DEBUG = true;
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseProductJSON pj = new ParseProductJSON(response);
+                        pj.getProductFromDB();
+                        productList.addAll(pj.getProduct());
+                        //crea l'adapter e lo assegna alla recycleview
+                        mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
+                        double totalespesa = mAdapter.sumAllItem();
+                        txtPrezzoTotale.setText(pdec.format(totalespesa));
+                        recyclerView.setAdapter(mAdapter);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //aggiunge la stringrequest alla coda
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
     private void getProductSearch (final String urlWebService, final String nome) {
         //VolleyLog.DEBUG = true;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
@@ -469,6 +503,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                     ArrayList<String> dataList = new ArrayList<String>();
                     @Override
                     public void onResponse(String response) {
+                        CATEGORIA = false;
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         List<Prodotto> productList = pj.getProduct();
@@ -503,6 +538,7 @@ public class SpesaClienteActivity extends AppCompatActivity
                     ArrayList<String> dataList = new ArrayList<String>();
                     @Override
                     public void onResponse(String response) {
+                        CATEGORIA = true;
                         ParserCategoryJSON cj = new ParserCategoryJSON(response);
                         cj.getCategoriaFromDB();
                         dataList.addAll(cj.getCategorie());
@@ -544,7 +580,6 @@ public class SpesaClienteActivity extends AppCompatActivity
 
             // rimuove l'oggetto dalla recycler e dalla lista prodotti
             mAdapter.removeItem(viewHolder.getAdapterPosition());
-            visualizzaAiuto();
             double totalespesa = mAdapter.sumAllItem();
             txtPrezzoTotale.setText(pdec.format(totalespesa));
 
@@ -559,7 +594,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                     // ANNULLA selezionato, ripristino il prodotto e lo elimino dalla lista dei rimossi
                     mAdapter.restoreItem(deletedItem, deletedIndex);
                     rproductList.remove(rproductList.size()-1);
-                    visualizzaAiuto();
                     double totalespesa = mAdapter.sumAllItem();
                     txtPrezzoTotale.setText(pdec.format(totalespesa));
                 }
@@ -722,7 +756,6 @@ public class SpesaClienteActivity extends AppCompatActivity
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         productList.addAll(pj.getProduct());
-                        visualizzaAiuto();
                         quantitaDialog();
                         //crea l'adapter e lo assegna alla recycleview
                         mAdapter = new ProductAdapter(SpesaClienteActivity.this, productList, tipospesa, statoordine);
@@ -784,27 +817,6 @@ public class SpesaClienteActivity extends AppCompatActivity
 
         //adding our stringrequest to queue
         Volley.newRequestQueue(this).add(stringRequestAdd);
-    }
-
-    private void visualizzaAiuto() {
-        TextView txtAiuto = findViewById(R.id.txtAiuto);
-        TextView txtAiuto2 = findViewById(R.id.txtAiuto2);
-        TextView txtAiuto3 = findViewById(R.id.txtAiuto3);
-        ImageView imgSearch = findViewById(R.id.imgSearch);
-        ImageView imgScan = findViewById(R.id.imgScan);
-        if (productList.size() == 0) {
-            txtAiuto.setVisibility(View.VISIBLE);
-            txtAiuto2.setVisibility(View.VISIBLE);
-            txtAiuto3.setVisibility(View.VISIBLE);
-            imgSearch.setVisibility(View.VISIBLE);
-            imgScan.setVisibility(View.VISIBLE);
-        } else {
-            txtAiuto.setVisibility(View.GONE);
-            txtAiuto2.setVisibility(View.GONE);
-            txtAiuto3.setVisibility(View.GONE);
-            imgSearch.setVisibility(View.GONE);
-            imgScan.setVisibility(View.GONE);
-        }
     }
 
     private void quantitaDialog() {

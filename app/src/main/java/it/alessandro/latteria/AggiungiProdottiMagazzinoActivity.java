@@ -42,6 +42,7 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
 
     private static final int RC_SCANNED_BC = 100;
     private static final String BACK = "back";
+    private static final int AGGIUNGI_PRODOTTO_AL_CATALOGO = 101;
 
     String scannedbc;
 
@@ -89,7 +90,6 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
         intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
         intentscanbarcode.putExtra("MESSAGGIO", messaggio);
         startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
-
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -102,6 +102,8 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                 //se il prodotto scansionato esiste già in catalogo ne estraggo le info altrimenti propongo l'aggiunta
                 getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
             }
+        } else if (requestCode == AGGIUNGI_PRODOTTO_AL_CATALOGO) {
+            getProduct(SELECT_PRODOTTO_IN_CATALOGO, scannedbc);
         }
     }
 
@@ -124,27 +126,9 @@ public class AggiungiProdottiMagazzinoActivity extends AppCompatActivity {
                             txtMarcaProdotto.setText(productList.get(0).getMarca());
                             txtCategoriaProdotto.setText(productList.get(0).getCategoria());
                         } else {
-                            AlertDialog alertDialog = new AlertDialog.Builder(AggiungiProdottiMagazzinoActivity.this).create();
-                            alertDialog.setTitle("Prodotto non presente in catalogo");
-                            alertDialog.setMessage("Il prodotto scansionato non è presente in catalogo, si desidera aggiungerlo ora?");
-                            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SI",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            Intent intentaggiungicatalogo = new Intent(getBaseContext(), AggiungiProdottiAlCatalogoActivity.class);
-                                            intentaggiungicatalogo.putExtra("BAR_CODE", scannedbc);
-                                            startActivity(intentaggiungicatalogo);
-                                            finish();
-                                        }
-                                    });
-                            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            finish();
-                                        }
-                                    });
-                            alertDialog.show();
+                            Intent intentaggiungicatalogo = new Intent(getBaseContext(), AggiungiProdottiAlCatalogoActivity.class);
+                            intentaggiungicatalogo.putExtra("BAR_CODE", scannedbc);
+                            startActivityForResult(intentaggiungicatalogo, AGGIUNGI_PRODOTTO_AL_CATALOGO);
                         }
                     }
                 },

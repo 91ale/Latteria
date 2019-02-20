@@ -102,14 +102,22 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (tipospesa == IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitanegozio())
             {
                 holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitanegozio()));
+                Intent intent = new Intent("quantita_modificata");
+                LocalBroadcastManager.getInstance(holder.itemView.getContext()).sendBroadcast(intent);
             } else if (tipospesa != IN_NEGOZIO && productList.get(position).getQuantitaOrdinata() > prodotto.getQuantitamagazzino()) {
                 holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitamagazzino()));
+                Intent intent = new Intent("quantita_modificata");
+                LocalBroadcastManager.getInstance(holder.itemView.getContext()).sendBroadcast(intent);
             } else if (productList.get(position).getQuantitaOrdinata() != 0){
                 //imposta il valore visualizzato nella textview della quantità ordinata sulla quantità letta dal DB
                 holder.txtQuantitaOrdinata.setText(String.valueOf(productList.get(position).getQuantitaOrdinata()));
+                Intent intent = new Intent("quantita_modificata");
+                LocalBroadcastManager.getInstance(holder.itemView.getContext()).sendBroadcast(intent);
             } else {
                 holder.txtQuantitaOrdinata.setText("1");
                 productList.get(position).setQuantitaOrdinata(1);
+                Intent intent = new Intent("quantita_modificata");
+                LocalBroadcastManager.getInstance(holder.itemView.getContext()).sendBroadcast(intent);
             }
         }
 

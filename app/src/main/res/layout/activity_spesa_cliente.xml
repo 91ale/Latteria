@@ -19,69 +19,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/txtAiuto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="Premere i simboli"
-            android:textAlignment="textStart"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.23"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.466" />
-
-        <ImageView
-            android:id="@+id/imgSearch"
-            android:layout_width="34sp"
-            android:layout_height="34sp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/txtAiuto"
-            app:layout_constraintStart_toEndOf="@+id/txtAiuto"
-            app:srcCompat="@drawable/ic_baseline_search_24px" />
-
-        <TextView
-            android:id="@+id/txtAiuto2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="e"
-            android:textAlignment="viewStart"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintBaseline_toBaselineOf="@+id/txtAiuto"
-            app:layout_constraintStart_toEndOf="@+id/imgSearch" />
-
-        <TextView
-            android:id="@+id/txtAiuto3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="presenti nella barra sottostante al bordo superiore dello schermo per aggiungere prodotti alla spesa tramite ricerca per nome o scansione del codice a barre"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtAiuto" />
-
-        <ImageView
-            android:id="@+id/imgScan"
-            android:layout_width="34sp"
-            android:layout_height="34sp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/imgSearch"
-            app:layout_constraintStart_toEndOf="@+id/txtAiuto2"
-            app:srcCompat="@drawable/ic_camera_alt_black_24dp" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
