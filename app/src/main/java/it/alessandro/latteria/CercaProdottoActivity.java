@@ -121,8 +121,9 @@ public class CercaProdottoActivity extends AppCompatActivity {
                         mAdapter.setClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(final View v) {
+                                final Prodotto tempprodotto = productList.get(recyclerView.getChildAdapterPosition(v));
                                 FloatingActionButton fab = findViewById(R.id.fabAggiungiProdotto);
-                                if (recyclerView.indexOfChild(v) == selectedproduct && fab.getVisibility() == View.VISIBLE) {
+                                if (recyclerView.getChildAdapterPosition(v) == selectedproduct && fab.getVisibility() == View.VISIBLE) {
                                     final View viewForeground = ((ProductAdapter.ProductViewHolder) recyclerView.getChildViewHolder(v)).viewForeground;
                                     viewForeground.setBackgroundColor(Color.WHITE);
                                     fab.hide();
@@ -132,12 +133,12 @@ public class CercaProdottoActivity extends AppCompatActivity {
                                     viewForeground.setBackgroundColor(Color.parseColor("#D3D3D3"));
                                     fab.show();
                                 }
-                                selectedproduct = recyclerView.indexOfChild(v);
+                                selectedproduct = recyclerView.getChildAdapterPosition(v);
                                 viewForegroundOld = ((ProductAdapter.ProductViewHolder) recyclerView.getChildViewHolder(v)).viewForeground;
                                 fab.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View z) {
-                                        sproductList.add(productList.get(recyclerView.indexOfChild(v)));
+                                        sproductList.add(tempprodotto);
                                     }
                                 });
                             }
