@@ -256,6 +256,8 @@ public class GestioneProdottiActivity extends AppCompatActivity
     private void getProduct(final String urlWebService, String nomeprodotto) {
         //VolleyLog.DEBUG = true;
         productList.clear();
+        nomeprodotto = nomeprodotto.replace("'", "''");
+        nomeprodotto = nomeprodotto.replace("&", "''&");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nomeprodotto,
                 new Response.Listener<String>() {
                     @Override

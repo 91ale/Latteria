@@ -13,6 +13,7 @@ import it.alessandro.latteria.InformazioniProdottoActivity;
 import it.alessandro.latteria.Object.Prodotto;
 import it.alessandro.latteria.R;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private int tipospesa;
     private int statoordine;
     private int descrizione;
+    View.OnClickListener mClickListener;
+    int selectedProduct = -1;
 
     public ProductAdapter(Context mCtx, List<Prodotto> productList, int tipospesa, int statoordine, int descrizione) {
         this.mCtx = mCtx;
@@ -61,6 +64,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.statoordine = statoordine;
     }
 
+    public void setClickListener(View.OnClickListener callback) {
+        mClickListener = callback;
+    }
+
     //impostazione layout della recycleview
     @Override
     public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -68,11 +75,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         View view = inflater.inflate(R.layout.product_list_row, null);
         RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         view.setLayoutParams(lp);
-        return new ProductViewHolder(view);
+        final ProductViewHolder mViewHolder = new ProductViewHolder(view);
+        if (statoordine == RICERCA) {
+            mViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mClickListener.onClick(view);
+                    selectedProduct = mViewHolder.getAdapterPosition();
+                }
+            });
+        }
+        return mViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ProductViewHolder holder, final int position) {
+    public void onBindViewHolder(final ProductViewHolder holder, final int position) {
 
         Prodotto prodotto = productList.get(position);
 
@@ -182,8 +199,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.productList = productList;
     }
 
-    public interface OnItemClicked {
-        void onItemClick(int position);
+
+    public interface RecyclerViewClickListener {
+        void onClick(View view, int position);
     }
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -277,7 +295,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     }
                 });
             }
-
 
         }
     }

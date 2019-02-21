@@ -92,7 +92,6 @@
         <activity android:name=".AggiungiProdottiNegozioActivity" />
         <activity android:name=".AggiungiProdottiMagazzinoActivity" />
         <activity android:name=".ModificaProdottoActivity" />
-        <activity android:name=".CercaProdottoCommessoActivity" />
         <activity android:name=".OrdiniOnlineActivity" />
         <activity android:name=".OrdiniConclusiActivity" />
         <activity android:name=".StatisticheActivity"

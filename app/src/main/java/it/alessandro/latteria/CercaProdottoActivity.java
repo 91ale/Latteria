@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,9 +23,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.view.View.GONE;
 
 public class CercaProdottoActivity extends AppCompatActivity {
 
@@ -35,7 +39,10 @@ public class CercaProdottoActivity extends AppCompatActivity {
     private static final int RICERCA = 5;
     ProductAdapter mAdapter;
     private List<Prodotto> productList = new ArrayList<>();
+    private ArrayList<Prodotto> sproductList = new ArrayList<>();
     private RecyclerView recyclerView;
+    private int selectedproduct = 0;
+    View viewForegroundOld = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +69,16 @@ public class CercaProdottoActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("PRODOTTI_SELEZIONATI", sproductList);
+                setResult(Activity.RESULT_OK, intent);
                 finish();
             }
         });
 
         recyclerView = findViewById(R.id.recycler_view);
 
-        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa);
+        mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa, RICERCA);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -108,6 +118,30 @@ public class CercaProdottoActivity extends AppCompatActivity {
                         productList.addAll(pj.getProduct());
                         //crea l'adapter e lo assegna alla recycleview
                         mAdapter = new ProductAdapter(CercaProdottoActivity.this, productList, tipospesa, RICERCA);
+                        mAdapter.setClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(final View v) {
+                                FloatingActionButton fab = findViewById(R.id.fabAggiungiProdotto);
+                                if (recyclerView.indexOfChild(v) == selectedproduct && fab.getVisibility() == View.VISIBLE) {
+                                    final View viewForeground = ((ProductAdapter.ProductViewHolder) recyclerView.getChildViewHolder(v)).viewForeground;
+                                    viewForeground.setBackgroundColor(Color.WHITE);
+                                    fab.hide();
+                                } else {
+                                    if (viewForegroundOld != null) viewForegroundOld.setBackgroundColor(Color.WHITE);
+                                    final View viewForeground = ((ProductAdapter.ProductViewHolder) recyclerView.getChildViewHolder(v)).viewForeground;
+                                    viewForeground.setBackgroundColor(Color.parseColor("#D3D3D3"));
+                                    fab.show();
+                                }
+                                selectedproduct = recyclerView.indexOfChild(v);
+                                viewForegroundOld = ((ProductAdapter.ProductViewHolder) recyclerView.getChildViewHolder(v)).viewForeground;
+                                fab.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View z) {
+                                        sproductList.add(productList.get(recyclerView.indexOfChild(v)));
+                                    }
+                                });
+                            }
+                        });
                         recyclerView.setAdapter(mAdapter);
                     }
                 },

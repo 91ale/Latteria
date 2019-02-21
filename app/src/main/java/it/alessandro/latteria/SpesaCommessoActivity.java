@@ -75,7 +75,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
 
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
-    private static final int PRODOTTO_SELEZIONATO = 103;
+    private static final int PRODOTTI_SELEZIONATI = 103;
     private static final int QR = 14;
     private static final int RC_SCANNED_QR = 105;
     private static final int AGGIUNGI = 1;
@@ -214,7 +214,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
             Intent intentcercaprodotto = new Intent(this, CercaProdottoActivity.class);
             intentcercaprodotto.putExtra("NOME_CATEGORIA_PRODOTTO", query);
             intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
-            startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
+            startActivityForResult(intentcercaprodotto, PRODOTTI_SELEZIONATI);
         }
     }
 
@@ -282,10 +282,13 @@ public class SpesaCommessoActivity extends AppCompatActivity
                         intentcercaprodotto.putExtra("NOME_CATEGORIA_PRODOTTO", cursor.getString(cursor.getColumnIndex("NomeProdotto")));
                         intentcercaprodotto.putExtra("TIPO_SPESA", tipospesa);
                         intentcercaprodotto.putExtra("NOME_CATEGORIA", CATEGORIA);
-                        startActivityForResult(intentcercaprodotto, PRODOTTO_SELEZIONATO);
+                        startActivityForResult(intentcercaprodotto, PRODOTTI_SELEZIONATI);
                         return true;
                     } else {
-                        getProductFromName(SELECT_PRODOTTO_DA_NOME, cursor.getString(cursor.getColumnIndex("NomeProdotto")), tipospesa);
+                        //se il prodotto è stato aggiunto precedentemente alla lista lo incrementa di 1
+                        int exist = checkExistInList(cursor.getString(cursor.getColumnIndex("Barcode")), 1, AGGIUNGI);
+                        //altrimenti acquisico le info dal DB e lo aggiungo alla lista
+                        if (exist == 0) getProductFromName(SELECT_PRODOTTO_DA_NOME, cursor.getString(cursor.getColumnIndex("NomeProdotto")), tipospesa);
                         return true;
                     }
                 }
@@ -411,15 +414,17 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 txtPrezzoTotale.setText(pdec.format(totalespesa));
                 recyclerView.setAdapter(mAdapter);
             }
-        } else if (requestCode == PRODOTTO_SELEZIONATO) {
+        } else if (requestCode == PRODOTTI_SELEZIONATI) {
             if (resultCode == Activity.RESULT_OK) {
-                Prodotto Prodotto = (Prodotto) data.getSerializableExtra("PRODOTTO_SELEZIONATO");
-                if (checkExistInList(Prodotto.getBarCode(), Prodotto.getQuantitaOrdinata(), SOSTITUISCI) != 1) {
-                    productList.add(Prodotto);
-                    mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine, NO_DESC);
-                    double totalespesa = mAdapter.sumAllItem();
-                    txtPrezzoTotale.setText(pdec.format(totalespesa));
-                    recyclerView.setAdapter(mAdapter);
+                ArrayList<Prodotto> sproductList = (ArrayList<Prodotto>) data.getSerializableExtra("PRODOTTI_SELEZIONATI");
+                for (Prodotto prodotto : sproductList){
+                    if (checkExistInList(prodotto.getBarCode(), prodotto.getQuantitaOrdinata(), SOSTITUISCI) != 1) {
+                        productList.add(prodotto);
+                        mAdapter = new ProductAdapter(SpesaCommessoActivity.this, productList, tipospesa, statoordine);
+                        double totalespesa = mAdapter.sumAllItem();
+                        txtPrezzoTotale.setText(pdec.format(totalespesa));
+                        recyclerView.setAdapter(mAdapter);
+                    }
                 }
             }
         } else if (requestCode == RC_SCANNED_QR) {
@@ -485,6 +490,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
 
     private void getProductFromName(final String urlWebService, String nome, final int tipospesa) {
         //VolleyLog.DEBUG = true;
+        nome = nome.replace("'", "''");
+        nome = nome.replace("&", "''&");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
                 new Response.Listener<String>() {
                     @Override
@@ -514,22 +521,18 @@ public class SpesaCommessoActivity extends AppCompatActivity
         //VolleyLog.DEBUG = true;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlWebService + nome,
                 new Response.Listener<String>() {
-                    ArrayList<String> dataList = new ArrayList<String>();
                     @Override
                     public void onResponse(String response) {
                         CATEGORIA = false;
                         ParseProductJSON pj = new ParseProductJSON(response);
                         pj.getProductFromDB();
                         List<Prodotto> productList = pj.getProduct();
-                        for(int i=0; i < productList.size(); i++){
-                            dataList.add(productList.get(i).getNome());
-                        }
-                        strArrData = dataList.toArray(new String[dataList.size()]);
-                        // Filter data
-                        final MatrixCursor mc = new MatrixCursor(new String[]{ BaseColumns._ID, "NomeProdotto" });
-                        for (int i=0; i<strArrData.length; i++) {
-                            if (strArrData[i].toLowerCase().startsWith(nome.toLowerCase()))
-                                mc.addRow(new Object[] {i, strArrData[i]});
+                        final MatrixCursor mc = new MatrixCursor(new String[]{ BaseColumns._ID, "NomeProdotto", "Barcode" });
+                        for (Prodotto prodotto : productList) {
+                            if (prodotto.getNome().toLowerCase().startsWith(nome.toLowerCase()))
+                                mc.newRow()
+                                        .add("NomeProdotto", prodotto.getNome())
+                                        .add("Barcode", prodotto.getBarCode());
                         }
                         cursorAdapter.changeCursor(mc);
                     }
