@@ -13,6 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import it.alessandro.latteria.Object.Utente;
 
 import android.util.Log;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -68,16 +72,17 @@ public class LoginActivity extends AppCompatActivity {
         boolean isConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
 
-        AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-        alertDialog.setTitle("Controlla connessione");
-        alertDialog.setMessage("Verifica la connessione ad internet e riavvia l'applicazione");
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        builder.setTitle("Connessione non disponibile");
+        builder.setMessage("Verifica la connessione ad internet e riprova");
+        builder.setNeutralButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         checkConnection();
                     }
                 });
+        AlertDialog alertDialog = builder.create();
 
         if (!isConnected) {
             alertDialog.show();
