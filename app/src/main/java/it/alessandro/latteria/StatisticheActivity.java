@@ -1,11 +1,13 @@
 package it.alessandro.latteria;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -13,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LegendRenderer;
@@ -54,7 +57,15 @@ public class StatisticheActivity extends AppCompatActivity
         graph.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                datePickerDialog.show();
+                FloatingActionButton fabCloseGraph = findViewById(R.id.fabCloseGraph);
+                if (fabCloseGraph.getVisibility() == View.GONE) {
+                    fabCloseGraph.show();
+                    fabCloseGraph.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) { finish();
+                        }
+                    });
+                } else { fabCloseGraph.hide(); }
             }
         });
 
@@ -73,7 +84,6 @@ public class StatisticheActivity extends AppCompatActivity
         });
 
         graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
-
 
         // as we use dates as labels, the human rounding to nice readable numbers
         // is not necessary
@@ -219,5 +229,6 @@ public class StatisticheActivity extends AppCompatActivity
         // legenda
         graph.getLegendRenderer().setVisible(true);
         graph.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+
     }
 }

@@ -65,13 +65,11 @@ public class OrdineCompletatoActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (tipospesa == ONLINE) {
                     setOrdineCompletato(idordine, "Evaso");
-                    Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
-                    startActivity(intentordinionline);
                 } else {
                     setOrdineCompletato(idordine, "Completato");
-                    Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
-                    startActivity(intentordinionline);
                 }
+                Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                startActivity(intentordinionline);
             }
         });
 

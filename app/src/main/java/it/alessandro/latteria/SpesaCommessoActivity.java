@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -18,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cursoradapter.widget.CursorAdapter;
@@ -39,6 +41,8 @@ import it.alessandro.latteria.Parser.ParserCategoryJSON;
 import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 
 import android.provider.BaseColumns;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,6 +76,10 @@ public class SpesaCommessoActivity extends AppCompatActivity
     private static final String SELECT_UTENTE_DA_IDUTENTE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_user_from_UID.php";
     private static final String SELECT_PRODOTTO_DA_NOME = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_product_from_name.php?Nome=";
     private static final String SELECT_CATEGORIE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_category.php";
+    private static final String SELECT_INDIRIZZO_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/select_address_from_orderid.php?";
+    private static final String UPDATE_STATO_ORDINE_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_order_status_from_orderid.php?";
+    private static final String UPDATE_QUANTITA_DA_IDORDINE = "http://ec2-18-185-88-246.eu-central-1.compute.amazonaws.com/update_quantity_from_orderid.php?";
+
 
     private static final int RC_SCANNED_BC = 100;
     private static final int QUANTITA_SELEZIONATA = 102;
@@ -326,17 +334,19 @@ public class SpesaCommessoActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_importo) {
-            aggiungiOrdine("In attesa di pagamento", idordine, new SpesaCommessoActivity.VolleyCallBack() {
-                @Override
-                public void onSuccess(String response) {
-
-                }
-            });
-            Intent intentordinecompletato = new Intent(getApplicationContext(), OrdineCompletatoActivity.class);
-            intentordinecompletato.putExtra("ID_ORDINE", idordine);
-            intentordinecompletato.putExtra("TOTALE_ORDINE", mAdapter.sumAllItem());
-            intentordinecompletato.putExtra("TIPO_SPESA", tipospesa);
-            startActivity(intentordinecompletato);
+            if (tipospesa == ONLINE) {
+                evadiOrdine();
+            } else {
+                aggiungiOrdine("In corso", idordine, new SpesaCommessoActivity.VolleyCallBack() {
+                    @Override
+                    public void onSuccess(String response) { }
+                });
+                Intent intentordinecompletato = new Intent(getApplicationContext(), OrdineCompletatoActivity.class);
+                intentordinecompletato.putExtra("ID_ORDINE", idordine);
+                intentordinecompletato.putExtra("TOTALE_ORDINE", mAdapter.sumAllItem());
+                intentordinecompletato.putExtra("TIPO_SPESA", tipospesa);
+                startActivity(intentordinecompletato);
+            }
             return true;
         } else if (id == R.id.action_cerca) {
             return true;
@@ -814,6 +824,108 @@ public class SpesaCommessoActivity extends AppCompatActivity
         intentscanbarcode.putExtra("TIPO_CODICE", EAN_13);
         intentscanbarcode.putExtra("MESSAGGIO", messaggio);
         startActivityForResult(intentscanbarcode, RC_SCANNED_BC);
+    }
+
+    private void dialogEvasioneOrdine (Utente cliente) {
+        AlertDialog alertDialog = new AlertDialog.Builder(SpesaCommessoActivity.this).create();
+        alertDialog.setTitle("Confermare l'evasione dell'ordine?");
+        String s1 = "Dettagli di consegna:";
+        String s2 = "Destinatario: " + "<b>" + cliente.getnome() + " " + cliente.getcognome() + "</b>";
+        String s3 = "Indirizzo: " + "<b>" + cliente.getindirizzo() + "</b>";
+        String s4 = "Importo totale: " + "<b>" + txtPrezzoTotale.getText() + "</b>";
+        Spanned strMessage = Html.fromHtml("<br>" + s1 + "<br><br>" + s2 + "<br>" + s3 + "<br>" + s4);
+        alertDialog.setMessage(strMessage);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SI",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (tipospesa == ONLINE) {
+                            setOrdineCompletato(idordine, "Evaso");
+                        } else {
+                            setOrdineCompletato(idordine, "Completato");
+                        }
+                        Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                        startActivity(intentordinionline);
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    private void evadiOrdine () {
+
+        String queryurl = SELECT_INDIRIZZO_DA_IDORDINE + "IDOrdine=" + idordine;
+
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ParseUserJSON pj = new ParseUserJSON(response);
+                        pj.getUserFromDB();
+                        Utente cliente = pj.getUtente();
+                        dialogEvasioneOrdine(cliente);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
+
+    }
+
+    private void setOrdineCompletato(int idordine, String stato) {
+
+        //modifico lo stato dell'ordine
+        String queryurl = UPDATE_STATO_ORDINE_DA_IDORDINE + "IDOrdine=" + idordine + "&" +
+                "Stato=" + stato;
+
+        StringRequest stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
+
+        //aggiorno le quantità in giacenza in base a quelle ordinate
+        queryurl = UPDATE_QUANTITA_DA_IDORDINE + "IDOrdine=" + idordine;
+
+        stringRequestAdd = new StringRequest(Request.Method.GET, queryurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequestAdd);
     }
 
 }
