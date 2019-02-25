@@ -12,34 +12,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-
-import com.android.volley.AuthFailureError;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import it.alessandro.latteria.Adapter.ProductAdapter;
-import it.alessandro.latteria.Object.Prodotto;
-import it.alessandro.latteria.Object.Utente;
-import it.alessandro.latteria.Parser.ParseProductJSON;
-import it.alessandro.latteria.Parser.ParseUserJSON;
-import it.alessandro.latteria.Parser.ParserCategoryJSON;
-import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
-
 import android.provider.BaseColumns;
 import android.text.Html;
 import android.text.Spanned;
@@ -50,6 +22,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -58,12 +31,37 @@ import com.android.volley.toolbox.Volley;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import it.alessandro.latteria.Adapter.ProductAdapter;
+import it.alessandro.latteria.Object.Prodotto;
+import it.alessandro.latteria.Object.Utente;
+import it.alessandro.latteria.Parser.ParseProductJSON;
+import it.alessandro.latteria.Parser.ParseUserJSON;
+import it.alessandro.latteria.Parser.ParserCategoryJSON;
+import it.alessandro.latteria.Utility.RecyclerItemTouchHelper;
 
 public class SpesaCommessoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
@@ -334,7 +332,8 @@ public class SpesaCommessoActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_importo) {
-            if (tipospesa == ONLINE) {
+            evadiOrdine();
+            /*if (tipospesa == ONLINE) {
                 evadiOrdine();
             } else {
                 aggiungiOrdine("In corso", idordine, new SpesaCommessoActivity.VolleyCallBack() {
@@ -346,7 +345,7 @@ public class SpesaCommessoActivity extends AppCompatActivity
                 intentordinecompletato.putExtra("TOTALE_ORDINE", mAdapter.sumAllItem());
                 intentordinecompletato.putExtra("TIPO_SPESA", tipospesa);
                 startActivity(intentordinecompletato);
-            }
+            }*/
             return true;
         } else if (id == R.id.action_cerca) {
             return true;
@@ -828,33 +827,53 @@ public class SpesaCommessoActivity extends AppCompatActivity
 
     private void dialogEvasioneOrdine (Utente cliente) {
         AlertDialog alertDialog = new AlertDialog.Builder(SpesaCommessoActivity.this).create();
-        alertDialog.setTitle("Confermare l'evasione dell'ordine?");
-        String s1 = "Dettagli di consegna:";
-        String s2 = "Destinatario: " + "<b>" + cliente.getnome() + " " + cliente.getcognome() + "</b>";
-        String s3 = "Indirizzo: " + "<b>" + cliente.getindirizzo() + "</b>";
-        String s4 = "Importo totale: " + "<b>" + txtPrezzoTotale.getText() + "</b>";
-        Spanned strMessage = Html.fromHtml("<br>" + s1 + "<br><br>" + s2 + "<br>" + s3 + "<br>" + s4);
-        alertDialog.setMessage(strMessage);
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SI",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (tipospesa == ONLINE) {
+        if (tipospesa == ONLINE) {
+            alertDialog.setTitle("Confermare l'evasione dell'ordine?");
+            String s1 = "Dettagli di consegna:";
+            String s2 = "Destinatario: " + "<b>" + cliente.getnome() + " " + cliente.getcognome() + "</b>";
+            String s3 = "Indirizzo: " + "<b>" + cliente.getindirizzo() + "</b>";
+            String s4 = "Importo totale: " + "<b>" + txtPrezzoTotale.getText() + "</b>";
+            Spanned strMessage = Html.fromHtml("<br>" + s1 + "<br><br>" + s2 + "<br>" + s3 + "<br>" + s4);
+            alertDialog.setMessage(strMessage);
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SI",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
                             setOrdineCompletato(idordine, "Evaso");
-                        } else {
-                            setOrdineCompletato(idordine, "Completato");
+                            Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                            startActivity(intentordinionline);
+                            dialog.dismiss();
+                            finish();
                         }
-                        Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
-                        startActivity(intentordinionline);
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                    });
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+        } else {
+            alertDialog.setTitle("Confermare il pagamento dell'ordine?");
+            String s1 = "Importo totale dovuto dal cliente: " + "<b>" + txtPrezzoTotale.getText() + "</b>";
+            Spanned strMessage = Html.fromHtml("<br>" + s1);
+            alertDialog.setMessage(strMessage);
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "SI",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            setOrdineCompletato(idordine, "Completato");
+                            Intent intentordinionline = new Intent(getApplicationContext(), OrdiniOnlineActivity.class);
+                            startActivity(intentordinionline);
+                            dialog.dismiss();
+                            finish();
+                        }
+                    });
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+        }
+
         alertDialog.show();
     }
 
